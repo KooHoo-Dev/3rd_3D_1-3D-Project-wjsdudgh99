@@ -9,7 +9,7 @@ using UnityEngine;
 namespace CliBridge
 {
     // Editor가 열려 있는 동안 127.0.0.1:17890에서 UnityCli의 요청을 받는 작은 HTTP 서버.
-    // 읽기 전용 기능(GET /ping, GET /scenes)만 제공한다.
+    // 읽기(GET /ping, GET /scenes)와 씬 생성(POST /scenes/new, X-UnityCli 헤더 필수)을 제공한다.
     // Unity API는 메인 스레드에서만 쓸 수 있으므로, 요청은 큐에 넣고 EditorApplication.update에서 처리한다.
     [InitializeOnLoad]
     public static class CliHttpServer
@@ -30,6 +30,12 @@ namespace CliBridge
         private class ErrorResult
         {
             public string error;
+        }
+
+        [Serializable]
+        private class NewSceneRequest
+        {
+            public string name;
         }
 
         // Editor가 켜지거나 스크립트가 다시 로드될 때마다 자동으로 실행된다.
@@ -112,12 +118,8 @@ namespace CliBridge
             try
             {
                 string path = context.Request.Url.AbsolutePath;
-                if (context.Request.HttpMethod != "GET")
-                {
-                    status = 405;
-                    body = JsonUtility.ToJson(new ErrorResult { error = "GET 요청만 지원합니다." });
-                }
-                else if (path == "/ping")
+                string method = context.Request.HttpMethod;
+                if (method == "GET" && path == "/ping")
                 {
                     var ping = new PingResult
                     {
@@ -126,14 +128,18 @@ namespace CliBridge
                     };
                     body = JsonUtility.ToJson(ping);
                 }
-                else if (path == "/scenes")
+                else if (method == "GET" && path == "/scenes")
                 {
                     body = JsonUtility.ToJson(SceneLister.FindScenes());
+                }
+                else if (method == "POST" && path == "/scenes/new")
+                {
+                    body = NewScene(context.Request, out status);
                 }
                 else
                 {
                     status = 404;
-                    body = JsonUtility.ToJson(new ErrorResult { error = $"알 수 없는 경로입니다: {path}" });
+                    body = JsonUtility.ToJson(new ErrorResult { error = $"지원하지 않는 요청입니다: {method} {path}" });
                 }
             }
             catch (Exception e)
@@ -155,6 +161,44 @@ namespace CliBridge
             catch (Exception)
             {
                 // 클라이언트가 먼저 연결을 끊은 경우 무시
+            }
+        }
+
+        // POST /scenes/new  본문: {"name":"씬이름"}  헤더: X-UnityCli: 1
+        private static string NewScene(HttpListenerRequest request, out int status)
+        {
+            // 웹페이지는 이 헤더를 붙여 보낼 수 없으므로, 브라우저를 통한 몰래 요청을 막는다
+            if (request.Headers["X-UnityCli"] != "1")
+            {
+                status = 403;
+                return JsonUtility.ToJson(new ErrorResult { error = "X-UnityCli 헤더가 필요합니다." });
+            }
+
+            NewSceneRequest req;
+            try
+            {
+                using (var reader = new StreamReader(request.InputStream, Encoding.UTF8))
+                {
+                    req = JsonUtility.FromJson<NewSceneRequest>(reader.ReadToEnd());
+                }
+            }
+            catch (Exception)
+            {
+                status = 400;
+                return JsonUtility.ToJson(new ErrorResult { error = "요청 본문이 올바른 JSON이 아닙니다." });
+            }
+
+            try
+            {
+                SceneCreator.Result result = SceneCreator.Create(req?.name);
+                Debug.Log($"[CliBridge] 새 씬을 만들었습니다: {result.path}");
+                status = 200;
+                return JsonUtility.ToJson(result);
+            }
+            catch (SceneCreator.CreateException e)
+            {
+                status = e.Code;
+                return JsonUtility.ToJson(new ErrorResult { error = e.Message });
             }
         }
     }
