@@ -130,6 +130,8 @@ namespace CliBridge
                 }
                 else if (method == "GET" && path == "/scenes")
                 {
+                    // Unity 창이 비활성 상태면 바깥에서 바뀐 파일을 아직 모를 수 있으므로 먼저 갱신한다
+                    AssetDatabase.Refresh();
                     body = JsonUtility.ToJson(SceneLister.FindScenes());
                 }
                 else if (method == "POST" && path == "/scenes/new")
@@ -190,6 +192,8 @@ namespace CliBridge
 
             try
             {
+                // 바깥에서 지워지거나 생긴 파일을 반영한 뒤 중복·폴더 여부를 판단한다
+                AssetDatabase.Refresh();
                 SceneCreator.Result result = SceneCreator.Create(req?.name);
                 Debug.Log($"[CliBridge] 새 씬을 만들었습니다: {result.path}");
                 status = 200;
