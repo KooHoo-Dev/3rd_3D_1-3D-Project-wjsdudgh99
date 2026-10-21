@@ -431,7 +431,7 @@ MonoBehaviour:
   popup: {fileID: 5294936552595278258}
   continueButton: {fileID: 8648057711419490029}
   mainMenuButton: {fileID: 8705514000795250441}
-  pauseKey: 30
+  pauseKey: 60
 --- !u!1 &5294936552595278258
 GameObject:
   m_ObjectHideFlags: 0

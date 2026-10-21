@@ -4,12 +4,12 @@ using UnityEngine.EventSystems;
 
 namespace YoureRight
 {
-    // 마우스 좌클릭 시 카메라에서 Raycast를 발사해 정답/오답을 판정합니다.
+    // 마우스 좌클릭 시 커서가 있는 화면의 카메라에서 Raycast를 발사해 정답/오답을 판정합니다.
     // 맞은 Collider에 AnswerTarget이 있으면 정답, 그 외(빈 곳 포함)는 오답입니다.
     public class ClickInteractor : MonoBehaviour
     {
         [Header("Ref")]
-        [SerializeField] private Camera targetCamera;
+        [SerializeField] private Camera[] targetCameras;           // 분할 화면의 카메라들 (비워 두면 Main Camera 하나만 사용)
 
         [Header("Raycast")]
         [SerializeField] private float maxDistance = 100f;
@@ -21,20 +21,27 @@ namespace YoureRight
         // 오답일 때 (커서 화면 좌표, 맞은 Collider - 빈 곳이면 null)
         public event Action<Vector2, Collider> OnWrongClicked;
 
+        private StageManager stageManager;
+
         private void Awake()
         {
-            if (targetCamera == null) targetCamera = Camera.main;
+            if (targetCameras == null || targetCameras.Length == 0) targetCameras = new[] { Camera.main };
+            stageManager = FindAnyObjectByType<StageManager>();
         }
 
         private void Update()
         {
-            // 일시정지 중이거나 UI 위를 클릭한 경우에는 판정하지 않습니다.
+            // 일시정지 중이거나, 스테이지를 클리어했거나, UI 위를 클릭한 경우에는 판정하지 않습니다.
             if (Time.timeScale == 0f) return;
+            if (stageManager != null && stageManager.IsCleared) return;
             if (SimpleInput.GetMouseButtonDown(SimpleInput.MouseButton.Left) == false) return;
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
             Vector2 screenPos = SimpleInput.GetMousePosition();
-            Ray ray = targetCamera.ScreenPointToRay(screenPos);
+            Camera cam = FindCameraAt(screenPos);
+            if (cam == null) return;
+
+            Ray ray = cam.ScreenPointToRay(screenPos);
 
             if (Physics.Raycast(ray, out RaycastHit hit, maxDistance, clickableLayers, QueryTriggerInteraction.Ignore))
             {
@@ -44,6 +51,16 @@ namespace YoureRight
             {
                 HandleWrong(screenPos, null);
             }
+        }
+
+        // 커서가 어느 카메라의 화면 영역(Viewport Rect) 안에 있는지 찾습니다.
+        private Camera FindCameraAt(Vector2 screenPos)
+        {
+            foreach (Camera cam in targetCameras)
+            {
+                if (cam != null && cam.pixelRect.Contains(screenPos)) return cam;
+            }
+            return null;
         }
 
         private void HandleHit(RaycastHit hit, Vector2 screenPos)

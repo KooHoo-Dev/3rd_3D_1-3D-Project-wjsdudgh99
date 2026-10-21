@@ -5,7 +5,7 @@
 
 ## 프로젝트 개요
 
-- **게임**: 'You're Right'. 두 3D 디오라마를 오빗 카메라로 돌려 보며 **완전히 똑같은 쌍둥이 오브젝트**를 찾는 관찰형 퍼즐 게임입니다. 스테이지는 튜토리얼 1개와 메인 3개이고, 스톱워치로 기록을 잽니다.
+- **게임**: 'You're Right'. 좌우 분할 화면에 나란히 보이는 두 3D 디오라마를 오빗 카메라로 함께 돌려 보며 **완전히 똑같은 쌍둥이 오브젝트**를 찾는 관찰형 퍼즐 게임입니다. 스테이지는 튜토리얼 1개와 메인 3개이고, 스톱워치로 기록을 잽니다.
 - **기획서**: `Assets/01. Docs/3D 프로젝트 기획서 - 1 수정본.md`. 게임 작업 전에 먼저 읽습니다.
 - **작업 폴더**: `Assets/100. 3D Project-1/` (Scenes, Scripts, Prefabs, Materials, Audio, UI)
 - **환경**: Unity 6000.3.15f1, URP 17, Cinemachine 3.1.7(사용 안 함), Test Framework 1.6.0
@@ -29,9 +29,9 @@
 모든 씬은 아래 루트 그룹을 사용합니다. 그룹 오브젝트는 빈 Transform이고 원점에 둡니다(위치·회전 0, 스케일 1). 쓰지 않는 그룹도 빈 채로 둡니다.
 
 ```
-Cameras   — Main Camera
+Cameras   — Main Camera(왼쪽 화면, OrbitCameraController), Right Camera(오른쪽 화면)
 Lights    — Directional Light 등 조명
-Stage     — 디오라마 지형, CameraPivot
+Stage     — 디오라마 지형, CameraPivot Left(x -100), CameraPivot Right(x 100)
 Props     — 정답 쌍(AnswerPair/AnswerTarget), 오답 미끼 오브젝트
 UI        — Canvas, EventSystem
 Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자식 오브젝트로 (StageManager, ClickInteractor)
@@ -44,7 +44,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 사용자가 씬 파일을 복사해서 기존 씬을 덮어쓰면 `.unity.meta`의 GUID가 새로 만들어집니다. 그러면 `ProjectSettings/EditorBuildSettings.asset`이 예전 GUID를 가리키게 됩니다. 실제로 두 번 있었던 일입니다.
 
 - 씬을 확인할 때마다 `git diff`로 `.meta`의 GUID가 바뀌었는지 봅니다. 바뀌었고 새 GUID를 참조하는 곳이 없으면 `git checkout -- <meta>`로 되돌리고 Unity를 갱신합니다.
-- 스테이지가 아닌 씬(Menu, Result)에 스테이지 전용 컴포넌트가 남아 있는지도 확인합니다. Pivot이 빈 `OrbitCameraController`는 Play하자마자 NullReferenceException을 냅니다.
+- 스테이지가 아닌 씬(Menu, Result)에 스테이지 전용 컴포넌트가 남아 있는지도 확인합니다. Views가 빈 `OrbitCameraController`는 Play하자마자 "Views에 카메라와 Pivot을 지정해 주세요" 오류를 내고 꺼집니다.
 - 사용자가 저장했다고 해도 씬 파일 수정 시각이 바뀌지 않았다면, 저장하지 않았거나 Play 모드 중에 수정한 것입니다.
 
 ### 4. UI 규칙
@@ -70,6 +70,8 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 - `GET /scenes`: `AssetDatabase.Refresh()`를 한 뒤 씬 목록을 돌려줍니다. **바깥에서 스크립트를 고친 뒤 컴파일을 일으킬 때** 이 요청을 씁니다.
 - `POST /scenes/new`: `Assets/CliScenes`에 새 씬을 만듭니다.
 
+이 브리지는 GitHub에 올라가 있어서 학원과 집 어디서나 동작합니다. 브리지를 호출하는 명령줄 프로그램 `C:\VR_9_Unity\UnityCli`는 원격 저장소가 없는 별도 저장소라 집 컴퓨터에만 있습니다. 게임 작업에는 필요 없습니다.
+
 컴파일 결과는 `%LOCALAPPDATA%/Unity/Editor/Editor.log`에서 `Tundra build success`나 `error CS`를 찾아 확인합니다. 학습 코드에서 나오는 기존 경고(CollisionSensor, B_Blacksmith 등)는 무시합니다.
 
 ## 게임 코드 구조 (`Assets/100. 3D Project-1/Scripts`, namespace `YoureRight`)
@@ -79,18 +81,25 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | Core | `GameManager` | `SingletonBase`를 상속하고 DontDestroyOnLoad로 유지됩니다. 씬에 배치하지 않아도 처음 호출될 때 자동으로 만들어집니다. 스테이지별 기록을 모으고, 다음 씬 이동·메인 메뉴·종료를 맡습니다. 씬을 바꿀 때 `timeScale`을 1로 되돌립니다. |
 | Core | `SceneNames` | Build Settings에 등록된 씬 이름 상수입니다. 씬 파일 이름을 바꾸면 여기도 고칩니다. |
 | Core | `TimeFormatter` | 시간을 `00:00.00` 형식으로 바꿉니다. 반올림하지 않고 내림합니다. |
-| Camera | `OrbitCameraController` | Pivot 기준으로 공전합니다. WASD 또는 우클릭 드래그로 회전하고 휠로 줌하며, Pitch는 -80 ~ 80입니다. `timeScale` 0이면 입력을 무시합니다. |
-| Interaction | `ClickInteractor` | 좌클릭 Raycast로 `AnswerTarget`이면 정답, 그 밖은 오답으로 판정합니다. 이벤트는 `OnAnswerClicked`, `OnWrongClicked`입니다. 일시정지 중이거나 UI 위를 클릭했으면 무시합니다. |
+| Camera | `OrbitCameraController` | 분할 화면의 카메라 2대를 각자의 Pivot 기준으로 같은 각도·거리로 공전시킵니다. `Views`(카메라 + Pivot 쌍)를 씬에서 연결하고, 0번 카메라의 배치 위치가 시작 시점입니다. WASD 또는 우클릭 드래그로 회전하고 휠로 줌하며, Pitch는 -80 ~ 80입니다. `timeScale` 0이면 입력을 무시합니다. |
+| Interaction | `ClickInteractor` | 좌클릭한 쪽 화면의 카메라(`Target Cameras` 중 커서가 Viewport 안에 있는 것)에서 Raycast를 쏴서 `AnswerTarget`이면 정답, 그 밖은 오답으로 판정합니다. 이벤트는 `OnAnswerClicked`, `OnWrongClicked`입니다. 일시정지 중, 스테이지 클리어 후(`StageManager.IsCleared`), UI 위 클릭은 무시합니다. |
 | Stage | `AnswerTarget` / `AnswerPair` | 쌍둥이 2개를 묶어서 한쪽만 클릭해도 쌍 전체를 정답 처리합니다. 이벤트는 `OnFound`입니다. |
 | Stage | `StageManager` | 씬의 `AnswerPair`를 자동으로 모읍니다. 진행도·클리어 이벤트를 보내고 `StageTimer`를 돌립니다. 클리어 후 1.5초 뒤 `GameManager.ReportStageClear`를 부릅니다. |
 | Stage | `StageTimer` | 일반 C# 클래스로 된 스톱워치입니다. `Time.deltaTime`을 쓰므로 일시정지 중에는 멈춥니다. |
 | UI | `StageHUD` | 스테이지 이름, 스톱워치(`<mspace>`로 숫자 폭 고정), `( 2 / 5 )` 진행도를 표시합니다. |
-| UI | `PauseController` | P 키로 일시정지합니다. 항상 켜져 있는 루트에 붙이고, 자식 Popup만 켜고 끕니다. `Prefabs/Pause Menu.prefab`에 들어 있습니다. |
+| UI | `PauseController` | Esc 키로 일시정지합니다(키 값은 프리팹에 저장된 `pauseKey`). 클리어 후에는 새로 일시정지하지 않습니다. 항상 켜져 있는 루트에 붙이고, 자식 Popup만 켜고 끕니다. `Prefabs/Pause Menu.prefab`에 들어 있습니다. |
 | UI | `MainMenuUI` / `ResultUI` | 메뉴의 Start/Exit 버튼과, 결과 화면의 기록 목록·Total Time·패널 등장 연출입니다. 버튼 OnClick은 코드에서 연결합니다. |
 | Utils | `SimpleInput`, `SingletonBase` | `19. Legacy/9. Utils`에서 복사해 네임스페이스를 바꾼 파일입니다. |
 
 **씬** (Build Settings 순서): `00. Menu` → `10. Stage Tutorial` → `11. Stage 1` → `12. Stage 2` → `13. Stage 3` → `90. Result`
-- 스테이지 씬 4개는 같은 구조이고, `StageManager`의 Stage Name만 다릅니다. 지금은 큐브로 된 테스트용 정답 쌍(`AnswerPair_01`)이 배치되어 있습니다.
+- 스테이지 씬 4개는 같은 구조이고, `StageNameText`의 글자와 `StageManager`의 Stage Name만 다릅니다. 지금은 큐브로 된 테스트용 정답 쌍(`AnswerPair_01`: 왼쪽 섬 `Cube`, 오른쪽 섬 `Cube (2)`)과 섬마다 미끼 큐브 하나가 배치되어 있습니다.
+- 분할 화면 구성: `Main Camera`는 Viewport X 0 / W 0.5, `Right Camera`는 X 0.5 / W 0.5이고, 둘 다 Far Clip 60입니다. `MainCamera` 태그와 Audio Listener는 `Main Camera`에만 있습니다. Canvas 첫 자식인 `Divider`(Width 4, 위아래 stretch, Raycast Target 끔)가 화면을 가르고, `TimerText` 바로 위의 `TimerBackground`가 분할선을 가립니다.
+- **예비 씬**: `Scenes/Template/Stage Template.unity`. 스테이지 씬과 같은 구성이고 이름만 `New Stage`입니다. Build Settings와 `SceneNames`에는 넣지 않습니다. 스테이지를 늘릴 때는 다음 순서로 합니다.
+  1. Project 창에서 Ctrl + D로 복제합니다(새 GUID가 생김). `Scenes`로 옮기고 이름을 `14. Stage 4`처럼 바꿉니다.
+  2. `StageNameText`와 `StageManager`의 이름을 바꿉니다.
+  3. Build Settings에서 마지막 스테이지 다음, `90. Result` 앞에 추가합니다.
+  4. `SceneNames.Stages` 배열에 씬 이름을 추가합니다. 빠뜨리면 그 씬을 건너뛰고 Result로 넘어갑니다.
+- 씬 구성을 한꺼번에 바꿀 때는 한 씬을 고친 뒤 `.unity` 파일 내용만 다른 씬에 복사하고 이름 2줄을 고치는 방법을 씁니다. `.meta`는 건드리지 않으므로 GUID가 유지됩니다.
 
 ## 진행 상황
 
@@ -102,6 +111,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | 4 | StageTimer + StageHUD | ✅ |
 | 5 | GameManager + 씬 흐름 (Menu → Stage 4개 → Result) | ✅ |
 | 6 | PauseController + Pause Menu 프리팹 | ✅ |
+| 6.5 | 좌우 분할 화면 전환(카메라 2대 동기화, 클릭 카메라 선택, 분할선), 일시정지 키 Esc, 클리어 후 입력 차단, 예비 씬 | ✅ |
 | 7 | 시각 피드백: 정답 Emission(황금빛) + 반짝임 파티클, 오답 흔들림 + 커서 위치 붉은 X(0.5초) | **다음** |
 | 8 | AudioManager: BGM(씬을 넘어가도 이어짐), 정답·오답·버튼 SFX | |
 | 9 | 스테이지별 조명 연출: 형광등 깜빡임(10초마다, 1초 이내), 일출·일몰 Directional Light, 네온 Emission | |

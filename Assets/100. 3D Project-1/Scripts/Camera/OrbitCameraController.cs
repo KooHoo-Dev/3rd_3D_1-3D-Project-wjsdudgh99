@@ -2,14 +2,23 @@ using UnityEngine;
 
 namespace YoureRight
 {
-    // 두 디오라마의 중앙(pivot)을 축으로 공전하는 오빗 카메라 입니다.
+    // 분할 화면의 카메라들을 각자의 디오라마 중앙(pivot) 기준으로 똑같이 공전시키는 오빗 카메라 입니다.
     // 회전: WASD 키 또는 마우스 우클릭 드래그
     // 줌: 마우스 휠
     // 입력은 목표값(target)에 쌓고, 실제 카메라는 목표값을 부드럽게 따라갑니다.
+    // 모든 카메라가 같은 각도·거리를 쓰므로 두 화면이 항상 같은 시점으로 보입니다.
     public class OrbitCameraController : MonoBehaviour
     {
+        // 카메라 한 대와 그 카메라가 바라볼 중심점 한 쌍
+        [System.Serializable]
+        private class OrbitView
+        {
+            public Transform camera;
+            public Transform pivot;
+        }
+
         [Header("Ref")]
-        [SerializeField] private Transform pivot;
+        [SerializeField] private OrbitView[] views;              // 0번 카메라의 배치 위치가 시작 시점이 됩니다
 
         [Header("Rotate")]
         [SerializeField] private float keyRotateSpeed = 90f;     // WASD 입력시 초당 회전 각도
@@ -37,8 +46,15 @@ namespace YoureRight
 
         private void Awake()
         {
-            // 씬에 배치해 둔 카메라 위치에서 시작하도록 현재 각도와 거리를 역으로 계산합니다.
-            Vector3 offset = transform.position - pivot.position;
+            if (views == null || views.Length == 0 || views[0].camera == null || views[0].pivot == null)
+            {
+                Debug.LogError("[OrbitCameraController] Views에 카메라와 Pivot을 지정해 주세요.", this);
+                enabled = false;
+                return;
+            }
+
+            // 0번 카메라를 씬에 배치해 둔 위치에서 시작하도록 현재 각도와 거리를 역으로 계산합니다.
+            Vector3 offset = views[0].camera.position - views[0].pivot.position;
             distance = Mathf.Clamp(offset.magnitude, distanceMin, distanceMax);
             pitch = Mathf.Clamp(Mathf.Asin(offset.y / offset.magnitude) * Mathf.Rad2Deg, pitchMin, pitchMax);
             yaw = Mathf.Atan2(-offset.x, -offset.z) * Mathf.Rad2Deg;
@@ -46,6 +62,9 @@ namespace YoureRight
             targetYaw = yaw;
             targetPitch = pitch;
             targetDistance = distance;
+
+            // 첫 프레임부터 모든 카메라가 같은 시점을 갖도록 바로 맞춥니다.
+            ApplyTransform();
         }
 
         private void Update()
@@ -94,8 +113,15 @@ namespace YoureRight
         private void ApplyTransform()
         {
             Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
-            transform.position = pivot.position + rotation * new Vector3(0f, 0f, -distance);
-            transform.rotation = rotation;
+            Vector3 offset = rotation * new Vector3(0f, 0f, -distance);
+
+            foreach (OrbitView view in views)
+            {
+                if (view.camera == null || view.pivot == null) continue;
+
+                view.camera.position = view.pivot.position + offset;
+                view.camera.rotation = rotation;
+            }
         }
 
         private void OnValidate()
@@ -106,11 +132,16 @@ namespace YoureRight
 
         private void OnDrawGizmosSelected()
         {
-            if (pivot == null) return;
+            if (views == null) return;
 
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(pivot.position, 0.3f);
-            Gizmos.DrawLine(transform.position, pivot.position);
+            foreach (OrbitView view in views)
+            {
+                if (view.camera == null || view.pivot == null) continue;
+
+                Gizmos.DrawWireSphere(view.pivot.position, 0.3f);
+                Gizmos.DrawLine(view.camera.position, view.pivot.position);
+            }
         }
     }
 }
