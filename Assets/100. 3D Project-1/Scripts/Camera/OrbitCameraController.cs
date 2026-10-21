@@ -1,4 +1,3 @@
-using Study.Utilities;
 using UnityEngine;
 
 namespace YoureRight

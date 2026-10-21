@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace YoureRight
@@ -6,9 +7,11 @@ namespace YoureRight
     // 한 스테이지의 진행 상황을 관리합니다.
     // 씬에 있는 AnswerPair를 모두 모아 찾은 개수를 세고, 전부 찾으면 클리어를 알립니다.
     // 스테이지 시작과 동시에 스톱워치를 돌리고, 클리어 순간에 멈춥니다.
+    // 클리어 후 잠시 기다렸다가 GameManager에 기록을 넘기면 다음 씬으로 이동합니다.
     public class StageManager : MonoBehaviour
     {
         [SerializeField] private string stageName = "Tutorial";   // HUD에 그대로 표시됩니다 (예: Stage 2 - Snowy Night)
+        [SerializeField] private float nextStageDelay = 1.5f;     // 클리어 후 다음 씬으로 넘어가기 전 대기 시간 (연출을 보여줄 시간)
 
         private AnswerPair[] pairs;
         private int foundCount;
@@ -70,7 +73,15 @@ namespace YoureRight
                 timer.Stop();
                 Debug.Log($"[StageManager] {stageName} 클리어! 기록: {TimeFormatter.Format(timer.Elapsed)}");
                 OnStageCleared?.Invoke();
+                StartCoroutine(ReportClearRoutine());
             }
+        }
+
+        private IEnumerator ReportClearRoutine()
+        {
+            // 기록은 클리어 순간에 이미 멈췄으므로, 대기 시간은 기록에 포함되지 않습니다.
+            yield return new WaitForSeconds(nextStageDelay);
+            GameManager.Instance.ReportStageClear(stageName, timer.Elapsed);
         }
     }
 }
