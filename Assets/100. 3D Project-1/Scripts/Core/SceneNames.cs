@@ -6,13 +6,14 @@ namespace YoureRight
         public const string Menu = "00. Menu";
         public const string Result = "90. Result";
 
-        // 플레이 순서대로 나열합니다. (튜토리얼 + 메인 3개)
+        // 플레이 순서대로 나열합니다. (튜토리얼 + 월드 1)
+        // 월드 2·3을 추가하면 "21. Stage 2-1" ~ "33. Stage 3-3"을 이어서 넣습니다.
         public static readonly string[] Stages =
         {
             "10. Stage Tutorial",
-            "11. Stage 1",
-            "12. Stage 2",
-            "13. Stage 3",
+            "11. Stage 1-1",
+            "12. Stage 1-2",
+            "13. Stage 1-3",
         };
     }
 }
