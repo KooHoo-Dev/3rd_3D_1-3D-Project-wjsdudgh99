@@ -5,7 +5,8 @@ using UnityEngine.EventSystems;
 namespace YoureRight
 {
     // 마우스 좌클릭 시 커서가 있는 화면의 카메라에서 Raycast를 발사해 정답/오답을 판정합니다.
-    // 맞은 Collider에 AnswerTarget이 있으면 정답, 그 외(빈 곳 포함)는 오답입니다.
+    // 맞은 Collider에 AnswerTarget이 있으면 정답, 다른 물체면 오답입니다.
+    // 빈 곳(아무 Collider도 맞지 않음)을 클릭하면 아무 반응도 하지 않습니다.
     public class ClickInteractor : MonoBehaviour
     {
         [Header("Ref")]
@@ -18,7 +19,7 @@ namespace YoureRight
         // 정답 쌍을 새로 찾았을 때 (클릭한 오브젝트)
         public event Action<AnswerTarget> OnAnswerClicked;
 
-        // 오답일 때 (커서 화면 좌표, 맞은 Collider - 빈 곳이면 null)
+        // 오답일 때 (커서 화면 좌표, 맞은 Collider)
         public event Action<Vector2, Collider> OnWrongClicked;
 
         private StageManager stageManager;
@@ -43,14 +44,10 @@ namespace YoureRight
 
             Ray ray = cam.ScreenPointToRay(screenPos);
 
-            if (Physics.Raycast(ray, out RaycastHit hit, maxDistance, clickableLayers, QueryTriggerInteraction.Ignore))
-            {
-                HandleHit(hit, screenPos);
-            }
-            else
-            {
-                HandleWrong(screenPos, null);
-            }
+            // 빈 곳을 클릭했으면 정답도 오답도 아니므로 아무것도 하지 않습니다.
+            if (Physics.Raycast(ray, out RaycastHit hit, maxDistance, clickableLayers, QueryTriggerInteraction.Ignore) == false) return;
+
+            HandleHit(hit, screenPos);
         }
 
         // 커서가 어느 카메라의 화면 영역(Viewport Rect) 안에 있는지 찾습니다.
@@ -81,8 +78,7 @@ namespace YoureRight
 
         private void HandleWrong(Vector2 screenPos, Collider hitCollider)
         {
-            string hitName = hitCollider != null ? hitCollider.name : "빈 곳";
-            Debug.Log($"[ClickInteractor] 오답: {hitName}");
+            Debug.Log($"[ClickInteractor] 오답: {hitCollider.name}");
             OnWrongClicked?.Invoke(screenPos, hitCollider);
         }
     }

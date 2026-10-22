@@ -34,7 +34,7 @@ Lights    — Directional Light 등 조명
 Stage     — 디오라마 지형, CameraPivot Left(x -100), CameraPivot Right(x 100)
 Props     — 정답 쌍(AnswerPair/AnswerTarget), 오답 미끼 오브젝트
 UI        — Canvas, EventSystem
-Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자식 오브젝트로 (StageManager, ClickInteractor)
+Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자식 오브젝트로 (StageManager, ClickInteractor, ClickFeedback)
 ```
 
 새 루트 그룹을 추가하려면 먼저 사용자에게 묻습니다.
@@ -82,7 +82,9 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | Core | `SceneNames` | Build Settings에 등록된 씬 이름 상수입니다. 씬 파일 이름을 바꾸면 여기도 고칩니다. |
 | Core | `TimeFormatter` | 시간을 `00:00.00` 형식으로 바꿉니다. 반올림하지 않고 내림합니다. |
 | Camera | `OrbitCameraController` | 분할 화면의 카메라 2대를 각자의 Pivot 기준으로 같은 각도·거리로 공전시킵니다. `Views`(카메라 + Pivot 쌍)를 씬에서 연결하고, 0번 카메라의 배치 위치가 시작 시점입니다. WASD 또는 우클릭 드래그로 회전하고 휠로 줌하며, Pitch는 -80 ~ 80입니다. `timeScale` 0이면 입력을 무시합니다. |
-| Interaction | `ClickInteractor` | 좌클릭한 쪽 화면의 카메라(`Target Cameras` 중 커서가 Viewport 안에 있는 것)에서 Raycast를 쏴서 `AnswerTarget`이면 정답, 그 밖은 오답으로 판정합니다. 이벤트는 `OnAnswerClicked`, `OnWrongClicked`입니다. 일시정지 중, 스테이지 클리어 후(`StageManager.IsCleared`), UI 위 클릭은 무시합니다. |
+| Interaction | `ClickInteractor` | 좌클릭한 쪽 화면의 카메라(`Target Cameras` 중 커서가 Viewport 안에 있는 것)에서 Raycast를 쏴서 `AnswerTarget`이면 정답, 다른 물체면 오답으로 판정합니다. **빈 곳(Collider 없음) 클릭은 아무 반응도 하지 않습니다**(이벤트·로그 없음, 사용자 요청). 이벤트는 `OnAnswerClicked`, `OnWrongClicked`(맞은 Collider는 항상 null이 아님)입니다. 일시정지 중, 스테이지 클리어 후(`StageManager.IsCleared`), UI 위 클릭은 무시합니다. |
+| Feedback | `ClickFeedback` | `Managers/ClickFeedback`에 붙입니다. 정답일 때 쌍둥이 둘의 머티리얼 복사본에 황금빛 Emission을 올렸다가(0.25초) 은은하게 남기고(0.6초 동안 `Glow Settle Intensity`까지), 기본 색도 금색 쪽으로 섞습니다(Emission 없는 셰이더 대비). 렌더러 윗면에 `Sparkle` 파티클을 만듭니다. **오답 흔들림은 보류 중**이라 `[보류]` 표시와 함께 `//` 주석으로 막혀 있고, 주석을 풀면 다시 동작합니다. |
+| Feedback | `WrongClickMarker` | 스테이지 `Canvas`에 붙입니다. 오답 물체를 클릭하면 커서 위치에 `Prefabs/Wrong Marker`(빨간 TMP `X`, Raycast Target 끔)를 띄우고, 살짝 튀었다가 0.5초 안에 사라지게 합니다. |
 | Stage | `AnswerTarget` / `AnswerPair` | 쌍둥이 2개를 묶어서 한쪽만 클릭해도 쌍 전체를 정답 처리합니다. 이벤트는 `OnFound`입니다. |
 | Stage | `StageManager` | 씬의 `AnswerPair`를 자동으로 모읍니다. 진행도·클리어 이벤트를 보내고 `StageTimer`를 돌립니다. 클리어 후 1.5초 뒤 `GameManager.ReportStageClear`를 부릅니다. |
 | Stage | `StageTimer` | 일반 C# 클래스로 된 스톱워치입니다. `Time.deltaTime`을 쓰므로 일시정지 중에는 멈춥니다. |
@@ -112,14 +114,19 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | 5 | GameManager + 씬 흐름 (Menu → Stage 4개 → Result) | ✅ |
 | 6 | PauseController + Pause Menu 프리팹 | ✅ |
 | 6.5 | 좌우 분할 화면 전환(카메라 2대 동기화, 클릭 카메라 선택, 분할선), 일시정지 키 Esc, 클리어 후 입력 차단, 예비 씬 | ✅ |
-| 7 | 시각 피드백: 정답 Emission(황금빛) + 반짝임 파티클, 오답 흔들림 + 커서 위치 붉은 X(0.5초) | **다음** |
-| 8 | AudioManager: BGM(씬을 넘어가도 이어짐), 정답·오답·버튼 SFX | |
+| 7 | 시각 피드백: 정답 Emission(황금빛) + 반짝임 파티클, 오답 물체 클릭 시 커서 위치 붉은 X(0.5초). 빈 곳 클릭은 무반응, 오답 흔들림은 보류 | ✅ |
+| 8 | AudioManager: BGM(씬을 넘어가도 이어짐), 정답·오답·버튼 SFX | **다음** |
 | 9 | 스테이지별 조명 연출: 형광등 깜빡임(10초마다, 1초 이내), 일출·일몰 Directional Light, 네온 Emission | |
 | 10 | 실제 디오라마 제작 (Synty 등), 스테이지마다 정답 3~5쌍 배치, 마무리 | |
 
-**7단계 메모**: `ClickInteractor.OnAnswerClicked` / `OnWrongClicked`와 `AnswerPair.OnFound` 이벤트를 구독해서 만들고, 기존 코드는 거의 건드리지 않습니다.
+**7단계 메모 (완료)**
+- 반짝임 파티클 `Prefabs/Sparkle`: Burst 25, Sphere 0.3, Start Speed 7~9, Lifetime 0.6~1, Limit Velocity Dampen 0.2, Start Size 0.2~0.4, Billboard, Rotation over Lifetime 180°/s, Size over Lifetime 1→0. **퍼지는 거리 ≈ Start Speed × Lifetime**(Dampen을 켜면 그보다 짧아짐)이고, 거리는 Start Speed로 조절합니다.
+- 기본 파티클 텍스처는 가장자리가 부드러워서 흐릿하게 보입니다. 그래서 `Materials/Textures/T_SparkleStar.png`(PowerShell System.Drawing으로 만든 128px 4갈래 별, 흰색)와 `Materials/M_Sparkle.mat`(URP `ParticlesUnlit.mat`을 복사해 텍스처만 교체)를 씁니다. Stretched Billboard는 별 모양을 찌그러뜨리므로 쓰지 않습니다.
+- 빌드에서는 쓰는 머티리얼이 없는 `_EMISSION` 셰이더 변형이 빠질 수 있습니다. 그래서 10단계에서 **정답 오브젝트 머티리얼은 Emission을 켜고 색을 검정으로** 둡니다. 그래도 빠지면 기본 색 섞기만 보입니다.
+
+**8단계 메모**: BGM은 씬을 넘어가도 끊기지 않게 DontDestroyOnLoad로 유지합니다. 정답·오답 SFX는 `ClickInteractor` 이벤트를, 버튼 SFX는 UI 버튼을 연결합니다. 일시정지 중 BGM을 어떻게 할지(유지, 볼륨 낮춤, 정지)는 사용자에게 묻습니다.
 
 **나중에 할 일**
 - Play 모드 자동 테스트를 만듭니다(`Assets/100. 3D Project-1/Tests/PlayMode/` + asmdef). 확인할 흐름: Menu → Start → 스테이지 4개 정답 처리 → Result 기록 4개와 Total 합계 → 메인 메뉴 → 재시작 시 기록 초기화, 오답·중복 클릭은 무시. 사용자가 집 컴퓨터에서 확인을 마친 뒤 진행하기로 했습니다. CliBridge에 `/tests/run` 엔드포인트를 추가해 Claude가 직접 실행하는 방식을 제안해 둔 상태입니다.
 - 디오라마 아래쪽에도 문제를 둘 예정입니다. 섬 바닥은 두께가 있는 메시로 만들고(Plane은 아래에서 투명하게 보임), 아랫면이 어둡지 않게 조명을 보강합니다.
-- 지형에 Collider가 생기면 `Terrain` 레이어로 옮기고 `ClickInteractor`의 Clickable Layers에서 뺍니다.
+- 지형에 Collider가 생기면 `Terrain` 레이어로 옮기고 `ClickInteractor`의 Clickable Layers에서 뺍니다. 그래야 지형 클릭도 빈 곳처럼 무반응이 되고 X가 뜨지 않습니다.
