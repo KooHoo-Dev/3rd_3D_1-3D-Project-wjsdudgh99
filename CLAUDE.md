@@ -34,7 +34,7 @@ Lights    — Directional Light 등 조명
 Stage     — 디오라마 지형, CameraPivot Left(x -100), CameraPivot Right(x 100)
 Props     — 정답 쌍(AnswerPair/AnswerTarget), 오답 미끼 오브젝트
 UI        — Canvas, EventSystem
-Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자식 오브젝트로 (StageManager, ClickInteractor, ClickFeedback)
+Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자식 오브젝트로 (StageManager, ClickInteractor, ClickFeedback, SoundManager 프리팹)
 ```
 
 새 루트 그룹을 추가하려면 먼저 사용자에게 묻습니다.
@@ -91,6 +91,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | UI | `StageHUD` | 스테이지 이름, 스톱워치(`<mspace>`로 숫자 폭 고정), `( 2 / 5 )` 진행도를 표시합니다. |
 | UI | `PauseController` | Esc 키로 일시정지합니다(키 값은 프리팹에 저장된 `pauseKey`). 클리어 후에는 새로 일시정지하지 않습니다. 항상 켜져 있는 루트에 붙이고, 자식 Popup만 켜고 끕니다. `Prefabs/Pause Menu.prefab`에 들어 있습니다. |
 | UI | `MainMenuUI` / `ResultUI` | 메뉴의 Start/Exit 버튼과, 결과 화면의 기록 목록·Total Time·패널 등장 연출입니다. 버튼 OnClick은 코드에서 연결합니다. |
+| Sound | `SoundManager` | 사용자가 뼈대(필드·함수 이름)를 쓰고 Claude가 보완했습니다. `SingletonBase`를 상속하고, `Prefabs/SoundManager.prefab`을 **모든 씬의 `Managers` 아래**에 둡니다. 처음 것만 살아남고(이때 `SetParent(null)`로 루트로 빠진 뒤 DontDestroyOnLoad), 다음 씬의 복제본은 경고 없이 사라집니다. AudioSource 2개(BGM 반복 재생 / SFX)는 칸이 비어 있으면 자동으로 만듭니다. 같은 BGM이 재생 중이면 다시 틀지 않습니다. `timeScale` 0이면 BGM을 `pausedBgmVolumeRatio`(30%)로 부드럽게 줄입니다. `sceneLoaded`마다 그 씬의 `ClickInteractor`(정답·오답 SFX)와 모든 `Button`(꺼진 것 포함, 클릭 SFX)에 자동으로 연결합니다. 클립이 null이면 재생하지 않습니다. |
 | Utils | `SimpleInput`, `SingletonBase` | `19. Legacy/9. Utils`에서 복사해 네임스페이스를 바꾼 파일입니다. |
 
 **씬** (Build Settings 순서): `00. Menu` → `10. Stage Tutorial` → `11. Stage 1` → `12. Stage 2` → `13. Stage 3` → `90. Result`
@@ -115,8 +116,8 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | 6 | PauseController + Pause Menu 프리팹 | ✅ |
 | 6.5 | 좌우 분할 화면 전환(카메라 2대 동기화, 클릭 카메라 선택, 분할선), 일시정지 키 Esc, 클리어 후 입력 차단, 예비 씬 | ✅ |
 | 7 | 시각 피드백: 정답 Emission(황금빛) + 반짝임 파티클, 오답 물체 클릭 시 커서 위치 붉은 X(0.5초). 빈 곳 클릭은 무반응, 오답 흔들림은 보류 | ✅ |
-| 8 | AudioManager: BGM(씬을 넘어가도 이어짐), 정답·오답·버튼 SFX | **다음** |
-| 9 | 스테이지별 조명 연출: 형광등 깜빡임(10초마다, 1초 이내), 일출·일몰 Directional Light, 네온 Emission | |
+| 8 | SoundManager: BGM(씬을 넘어가도 이어짐, 일시정지 때 볼륨 낮춤), 정답·오답·버튼 SFX | ✅ 코드·배치 완료 / ⏳ 사운드 파일 대기 |
+| 9 | 스테이지별 조명 연출: 형광등 깜빡임(10초마다, 1초 이내), 일출·일몰 Directional Light, 네온 Emission | **다음** |
 | 10 | 실제 디오라마 제작 (Synty 등), 스테이지마다 정답 3~5쌍 배치, 마무리 | |
 
 **7단계 메모 (완료)**
@@ -124,7 +125,10 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 - 기본 파티클 텍스처는 가장자리가 부드러워서 흐릿하게 보입니다. 그래서 `Materials/Textures/T_SparkleStar.png`(PowerShell System.Drawing으로 만든 128px 4갈래 별, 흰색)와 `Materials/M_Sparkle.mat`(URP `ParticlesUnlit.mat`을 복사해 텍스처만 교체)를 씁니다. Stretched Billboard는 별 모양을 찌그러뜨리므로 쓰지 않습니다.
 - 빌드에서는 쓰는 머티리얼이 없는 `_EMISSION` 셰이더 변형이 빠질 수 있습니다. 그래서 10단계에서 **정답 오브젝트 머티리얼은 Emission을 켜고 색을 검정으로** 둡니다. 그래도 빠지면 기본 색 섞기만 보입니다.
 
-**8단계 메모**: BGM은 씬을 넘어가도 끊기지 않게 DontDestroyOnLoad로 유지합니다. 정답·오답 SFX는 `ClickInteractor` 이벤트를, 버튼 SFX는 UI 버튼을 연결합니다. 일시정지 중 BGM을 어떻게 할지(유지, 볼륨 낮춤, 정지)는 사용자에게 묻습니다.
+**8단계 메모**
+- 일시정지 중 BGM은 **볼륨 낮추기**로 정했습니다(사용자 결정).
+- **사운드 파일은 아직 없습니다.** 파일을 구하면 `Assets/100. 3D Project-1/Audio/`에 넣고, **`Prefabs/SoundManager.prefab`**(씬 인스턴스가 아님)의 `bgm`, `correctAnswerClip`, `wrongAnswerClip`, `buttonClickClip`에 연결합니다. 그러면 모든 씬에 한 번에 들어갑니다. 이때 `Audio.meta`도 같이 커밋합니다.
+- 기획서 기준 소리: BGM은 잔잔한 Lofi나 어쿠스틱 루프, 정답은 맑은 실로폰·종소리, 오답은 불쾌하지 않은 '뾱'이나 '삐빅', 버튼은 깔끔한 클릭음입니다.
 
 **나중에 할 일**
 - Play 모드 자동 테스트를 만듭니다(`Assets/100. 3D Project-1/Tests/PlayMode/` + asmdef). 확인할 흐름: Menu → Start → 스테이지 4개 정답 처리 → Result 기록 4개와 Total 합계 → 메인 메뉴 → 재시작 시 기록 초기화, 오답·중복 클릭은 무시. 사용자가 집 컴퓨터에서 확인을 마친 뒤 진행하기로 했습니다. CliBridge에 `/tests/run` 엔드포인트를 추가해 Claude가 직접 실행하는 방식을 제안해 둔 상태입니다.
