@@ -40,10 +40,18 @@ namespace YoureRight
 
         // StageManager가 스테이지를 클리어하면 호출합니다.
         // 기록을 저장하고 다음 스테이지로, 마지막 스테이지였으면 결과 화면으로 넘어갑니다.
-        public void ReportStageClear(string stageName, float time)
+        // addRecord가 false면(튜토리얼) 기록은 남기지 않고 다음 씬으로만 넘어갑니다.
+        public void ReportStageClear(string stageName, float time, bool addRecord = true)
         {
-            records.Add(new StageRecord { stageName = stageName, time = time });
-            Debug.Log($"[GameManager] 기록 저장: {stageName} {TimeFormatter.Format(time)} (누적 {TimeFormatter.Format(TotalTime)})");
+            if (addRecord)
+            {
+                records.Add(new StageRecord { stageName = stageName, time = time });
+                Debug.Log($"[GameManager] 기록 저장: {stageName} {TimeFormatter.Format(time)} (누적 {TimeFormatter.Format(TotalTime)})");
+            }
+            else
+            {
+                Debug.Log($"[GameManager] 기록 제외: {stageName} {TimeFormatter.Format(time)}");
+            }
 
             // 현재 씬이 스테이지 목록의 몇 번째인지로 다음 씬을 정합니다.
             // 에디터에서 중간 스테이지 씬을 바로 Play해도 그 다음 스테이지로 이어집니다.

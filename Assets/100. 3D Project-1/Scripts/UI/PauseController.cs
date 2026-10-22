@@ -23,6 +23,7 @@ namespace YoureRight
         public bool IsPaused { get; private set; }
 
         private StageManager stageManager;
+        private TutorialGuide tutorialGuide;
 
         private void Awake()
         {
@@ -30,11 +31,15 @@ namespace YoureRight
             mainMenuButton.onClick.AddListener(() => GameManager.Instance.LoadMainMenu());
             popup.SetActive(false);
             stageManager = FindAnyObjectByType<StageManager>();
+            tutorialGuide = FindAnyObjectByType<TutorialGuide>();
         }
 
         private void Update()
         {
             if (SimpleInput.GetKeyDown(pauseKey) == false) return;
+
+            // 시작 안내가 떠 있는 동안에는 일시정지하지 않습니다.
+            if (tutorialGuide != null && tutorialGuide.IsOpen) return;
 
             // 클리어 후 다음 씬으로 넘어가는 동안에는 새로 일시정지하지 않습니다.
             if (IsPaused == false && stageManager != null && stageManager.IsCleared) return;
