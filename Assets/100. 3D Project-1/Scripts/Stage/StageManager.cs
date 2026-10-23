@@ -17,6 +17,8 @@ namespace YoureRight
         private AnswerPair[] pairs;
         private int foundCount;
         private readonly StageTimer timer = new StageTimer();
+        private bool skipNextTick;
+        private TutorialGuide tutorialGuide;
 
         public string StageName => stageName;
         public int FoundCount => foundCount;
@@ -52,11 +54,36 @@ namespace YoureRight
         {
             // 구독자들이 Awake/OnEnable에서 이벤트를 연결한 뒤 초기 진행도(0 / N)를 알려줍니다.
             OnProgressChanged?.Invoke(foundCount, TotalCount);
+
+            // 시작 안내(TutorialGuide)가 있는 씬은 안내를 닫는 순간부터 시간을 잽니다.
+            // (안내 패널은 씬 시작 때 켜져 있으므로, 켜진 오브젝트만 찾는 FindAnyObjectByType으로 찾을 수 있습니다)
+            tutorialGuide = FindAnyObjectByType<TutorialGuide>();
+            if (tutorialGuide != null) tutorialGuide.OnClosed += StartTimer;
+            else StartTimer();
+        }
+
+        private void OnDestroy()
+        {
+            if (tutorialGuide != null) tutorialGuide.OnClosed -= StartTimer;
+        }
+
+        private void StartTimer()
+        {
             timer.Start();
+            skipNextTick = true;
         }
 
         private void Update()
         {
+            // 타이머를 켠 뒤 첫 번째 Update는 건너뜁니다.
+            // 씬 로딩 직후 첫 프레임은 로딩 시간 때문에 deltaTime이 커서 기록이 부풀려지기 때문입니다.
+            // (Start와 첫 Update가 같은 프레임이 아닐 수도 있어서 프레임 번호 대신 "첫 호출"로 판단합니다)
+            if (skipNextTick)
+            {
+                skipNextTick = false;
+                return;
+            }
+
             timer.Tick(Time.deltaTime);
         }
 

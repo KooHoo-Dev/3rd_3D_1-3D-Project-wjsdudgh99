@@ -92,11 +92,11 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | Feedback | `ClickFeedback` | `Managers/ClickFeedback`에 붙입니다. 정답일 때 쌍둥이 둘의 머티리얼 복사본에 황금빛 Emission을 올렸다가(0.25초) 은은하게 남기고(0.6초 동안 `Glow Settle Intensity`까지), 기본 색도 금색 쪽으로 섞습니다(Emission 없는 셰이더 대비). 렌더러 윗면에 `Sparkle` 파티클을 만듭니다. **오답 흔들림은 보류 중**이라 `[보류]` 표시와 함께 `//` 주석으로 막혀 있고, 주석을 풀면 다시 동작합니다. |
 | Feedback | `WrongClickMarker` | 스테이지 `Canvas`에 붙입니다. 오답 물체를 클릭하면 커서 위치에 `Prefabs/Wrong Marker`(빨간 TMP `X`, Raycast Target 끔)를 띄우고, 살짝 튀었다가 0.5초 안에 사라지게 합니다. |
 | Stage | `AnswerTarget` / `AnswerPair` | 쌍둥이 2개를 묶어서 한쪽만 클릭해도 쌍 전체를 정답 처리합니다. 이벤트는 `OnFound`입니다. |
-| Stage | `StageManager` | 씬의 `AnswerPair`를 자동으로 모읍니다. 진행도·클리어 이벤트를 보내고 `StageTimer`를 돌립니다. 클리어 후 1.5초 뒤 `GameManager.ReportStageClear`를 부릅니다. `Add To Records`를 끄면(튜토리얼) 시간은 HUD에만 보이고 결과 기록·Total에는 들어가지 않습니다(`GameManager`가 "기록 제외" 로그만 남김). |
+| Stage | `StageManager` | 씬의 `AnswerPair`를 자동으로 모읍니다. 진행도·클리어 이벤트를 보내고 `StageTimer`를 돌립니다. 씬에 `TutorialGuide`가 있으면 안내를 닫는 순간(`OnClosed`) 타이머를 켜고, 없으면 `Start`에서 켭니다. 켠 뒤 **첫 번째 `Update`는 건너뜁니다**(로딩 직후 큰 deltaTime 제외. 에디터 첫 Play에서는 Start와 첫 Update가 다른 프레임일 수 있어 프레임 번호 비교로는 막지 못했음). 클리어 후 1.5초 뒤 `GameManager.ReportStageClear`를 부릅니다. `Add To Records`를 끄면(튜토리얼) 시간은 HUD에만 보이고 결과 기록·Total에는 들어가지 않습니다(`GameManager`가 "기록 제외" 로그만 남김). |
 | Stage | `StageTimer` | 일반 C# 클래스로 된 스톱워치입니다. `Time.deltaTime`을 쓰므로 일시정지 중에는 멈춥니다. |
 | UI | `StageHUD` | 스테이지 이름, 스톱워치(`<mspace>`로 숫자 폭 고정), `( 2 / 5 )` 진행도를 표시합니다. |
 | UI | `PauseController` | Esc 키로 일시정지합니다(키 값은 프리팹에 저장된 `pauseKey`). 클리어 후와 `TutorialGuide`가 열려 있는 동안에는 새로 일시정지하지 않습니다. 항상 켜져 있는 루트에 붙이고, 자식 Popup만 켜고 끕니다. `Prefabs/Pause Menu.prefab`에 들어 있습니다. |
-| UI | `TutorialGuide` | 스테이지 시작 전 안내 패널입니다. `Start`에서 열리며 `timeScale` 0으로 스톱워치·카메라·클릭을 멈추고, `pages` 배열을 이전/다음 버튼으로 넘깁니다. 마지막 페이지의 시작 버튼을 누르면 패널을 끄고 `timeScale`을 1로 되돌립니다. 페이지 글자는 씬에서 직접 씁니다(한국어, Noto Sans KR). 패널 오브젝트는 씬 시작 때 켜져 있어야 합니다. |
+| UI | `TutorialGuide` | 스테이지 시작 전 안내 패널입니다(`Prefabs/Tutorial Guide.prefab`, 튜토리얼 Canvas 맨 아래). `Start`에서 열리며 `timeScale` 0으로 카메라·클릭을 멈추고, `pages` 배열을 이전/다음 버튼으로 넘깁니다. 버튼은 페이지 바깥(Window 바로 아래)에 한 벌만 둡니다(페이지 안에 넣으면 페이지를 끌 때 같이 사라짐). 마지막 페이지의 시작 버튼을 누르면 패널을 끄고 `timeScale`을 1로 되돌린 뒤 `OnClosed`를 보냅니다. 페이지 글자는 씬에서 직접 씁니다(한국어, Noto Sans KR). 패널 오브젝트는 씬 시작 때 켜져 있어야 합니다. 안내 중에는 SoundManager가 BGM을 30%로 낮춥니다(그대로 두기로 함). |
 | UI | `MainMenuUI` / `ResultUI` | 메뉴의 Start/Exit 버튼과, 결과 화면의 기록 목록·Total Time·패널 등장 연출입니다. 버튼 OnClick은 코드에서 연결합니다. |
 | Sound | `SoundManager` | 사용자가 뼈대(필드·함수 이름)를 쓰고 Claude가 보완했습니다. `SingletonBase`를 상속하고, `Prefabs/SoundManager.prefab`을 **모든 씬의 `Managers` 아래**에 둡니다. 처음 것만 살아남고(이때 `SetParent(null)`로 루트로 빠진 뒤 DontDestroyOnLoad), 다음 씬의 복제본은 경고 없이 사라집니다. AudioSource 2개(BGM 반복 재생 / SFX)는 칸이 비어 있으면 자동으로 만듭니다. 같은 BGM이 재생 중이면 다시 틀지 않습니다. `timeScale` 0이면 BGM을 `pausedBgmVolumeRatio`(30%)로 부드럽게 줄입니다. `sceneLoaded`마다 그 씬의 `ClickInteractor`(정답·오답 SFX)와 모든 `Button`(꺼진 것 포함, 클릭 SFX)에 자동으로 연결합니다. 클립이 null이면 재생하지 않습니다. |
 | Utils | `SimpleInput`, `SingletonBase` | `19. Legacy/9. Utils`에서 복사해 네임스페이스를 바꾼 파일입니다. |
@@ -140,15 +140,11 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 - **사운드 파일은 아직 없습니다.** 파일을 구하면 `Assets/100. 3D Project-1/Audio/`에 넣고, **`Prefabs/SoundManager.prefab`**(씬 인스턴스가 아님)의 `bgm`, `correctAnswerClip`, `wrongAnswerClip`, `buttonClickClip`에 연결합니다. 그러면 모든 씬에 한 번에 들어갑니다. 이때 `Audio.meta`도 같이 커밋합니다.
 - 기획서 기준 소리: BGM은 잔잔한 Lofi나 어쿠스틱 루프, 정답은 맑은 실로폰·종소리, 오답은 불쾌하지 않은 '뾱'이나 '삐빅', 버튼은 깔끔한 클릭음입니다.
 
-**10단계 메모 (진행 중, 2026-10-22)**
+**10단계 메모 (진행 중, 2026-10-22~23)**
 - 결정: 튜토리얼 정답 3개. 튜토리얼 시작 전 **안내 패널(A안: 규칙 → 조작법 → 시작하기, 2~3페이지)**을 튜토리얼에 들어올 때마다 보여 줍니다(한국어). **튜토리얼 시간은 HUD에만 보이고 기록에서 뺍니다.**
 - **에셋과 디오라마는 사용자가 직접 구해서 만듭니다.** Claude는 코드, 도구, 단계별 안내를 맡습니다. 지금 프로젝트에 있는 디오라마용 에셋은 Synty POLYGON Apocalypse(git에 있음)뿐입니다.
-- ✅ 코드: `TutorialGuide`(새로 추가), `GameManager.ReportStageClear(..., addRecord)`, `StageManager.addToRecords`, `PauseController`(안내 중 Esc 무시). 컴파일 확인했고, Play 테스트는 아직 안 했습니다.
-- ⏳ **다음 작업**:
-  1. 튜토리얼 씬 `Canvas`에 안내 패널 UI를 만듭니다(반투명 배경, 페이지 2~3장, 이전·다음·시작하기 버튼). `TutorialGuide`를 연결하고, `Prefabs/Tutorial Guide.prefab`으로 저장합니다. 패널은 Canvas 맨 아래(가장 위에 그려지게)에 둡니다.
-  2. 튜토리얼 `StageManager`의 **Add To Records 체크를 끕니다.** 지금은 켜져 있어서 튜토리얼 기록이 결과 화면에 들어갑니다.
-  3. 테스트: 안내 중 타이머 00:00.00 정지, WASD·클릭·Esc 무반응, 페이지 넘김과 버튼 표시, 시작하기 후 조작, 튜토리얼 클리어 시 "기록 제외" 로그, Result에 1-1~1-3 세 줄과 그 합계.
-  4. 기획서 3.1·4.2와 변경 이력(튜토리얼 안내 UI, 튜토리얼 기록 제외)을 갱신합니다.
+- ✅ 코드: `TutorialGuide`(새로 추가, `OnClosed`), `GameManager.ReportStageClear(..., addRecord)`, `StageManager.addToRecords`와 타이머 시작 시점, `PauseController`(안내 중 Esc 무시).
+- ✅ 튜토리얼 안내 패널 UI(3페이지, 임시 흰 창 + 검정 반투명 배경, 나중에 UI 에셋으로 꾸밈)와 `Prefabs/Tutorial Guide.prefab`, Add To Records 끔, 안내 중 타이머 00:00.00 확인(에디터 첫 Play 포함), 기획서 3.1·4.2와 변경 이력 갱신 (2026-10-23).
 - **사용자에게 아직 물어볼 것**: 디오라마 보조 도구 2개를 만들지 정합니다. 정답 쌍 만들기(두 물체 선택 → AnswerTarget·Collider·AnswerPair 연결)와 스테이지 검사(쌍둥이 동일 여부, 빠진 Collider, Terrain 레이어)입니다. 그리고 `ClickInteractor` Clickable Layers에서 `Terrain`을 빼는 작업과, 정답 머티리얼 Emission 규칙도 남아 있습니다.
 
 ## 확정: 10스테이지 확장 (2026-10-22)

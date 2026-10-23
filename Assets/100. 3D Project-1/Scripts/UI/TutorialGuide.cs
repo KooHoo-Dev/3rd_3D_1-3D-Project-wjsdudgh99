@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,6 +17,9 @@ namespace YoureRight
         [SerializeField] private Button startButton;
 
         public bool IsOpen { get; private set; }
+
+        // 시작 버튼으로 안내를 닫았을 때 (StageManager가 이때 스톱워치를 켭니다)
+        public event Action OnClosed;
 
         private int pageIndex;
 
@@ -44,6 +48,7 @@ namespace YoureRight
             IsOpen = false;
             Time.timeScale = 1f;
             gameObject.SetActive(false);
+            OnClosed?.Invoke();
         }
 
         private void ShowPage(int index)
