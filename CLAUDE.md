@@ -88,7 +88,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | Core | `SceneNames` | Build Settings에 등록된 씬 이름 상수입니다. 씬 파일 이름을 바꾸면 여기도 고칩니다. |
 | Core | `TimeFormatter` | 시간을 `00:00.00` 형식으로 바꿉니다. 반올림하지 않고 내림합니다. |
 | Camera | `OrbitCameraController` | 분할 화면의 카메라 2대를 각자의 Pivot 기준으로 같은 각도·거리로 공전시킵니다. `Views`(카메라 + Pivot 쌍)를 씬에서 연결하고, 0번 카메라의 배치 위치가 시작 시점입니다. WASD 또는 우클릭 드래그로 회전하고 휠로 줌하며, Pitch는 -80 ~ 80입니다. `timeScale` 0이면 입력을 무시합니다. |
-| Interaction | `ClickInteractor` | 좌클릭한 쪽 화면의 카메라(`Target Cameras` 중 커서가 Viewport 안에 있는 것)에서 Raycast를 쏴서 `AnswerTarget`이면 정답, 다른 물체면 오답으로 판정합니다. **빈 곳(Collider 없음) 클릭은 아무 반응도 하지 않습니다**(이벤트·로그 없음, 사용자 요청). 이벤트는 `OnAnswerClicked`, `OnWrongClicked`(맞은 Collider는 항상 null이 아님)입니다. 일시정지 중, 스테이지 클리어 후(`StageManager.IsCleared`), UI 위 클릭은 무시합니다. |
+| Interaction | `ClickInteractor` | 좌클릭한 쪽 화면의 카메라(`Target Cameras` 중 커서가 Viewport 안에 있는 것)에서 Raycast를 쏴서 `AnswerTarget`이면 정답, 다른 물체면 오답으로 판정합니다. **빈 곳(Collider 없음) 클릭은 아무 반응도 하지 않습니다**(이벤트·로그 없음, 사용자 요청). 이벤트는 `OnAnswerClicked`, `OnWrongClicked`(맞은 Collider는 항상 null이 아님)입니다. 일시정지 중, 스테이지 클리어 후(`StageManager.IsCleared`), UI 위 클릭은 무시합니다. **무반응 레이어(`Silent Layers`, 비워 두면 `Background` 레이어 자동 사용)**에 맞으면 Raycast는 막히되(뒤쪽 물체가 대신 맞지 않음) 정답·오답 모두 처리하지 않습니다. 정답 오브젝트라도 Background에 있으면 반응하지 않습니다. `Clickable Layers`는 보통 Everything이고, 여기서 뺀 레이어는 클릭이 뚫고 지나갑니다. |
 | Feedback | `ClickFeedback` | `Managers/ClickFeedback`에 붙입니다. 정답일 때 쌍둥이 둘의 머티리얼 복사본에 황금빛 Emission을 올렸다가(0.25초) 은은하게 남기고(0.6초 동안 `Glow Settle Intensity`까지), 기본 색도 금색 쪽으로 섞습니다(Emission 없는 셰이더 대비). 렌더러 윗면에 `Sparkle` 파티클을 만듭니다. **오답 흔들림은 보류 중**이라 `[보류]` 표시와 함께 `//` 주석으로 막혀 있고, 주석을 풀면 다시 동작합니다. |
 | Feedback | `WrongClickMarker` | 스테이지 `Canvas`에 붙입니다. 오답 물체를 클릭하면 커서 위치에 `Prefabs/Wrong Marker`(빨간 TMP `X`, Raycast Target 끔)를 띄우고, 살짝 튀었다가 0.5초 안에 사라지게 합니다. |
 | Stage | `AnswerTarget` / `AnswerPair` | 쌍둥이 2개를 묶어서 한쪽만 클릭해도 쌍 전체를 정답 처리합니다. 이벤트는 `OnFound`입니다. |
@@ -145,7 +145,17 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 - **에셋과 디오라마는 사용자가 직접 구해서 만듭니다.** Claude는 코드, 도구, 단계별 안내를 맡습니다. 지금 프로젝트에 있는 디오라마용 에셋은 Synty POLYGON Apocalypse(git에 있음)뿐입니다.
 - ✅ 코드: `TutorialGuide`(새로 추가, `OnClosed`), `GameManager.ReportStageClear(..., addRecord)`, `StageManager.addToRecords`와 타이머 시작 시점, `PauseController`(안내 중 Esc 무시).
 - ✅ 튜토리얼 안내 패널 UI(3페이지, 임시 흰 창 + 검정 반투명 배경, 나중에 UI 에셋으로 꾸밈)와 `Prefabs/Tutorial Guide.prefab`, Add To Records 끔, 안내 중 타이머 00:00.00 확인(에디터 첫 Play 포함), 기획서 3.1·4.2와 변경 이력 갱신 (2026-10-23).
-- **사용자에게 아직 물어볼 것**: 디오라마 보조 도구 2개를 만들지 정합니다. 정답 쌍 만들기(두 물체 선택 → AnswerTarget·Collider·AnswerPair 연결)와 스테이지 검사(쌍둥이 동일 여부, 빠진 Collider, Terrain 레이어)입니다. 그리고 `ClickInteractor` Clickable Layers에서 `Terrain`을 빼는 작업과, 정답 머티리얼 Emission 규칙도 남아 있습니다.
+- ✅ 무반응 레이어 (2026-10-23): `Background` 레이어(User Layer 10)와 `ClickInteractor.silentLayers`를 추가했고, 미끼 큐브로 테스트해 X·로그가 없는 것을 확인했습니다.
+- **클릭 반응 규칙 (사용자 결정, 2026-10-23)**: 참고 게임 스크린샷 기준입니다.
+  - 플랫폼 **밖**의 주변 장식(바위, 바깥 차량, 사막 바닥)은 무반응입니다. → **구역 상자(PlayArea)**로 처리합니다(방법 2, 아직 안 만듦).
+  - **플랫폼 자체(윗면 바닥, 옆면 두께, 길)**도 무반응입니다. → 이 오브젝트들을 `Background` 레이어로 둡니다(✅ 코드 완료).
+  - 플랫폼 **위에 올린 물체**만 반응합니다(정답 반짝임 / 오답 X). 바닥의 차이점(맨홀, 도로 표시, 웅덩이 등)은 바닥에서 0.01~0.02 띄운 **별도 물체 + Collider**로 만듭니다.
+- ⏳ **다음 작업 후보** (사용자가 하나씩 고름):
+  1. **PlayArea**: 섬마다 보이지 않는 상자 하나(`Stage` 아래, 왼쪽·오른쪽 같은 크기, 플랫폼 위아래로 넉넉히, 빨간 선 기즈모). 물리 Collider 없이 클릭 지점이 상자 안인지만 계산합니다. `ClickInteractor`는 맞은 지점이 어느 PlayArea에도 없으면 무반응으로 처리하고, PlayArea가 없는 씬은 지금처럼 동작합니다. 예상 1시간 이내입니다.
+  2. **정답 쌍 만들기** 에디터 도구: 두 물체 선택 → AnswerTarget·Collider(Mesh/Box)·`Props/AnswerPair_NN` 자동 생성, 같은 섬·이미 등록·Background 레이어면 거부, Undo 지원. 예상 1시간입니다.
+  3. **스테이지 검사** 에디터 도구: 쌍둥이 동일성(메시·머티리얼·크기·회전·섬 중심 기준 위치·자식 구성), **의도하지 않은 쌍둥이**(등록 안 했는데 양쪽 같은 위치에 같은 물체), 연결·Collider(없음·꺼짐·Trigger), 레이어(정답이 Background, 큰 바닥이 Default), PlayArea 밖의 정답, 정답 개수 3~5, 정답 머티리얼 Emission을 봅니다. 로그를 클릭하면 오브젝트가 선택되고, 씬은 고치지 않습니다. 예상 2시간입니다.
+  - 도구는 `Scripts/Editor/`에 두고(빌드 제외), 메뉴는 `Tools → You're Right`로 제안해 두었습니다.
+  - Synty Apocalypse 프리팹은 약 80%에 Collider가 있고 모두 Default 레이어입니다. 그래서 플랫폼·길 조각은 Background로 바꿔야 합니다.
 
 ## 확정: 10스테이지 확장 (2026-10-22)
 
@@ -160,4 +170,4 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 **나중에 할 일**
 - Play 모드 자동 테스트를 만듭니다(`Assets/100. 3D Project-1/Tests/PlayMode/` + asmdef). 확인할 흐름: Menu → Start → 스테이지 4개 정답 처리 → Result 기록 4개와 Total 합계 → 메인 메뉴 → 재시작 시 기록 초기화, 오답·중복 클릭은 무시. 사용자가 집 컴퓨터에서 확인을 마친 뒤 진행하기로 했습니다. CliBridge에 `/tests/run` 엔드포인트를 추가해 Claude가 직접 실행하는 방식을 제안해 둔 상태입니다.
 - 디오라마 아래쪽에도 문제를 둘 예정입니다. 섬 바닥은 두께가 있는 메시로 만들고(Plane은 아래에서 투명하게 보임), 아랫면이 어둡지 않게 조명을 보강합니다.
-- 지형에 Collider가 생기면 `Terrain` 레이어로 옮기고 `ClickInteractor`의 Clickable Layers에서 뺍니다. 그래야 지형 클릭도 빈 곳처럼 무반응이 되고 X가 뜨지 않습니다.
+- 플랫폼·바닥·길 오브젝트는 `Background` 레이어로 둡니다(Collider는 남겨 둬서 클릭을 막게 함). 예전 계획(Terrain을 Clickable Layers에서 빼기)은 클릭이 바닥을 뚫고 지나가는 문제가 있어서 쓰지 않습니다.

@@ -7,6 +7,7 @@ namespace YoureRight
     // 마우스 좌클릭 시 커서가 있는 화면의 카메라에서 Raycast를 발사해 정답/오답을 판정합니다.
     // 맞은 Collider에 AnswerTarget이 있으면 정답, 다른 물체면 오답입니다.
     // 빈 곳(아무 Collider도 맞지 않음)을 클릭하면 아무 반응도 하지 않습니다.
+    // 무반응 레이어(기본: Background)의 물체(플랫폼, 바닥, 길 등)는 클릭을 막아 주기만 하고 반응하지 않습니다.
     public class ClickInteractor : MonoBehaviour
     {
         [Header("Ref")]
@@ -14,7 +15,13 @@ namespace YoureRight
 
         [Header("Raycast")]
         [SerializeField] private float maxDistance = 100f;
-        [SerializeField] private LayerMask clickableLayers = ~0;   // 지형 레이어를 빼면 지형이 클릭을 막지 않습니다
+        [SerializeField] private LayerMask clickableLayers = ~0;   // 여기서 뺀 레이어는 클릭이 그대로 뚫고 지나갑니다 (보통은 Everything)
+
+        // Raycast에는 맞지만(뒤쪽 물체가 대신 맞지 않도록 막아 줌) 정답도 오답도 아닌 레이어 입니다.
+        // 비워 두면(Nothing) "Background" 레이어를 자동으로 사용합니다.
+        [SerializeField] private LayerMask silentLayers;
+
+        private const string DefaultSilentLayerName = "Background";
 
         // 정답 쌍을 새로 찾았을 때 (클릭한 오브젝트)
         public event Action<AnswerTarget> OnAnswerClicked;
@@ -28,6 +35,10 @@ namespace YoureRight
         {
             if (targetCameras == null || targetCameras.Length == 0) targetCameras = new[] { Camera.main };
             stageManager = FindAnyObjectByType<StageManager>();
+
+            // 씬마다 따로 설정하지 않아도 되도록, 비어 있으면 Background 레이어를 씁니다.
+            // (레이어가 아직 없으면 GetMask가 0을 돌려주므로 지금처럼 모든 물체가 반응합니다)
+            if (silentLayers.value == 0) silentLayers = LayerMask.GetMask(DefaultSilentLayerName);
         }
 
         private void Update()
@@ -62,6 +73,10 @@ namespace YoureRight
 
         private void HandleHit(RaycastHit hit, Vector2 screenPos)
         {
+            // 무반응 레이어(플랫폼, 바닥 등)를 클릭했으면 빈 곳처럼 아무것도 하지 않습니다.
+            // 정답 오브젝트라도 이 레이어에 있으면 반응하지 않으므로, 정답은 Background에 두지 않습니다.
+            if ((silentLayers.value & (1 << hit.collider.gameObject.layer)) != 0) return;
+
             // 자식 Collider를 클릭해도 부모의 AnswerTarget을 찾을 수 있게 합니다.
             AnswerTarget target = hit.collider.GetComponentInParent<AnswerTarget>();
             if (target == null || target.Pair == null)

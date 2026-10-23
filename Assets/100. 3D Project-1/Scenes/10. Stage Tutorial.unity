@@ -1052,6 +1052,9 @@ MonoBehaviour:
   clickableLayers:
     serializedVersion: 2
     m_Bits: 4294967295
+  silentLayers:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &1183332341
 GameObject:
   m_ObjectHideFlags: 0
