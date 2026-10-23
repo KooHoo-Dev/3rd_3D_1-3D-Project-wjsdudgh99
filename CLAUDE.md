@@ -104,7 +104,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | Utils | `SimpleInput`, `SingletonBase` | `19. Legacy/9. Utils`에서 복사해 네임스페이스를 바꾼 파일입니다. |
 
 **씬** (Build Settings 순서): `00. Menu` → `10. Stage Tutorial` → `11. Stage 1-1` → `12. Stage 1-2` → `13. Stage 1-3` → `90. Result`
-- 스테이지 씬 4개는 같은 구조이고, `StageNameText`의 글자와 `StageManager`의 Stage Name만 다릅니다. 지금은 큐브로 된 테스트용 정답 쌍(`AnswerPair_01`: 왼쪽 섬 `Cube`, 오른쪽 섬 `Cube (2)`)과 섬마다 미끼 큐브 하나가 배치되어 있습니다.
+- 스테이지 씬 4개는 같은 구조이고, `StageNameText`의 글자와 `StageManager`의 Stage Name만 다릅니다. `Stage` 아래에는 임시 섬 바닥 `Stage Left`·`Stage Right`(큐브 20 × 2 × 20, y -2, Background 레이어)와 `PlayArea Left`·`PlayArea Right`(y 6.5)가 있습니다. 지금은 큐브로 된 테스트용 정답 쌍(`AnswerPair_01`: 왼쪽 섬 `Cube`, 오른쪽 섬 `Cube (2)`)과 섬마다 미끼 큐브 하나가 배치되어 있습니다.
 - 분할 화면 구성: `Main Camera`는 Viewport X 0 / W 0.5, `Right Camera`는 X 0.5 / W 0.5이고, 둘 다 Far Clip 60입니다. `MainCamera` 태그와 Audio Listener는 `Main Camera`에만 있습니다. Canvas 첫 자식인 `Divider`(Width 4, 위아래 stretch, Raycast Target 끔)가 화면을 가르고, `TimerText` 바로 위의 `TimerBackground`가 분할선을 가립니다.
 - **예비 씬**: `Scenes/Template/Stage Template.unity`. 스테이지 씬과 같은 구성이고 이름만 `New Stage`입니다. Build Settings와 `SceneNames`에는 넣지 않습니다. 스테이지를 늘릴 때는 다음 순서로 합니다.
   1. Project 창에서 Ctrl + D로 복제합니다(새 GUID가 생김). `Scenes`로 옮기고 이름을 `21. Stage 2-1`처럼 바꿉니다(월드 2는 21~23, 월드 3은 31~33).
@@ -144,17 +144,20 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 
 **10단계 메모 (진행 중, 2026-10-22~23)**
 - 결정: 튜토리얼 정답 3개. 튜토리얼 시작 전 **안내 패널(A안: 규칙 → 조작법 → 시작하기, 2~3페이지)**을 튜토리얼에 들어올 때마다 보여 줍니다(한국어). **튜토리얼 시간은 HUD에만 보이고 기록에서 뺍니다.**
-- **에셋과 디오라마는 사용자가 직접 구해서 만듭니다.** Claude는 코드, 도구, 단계별 안내를 맡습니다. 지금 프로젝트에 있는 디오라마용 에셋은 Synty POLYGON Apocalypse(git에 있음)뿐입니다.
+- **에셋과 디오라마는 사용자가 직접 구해서 만듭니다.** Claude는 코드, 도구, 단계별 안내를 맡습니다. 디오라마용 에셋은 Synty POLYGON Apocalypse(`99. External Assets/Synty`)와 **Palmov Island `Low Poly Atmospheric Locations Pack`**(`Assets/Palmov Island`, 약 14MB, 2026-10-23 추가, `99. External Assets`가 아니라 Assets 바로 아래에 있음)입니다. 둘 다 git에 있습니다.
+- 2026-10-23에 Render Pipeline Converter로 Built-in Standard 머티리얼(Synty, Parazite, Paper Plane 등 20개)을 URP Lit으로 바꿨습니다.
+- 지금 섬 바닥과 테스트 큐브가 쓰는 `Lit` 머티리얼은 **URP 패키지 기본 머티리얼**(guid `31321ba1…`, 읽기 전용)입니다. Emission을 켤 수 없으므로, 정답 오브젝트에는 프로젝트 안의 머티리얼(`100. 3D Project-1/Materials`)을 씁니다.
+- **집에서 이어서 할 일**: 튜토리얼 디오라마부터 배치합니다(순서: 왼쪽 섬 완성 → x +200으로 복제 → 오른쪽에서 차이 만들기 → PlayArea Left 크기 조절 → Create Answer Pair로 3쌍 등록 → Play 확인 → Claude에게 씬 확인 요청).
 - ✅ 코드: `TutorialGuide`(새로 추가, `OnClosed`), `GameManager.ReportStageClear(..., addRecord)`, `StageManager.addToRecords`와 타이머 시작 시점, `PauseController`(안내 중 Esc 무시).
 - ✅ 튜토리얼 안내 패널 UI(3페이지, 임시 흰 창 + 검정 반투명 배경, 나중에 UI 에셋으로 꾸밈)와 `Prefabs/Tutorial Guide.prefab`, Add To Records 끔, 안내 중 타이머 00:00.00 확인(에디터 첫 Play 포함), 기획서 3.1·4.2와 변경 이력 갱신 (2026-10-23).
 - ✅ 무반응 레이어 (2026-10-23): `Background` 레이어(User Layer 10)와 `ClickInteractor.silentLayers`를 추가했고, 미끼 큐브로 테스트해 X·로그가 없는 것을 확인했습니다.
 - **클릭 반응 규칙 (사용자 결정, 2026-10-23)**: 참고 게임 스크린샷 기준입니다.
-  - 플랫폼 **밖**의 주변 장식(바위, 바깥 차량, 사막 바닥)은 무반응입니다. → **구역 상자(PlayArea)**로 처리합니다(✅ 코드 완료 2026-10-23, 오른쪽은 Mirror Of로 왼쪽을 따라가는 B안. ⏳ 씬 배치·테스트 대기).
+  - 플랫폼 **밖**의 주변 장식(바위, 바깥 차량, 사막 바닥)은 무반응입니다. → **구역 상자(PlayArea)**로 처리합니다(✅ 2026-10-23 완료. 오른쪽은 Mirror Of로 왼쪽을 따라가는 B안. 스테이지 4개와 Template에 배치·테스트 완료).
   - **플랫폼 자체(윗면 바닥, 옆면 두께, 길)**도 무반응입니다. → 이 오브젝트들을 `Background` 레이어로 둡니다(✅ 코드 완료).
   - 플랫폼 **위에 올린 물체**만 반응합니다(정답 반짝임 / 오답 X). 바닥의 차이점(맨홀, 도로 표시, 웅덩이 등)은 바닥에서 0.01~0.02 띄운 **별도 물체 + Collider**로 만듭니다.
 - ⏳ **다음 작업 후보** (사용자가 하나씩 고름):
-  1. ~~**PlayArea**~~ (코드 완료, 씬 배치 남음): 섬마다 보이지 않는 상자 하나(`Stage` 아래, 왼쪽·오른쪽 같은 크기, 플랫폼 위아래로 넉넉히, 빨간 선 기즈모). 물리 Collider 없이 클릭 지점이 상자 안인지만 계산합니다. `ClickInteractor`는 맞은 지점이 어느 PlayArea에도 없으면 무반응으로 처리하고, PlayArea가 없는 씬은 지금처럼 동작합니다. 예상 1시간 이내입니다.
-  2. ~~**정답 쌍 만들기**~~ (코드 완료 2026-10-23, `Scripts/Editor/AnswerPairCreator.cs`, 루트 메시는 MeshCollider로 결정, ⏳ Editor 테스트 대기) 에디터 도구: 두 물체 선택 → AnswerTarget·Collider(Mesh/Box)·`Props/AnswerPair_NN` 자동 생성, 같은 섬·이미 등록·Background 레이어면 거부, Undo 지원. 예상 1시간입니다.
+  1. ~~**PlayArea**~~ (✅ 완료 2026-10-23): 섬마다 보이지 않는 상자 하나(`Stage` 아래, 왼쪽·오른쪽 같은 크기, 플랫폼 위아래로 넉넉히, 빨간 선 기즈모). 물리 Collider 없이 클릭 지점이 상자 안인지만 계산합니다. `ClickInteractor`는 맞은 지점이 어느 PlayArea에도 없으면 무반응으로 처리하고, PlayArea가 없는 씬은 지금처럼 동작합니다. 예상 1시간 이내입니다.
+  2. ~~**정답 쌍 만들기**~~ (코드 완료 2026-10-23, `Scripts/Editor/AnswerPairCreator.cs`, 루트 메시는 MeshCollider로 결정, ✅ Editor 테스트 완료. 레이어 검사를 위치 검사보다 먼저 함) 에디터 도구: 두 물체 선택 → AnswerTarget·Collider(Mesh/Box)·`Props/AnswerPair_NN` 자동 생성, 같은 섬·이미 등록·Background 레이어면 거부, Undo 지원. 예상 1시간입니다.
   3. **스테이지 검사** 에디터 도구: 쌍둥이 동일성(메시·머티리얼·크기·회전·섬 중심 기준 위치·자식 구성), **의도하지 않은 쌍둥이**(등록 안 했는데 양쪽 같은 위치에 같은 물체), 연결·Collider(없음·꺼짐·Trigger), 레이어(정답이 Background, 큰 바닥이 Default), PlayArea 밖의 정답, 정답 개수 3~5, 정답 머티리얼 Emission을 봅니다. 로그를 클릭하면 오브젝트가 선택되고, 씬은 고치지 않습니다. 예상 2시간입니다.
   - 도구는 `Scripts/Editor/`에 두고(빌드 제외), 메뉴는 `Tools → You're Right`로 제안해 두었습니다.
   - Synty Apocalypse 프리팹은 약 80%에 Collider가 있고 모두 Default 레이어입니다. 그래서 플랫폼·길 조각은 Background로 바꿔야 합니다.
