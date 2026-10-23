@@ -8,6 +8,7 @@ namespace YoureRight
     // 맞은 Collider에 AnswerTarget이 있으면 정답, 다른 물체면 오답입니다.
     // 빈 곳(아무 Collider도 맞지 않음)을 클릭하면 아무 반응도 하지 않습니다.
     // 무반응 레이어(기본: Background)의 물체(플랫폼, 바닥, 길 등)는 클릭을 막아 주기만 하고 반응하지 않습니다.
+    // 씬에 PlayArea가 있으면, 클릭 지점이 어느 PlayArea에도 없을 때(섬 바깥 장식 등) 반응하지 않습니다.
     public class ClickInteractor : MonoBehaviour
     {
         [Header("Ref")]
@@ -30,11 +31,13 @@ namespace YoureRight
         public event Action<Vector2, Collider> OnWrongClicked;
 
         private StageManager stageManager;
+        private PlayArea[] playAreas;
 
         private void Awake()
         {
             if (targetCameras == null || targetCameras.Length == 0) targetCameras = new[] { Camera.main };
             stageManager = FindAnyObjectByType<StageManager>();
+            playAreas = FindObjectsByType<PlayArea>(FindObjectsSortMode.None);
 
             // 씬마다 따로 설정하지 않아도 되도록, 비어 있으면 Background 레이어를 씁니다.
             // (레이어가 아직 없으면 GetMask가 0을 돌려주므로 지금처럼 모든 물체가 반응합니다)
@@ -73,6 +76,9 @@ namespace YoureRight
 
         private void HandleHit(RaycastHit hit, Vector2 screenPos)
         {
+            // 섬 바깥(어느 PlayArea에도 없는 지점)을 클릭했으면 빈 곳처럼 아무것도 하지 않습니다.
+            if (IsInsidePlayArea(hit.point) == false) return;
+
             // 무반응 레이어(플랫폼, 바닥 등)를 클릭했으면 빈 곳처럼 아무것도 하지 않습니다.
             // 정답 오브젝트라도 이 레이어에 있으면 반응하지 않으므로, 정답은 Background에 두지 않습니다.
             if ((silentLayers.value & (1 << hit.collider.gameObject.layer)) != 0) return;
@@ -89,6 +95,18 @@ namespace YoureRight
             if (target.Pair.TryFind() == false) return;
 
             OnAnswerClicked?.Invoke(target);
+        }
+
+        // 씬에 PlayArea가 하나도 없으면 모든 곳을 구역 안으로 봅니다. (PlayArea를 아직 두지 않은 씬도 예전처럼 동작)
+        private bool IsInsidePlayArea(Vector3 worldPoint)
+        {
+            if (playAreas.Length == 0) return true;
+
+            foreach (PlayArea area in playAreas)
+            {
+                if (area != null && area.Contains(worldPoint)) return true;
+            }
+            return false;
         }
 
         private void HandleWrong(Vector2 screenPos, Collider hitCollider)

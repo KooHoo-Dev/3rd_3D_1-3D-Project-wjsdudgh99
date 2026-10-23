@@ -88,11 +88,12 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | Core | `SceneNames` | Build Settings에 등록된 씬 이름 상수입니다. 씬 파일 이름을 바꾸면 여기도 고칩니다. |
 | Core | `TimeFormatter` | 시간을 `00:00.00` 형식으로 바꿉니다. 반올림하지 않고 내림합니다. |
 | Camera | `OrbitCameraController` | 분할 화면의 카메라 2대를 각자의 Pivot 기준으로 같은 각도·거리로 공전시킵니다. `Views`(카메라 + Pivot 쌍)를 씬에서 연결하고, 0번 카메라의 배치 위치가 시작 시점입니다. WASD 또는 우클릭 드래그로 회전하고 휠로 줌하며, Pitch는 -80 ~ 80입니다. `timeScale` 0이면 입력을 무시합니다. |
-| Interaction | `ClickInteractor` | 좌클릭한 쪽 화면의 카메라(`Target Cameras` 중 커서가 Viewport 안에 있는 것)에서 Raycast를 쏴서 `AnswerTarget`이면 정답, 다른 물체면 오답으로 판정합니다. **빈 곳(Collider 없음) 클릭은 아무 반응도 하지 않습니다**(이벤트·로그 없음, 사용자 요청). 이벤트는 `OnAnswerClicked`, `OnWrongClicked`(맞은 Collider는 항상 null이 아님)입니다. 일시정지 중, 스테이지 클리어 후(`StageManager.IsCleared`), UI 위 클릭은 무시합니다. **무반응 레이어(`Silent Layers`, 비워 두면 `Background` 레이어 자동 사용)**에 맞으면 Raycast는 막히되(뒤쪽 물체가 대신 맞지 않음) 정답·오답 모두 처리하지 않습니다. 정답 오브젝트라도 Background에 있으면 반응하지 않습니다. `Clickable Layers`는 보통 Everything이고, 여기서 뺀 레이어는 클릭이 뚫고 지나갑니다. |
+| Interaction | `ClickInteractor` | 좌클릭한 쪽 화면의 카메라(`Target Cameras` 중 커서가 Viewport 안에 있는 것)에서 Raycast를 쏴서 `AnswerTarget`이면 정답, 다른 물체면 오답으로 판정합니다. **빈 곳(Collider 없음) 클릭은 아무 반응도 하지 않습니다**(이벤트·로그 없음, 사용자 요청). 이벤트는 `OnAnswerClicked`, `OnWrongClicked`(맞은 Collider는 항상 null이 아님)입니다. 일시정지 중, 스테이지 클리어 후(`StageManager.IsCleared`), UI 위 클릭은 무시합니다. **무반응 레이어(`Silent Layers`, 비워 두면 `Background` 레이어 자동 사용)**에 맞으면 Raycast는 막히되(뒤쪽 물체가 대신 맞지 않음) 정답·오답 모두 처리하지 않습니다. 정답 오브젝트라도 Background에 있으면 반응하지 않습니다. 씬에 `PlayArea`가 있으면 맞은 지점(`hit.point`)이 어느 PlayArea에도 없을 때도 무반응입니다(판정 순서: PlayArea → 무반응 레이어 → 정답/오답). `Clickable Layers`는 보통 Everything이고, 여기서 뺀 레이어는 클릭이 뚫고 지나갑니다. |
 | Feedback | `ClickFeedback` | `Managers/ClickFeedback`에 붙입니다. 정답일 때 쌍둥이 둘의 머티리얼 복사본에 황금빛 Emission을 올렸다가(0.25초) 은은하게 남기고(0.6초 동안 `Glow Settle Intensity`까지), 기본 색도 금색 쪽으로 섞습니다(Emission 없는 셰이더 대비). 렌더러 윗면에 `Sparkle` 파티클을 만듭니다. **오답 흔들림은 보류 중**이라 `[보류]` 표시와 함께 `//` 주석으로 막혀 있고, 주석을 풀면 다시 동작합니다. |
 | Feedback | `WrongClickMarker` | 스테이지 `Canvas`에 붙입니다. 오답 물체를 클릭하면 커서 위치에 `Prefabs/Wrong Marker`(빨간 TMP `X`, Raycast Target 끔)를 띄우고, 살짝 튀었다가 0.5초 안에 사라지게 합니다. |
 | Stage | `AnswerTarget` / `AnswerPair` | 쌍둥이 2개를 묶어서 한쪽만 클릭해도 쌍 전체를 정답 처리합니다. 이벤트는 `OnFound`입니다. |
 | Stage | `StageManager` | 씬의 `AnswerPair`를 자동으로 모읍니다. 진행도·클리어 이벤트를 보내고 `StageTimer`를 돌립니다. 씬에 `TutorialGuide`가 있으면 안내를 닫는 순간(`OnClosed`) 타이머를 켜고, 없으면 `Start`에서 켭니다. 켠 뒤 **첫 번째 `Update`는 건너뜁니다**(로딩 직후 큰 deltaTime 제외. 에디터 첫 Play에서는 Start와 첫 Update가 다른 프레임일 수 있어 프레임 번호 비교로는 막지 못했음). 클리어 후 1.5초 뒤 `GameManager.ReportStageClear`를 부릅니다. `Add To Records`를 끄면(튜토리얼) 시간은 HUD에만 보이고 결과 기록·Total에는 들어가지 않습니다(`GameManager`가 "기록 제외" 로그만 남김). |
+| Stage | `PlayArea` | 섬마다 하나씩 두는 보이지 않는 구역 상자입니다(`Stage/PlayArea Left`·`PlayArea Right`, Pivot과 같은 x ±100). 물리 Collider 없이 `Contains(점)`으로 계산하며, Transform의 위치·회전·스케일을 따릅니다. `Center`(로컬)·`Size`(기본 20×15×20)를 쓰고, **`Mirror Of`를 지정하면 그 상자의 Center/Size를 그대로 따라갑니다**(오른쪽 → 왼쪽 지정, 한 단계만). 빨간 선 기즈모는 항상 보이고, 선택하면 반투명 면도 칠합니다. 씬에 PlayArea가 하나도 없으면 모든 곳이 반응합니다. |
 | Stage | `StageTimer` | 일반 C# 클래스로 된 스톱워치입니다. `Time.deltaTime`을 쓰므로 일시정지 중에는 멈춥니다. |
 | UI | `StageHUD` | 스테이지 이름, 스톱워치(`<mspace>`로 숫자 폭 고정), `( 2 / 5 )` 진행도를 표시합니다. |
 | UI | `PauseController` | Esc 키로 일시정지합니다(키 값은 프리팹에 저장된 `pauseKey`). 클리어 후와 `TutorialGuide`가 열려 있는 동안에는 새로 일시정지하지 않습니다. 항상 켜져 있는 루트에 붙이고, 자식 Popup만 켜고 끕니다. `Prefabs/Pause Menu.prefab`에 들어 있습니다. |
@@ -147,11 +148,11 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 - ✅ 튜토리얼 안내 패널 UI(3페이지, 임시 흰 창 + 검정 반투명 배경, 나중에 UI 에셋으로 꾸밈)와 `Prefabs/Tutorial Guide.prefab`, Add To Records 끔, 안내 중 타이머 00:00.00 확인(에디터 첫 Play 포함), 기획서 3.1·4.2와 변경 이력 갱신 (2026-10-23).
 - ✅ 무반응 레이어 (2026-10-23): `Background` 레이어(User Layer 10)와 `ClickInteractor.silentLayers`를 추가했고, 미끼 큐브로 테스트해 X·로그가 없는 것을 확인했습니다.
 - **클릭 반응 규칙 (사용자 결정, 2026-10-23)**: 참고 게임 스크린샷 기준입니다.
-  - 플랫폼 **밖**의 주변 장식(바위, 바깥 차량, 사막 바닥)은 무반응입니다. → **구역 상자(PlayArea)**로 처리합니다(방법 2, 아직 안 만듦).
+  - 플랫폼 **밖**의 주변 장식(바위, 바깥 차량, 사막 바닥)은 무반응입니다. → **구역 상자(PlayArea)**로 처리합니다(✅ 코드 완료 2026-10-23, 오른쪽은 Mirror Of로 왼쪽을 따라가는 B안. ⏳ 씬 배치·테스트 대기).
   - **플랫폼 자체(윗면 바닥, 옆면 두께, 길)**도 무반응입니다. → 이 오브젝트들을 `Background` 레이어로 둡니다(✅ 코드 완료).
   - 플랫폼 **위에 올린 물체**만 반응합니다(정답 반짝임 / 오답 X). 바닥의 차이점(맨홀, 도로 표시, 웅덩이 등)은 바닥에서 0.01~0.02 띄운 **별도 물체 + Collider**로 만듭니다.
 - ⏳ **다음 작업 후보** (사용자가 하나씩 고름):
-  1. **PlayArea**: 섬마다 보이지 않는 상자 하나(`Stage` 아래, 왼쪽·오른쪽 같은 크기, 플랫폼 위아래로 넉넉히, 빨간 선 기즈모). 물리 Collider 없이 클릭 지점이 상자 안인지만 계산합니다. `ClickInteractor`는 맞은 지점이 어느 PlayArea에도 없으면 무반응으로 처리하고, PlayArea가 없는 씬은 지금처럼 동작합니다. 예상 1시간 이내입니다.
+  1. ~~**PlayArea**~~ (코드 완료, 씬 배치 남음): 섬마다 보이지 않는 상자 하나(`Stage` 아래, 왼쪽·오른쪽 같은 크기, 플랫폼 위아래로 넉넉히, 빨간 선 기즈모). 물리 Collider 없이 클릭 지점이 상자 안인지만 계산합니다. `ClickInteractor`는 맞은 지점이 어느 PlayArea에도 없으면 무반응으로 처리하고, PlayArea가 없는 씬은 지금처럼 동작합니다. 예상 1시간 이내입니다.
   2. **정답 쌍 만들기** 에디터 도구: 두 물체 선택 → AnswerTarget·Collider(Mesh/Box)·`Props/AnswerPair_NN` 자동 생성, 같은 섬·이미 등록·Background 레이어면 거부, Undo 지원. 예상 1시간입니다.
   3. **스테이지 검사** 에디터 도구: 쌍둥이 동일성(메시·머티리얼·크기·회전·섬 중심 기준 위치·자식 구성), **의도하지 않은 쌍둥이**(등록 안 했는데 양쪽 같은 위치에 같은 물체), 연결·Collider(없음·꺼짐·Trigger), 레이어(정답이 Background, 큰 바닥이 Default), PlayArea 밖의 정답, 정답 개수 3~5, 정답 머티리얼 Emission을 봅니다. 로그를 클릭하면 오브젝트가 선택되고, 씬은 고치지 않습니다. 예상 2시간입니다.
   - 도구는 `Scripts/Editor/`에 두고(빌드 제외), 메뉴는 `Tools → You're Right`로 제안해 두었습니다.
