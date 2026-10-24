@@ -147,7 +147,17 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 - **에셋과 디오라마는 사용자가 직접 구해서 만듭니다.** Claude는 코드, 도구, 단계별 안내를 맡습니다. 디오라마용 에셋은 Synty POLYGON Apocalypse(`99. External Assets/Synty`)와 **Palmov Island `Low Poly Atmospheric Locations Pack`**(`Assets/Palmov Island`, 약 14MB, 2026-10-23 추가, `99. External Assets`가 아니라 Assets 바로 아래에 있음)입니다. 둘 다 git에 있습니다.
 - 2026-10-23에 Render Pipeline Converter로 Built-in Standard 머티리얼(Synty, Parazite, Paper Plane 등 20개)을 URP Lit으로 바꿨습니다.
 - 지금 섬 바닥과 테스트 큐브가 쓰는 `Lit` 머티리얼은 **URP 패키지 기본 머티리얼**(guid `31321ba1…`, 읽기 전용)입니다. Emission을 켤 수 없으므로, 정답 오브젝트에는 프로젝트 안의 머티리얼(`100. 3D Project-1/Materials`)을 씁니다.
-- **집에서 이어서 할 일**: 튜토리얼 디오라마부터 배치합니다(순서: 왼쪽 섬 완성 → x +200으로 복제 → 오른쪽에서 차이 만들기 → PlayArea Left 크기 조절 → Create Answer Pair로 3쌍 등록 → Play 확인 → Claude에게 씬 확인 요청).
+- **디오라마 형태 (사용자 결정, 2026-10-24)**: 공중에 뜬 문제 구역 하나만 둡니다(네모 블록 또는 공중 섬, 맵마다 고름). 바깥 풍경·장식 섬은 없고, 배경은 두 카메라 모두 Solid Color(스테이지마다 다른 색)입니다. 아래쪽 문제 계획은 유지합니다.
+- **다음 할 일: 튜토리얼 디오라마 제작 순서**
+  1. 준비: 테스트 큐브 4개와 `AnswerPair_01`을 지우고, `Props/Left` 그룹을 만듭니다(원점).
+  2. 문제 구역: 네모 블록이나 공중 섬 하나를 `Stage` 아래에 둡니다. x -100, 윗면 y 0 근처, 가로세로 20~30(Far Clip 60), **Background 레이어**(자식 포함), Collider를 붙입니다. 임시 큐브 `Stage Left`·`Right`는 지웁니다.
+  3. 배경색: `Main Camera`·`Right Camera`의 Background Type을 Solid Color로 하고 같은 색을 고릅니다.
+  4. 물체 배치: `Props/Left` 아래에 8~12개를 놓고, 그중 정답 3개(크고 잘 보이는 것)를 정합니다.
+  5. 복제: 구역과 `Props/Left`를 Ctrl + D로 복제하고 x를 +200 합니다(`Props/Right`).
+  6. 차이 만들기: 정답 3개는 그대로 두고 나머지는 전부 다르게 바꿉니다.
+  7. `PlayArea Left` 크기를 구역에 맞춥니다(Right는 Mirror Of로 따라감).
+  8. Create Answer Pair로 3쌍을 등록하고, Emission 경고가 나오면 머티리얼에서 Emission을 켜고 색을 검정으로 둡니다.
+  9. Play 확인 → 저장 → Claude에게 씬 확인을 요청합니다.
 - ✅ 코드: `TutorialGuide`(새로 추가, `OnClosed`), `GameManager.ReportStageClear(..., addRecord)`, `StageManager.addToRecords`와 타이머 시작 시점, `PauseController`(안내 중 Esc 무시).
 - ✅ 튜토리얼 안내 패널 UI(3페이지, 임시 흰 창 + 검정 반투명 배경, 나중에 UI 에셋으로 꾸밈)와 `Prefabs/Tutorial Guide.prefab`, Add To Records 끔, 안내 중 타이머 00:00.00 확인(에디터 첫 Play 포함), 기획서 3.1·4.2와 변경 이력 갱신 (2026-10-23).
 - ✅ 무반응 레이어 (2026-10-23): `Background` 레이어(User Layer 10)와 `ClickInteractor.silentLayers`를 추가했고, 미끼 큐브로 테스트해 X·로그가 없는 것을 확인했습니다.
