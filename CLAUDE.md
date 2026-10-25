@@ -158,6 +158,19 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
   7. `PlayArea Left` 크기를 구역에 맞춥니다(Right는 Mirror Of로 따라감).
   8. Create Answer Pair로 3쌍을 등록하고, Emission 경고가 나오면 머티리얼에서 Emission을 켜고 색을 검정으로 둡니다.
   9. Play 확인 → 저장 → Claude에게 씬 확인을 요청합니다.
+- **1-1 진행 상황 (2026-10-24, 사용자가 튜토리얼보다 1-1을 먼저 만들기로 함)**
+  - **1-1 = 체스판 맵**입니다. 에셋은 `Assets/SmallBigSquare/LowPolyChessPieces`(git에 있음)이고, 나이트는 `Horse` 프리팹입니다. 기물 프리팹은 기준점이 바닥 가운데입니다.
+  - **왼쪽 판 `Stage/BW_board Left`**: Position (-109.23, -2.63, -9.81), Rotation Y 90, Scale 20, Background 레이어(자식 포함). 에셋의 기준점이 판 모서리에 있어서 Box Collider Center를 (-0.4906, 0.0658, 0.4616)로 고쳤습니다(Size는 원래 값). 판 가운데가 (-100, 0, 0)이고, Y 90으로 돌려 h1(오른쪽 아래)이 밝은 칸이 되게 했습니다.
+  - **`Props/Left`는 (-100, 0, 0)**에 있어서, 기물 Position에 판 가운데 기준 칸 좌표를 그대로 씁니다.
+    - a~h → X: -9.23, -6.59, -3.96, -1.32, 1.32, 3.96, 6.59, 9.23
+    - 1~8 → Z: -9.81, -7.01, -4.21, -1.40, 1.40, 4.21, 7.01, 9.81 (1줄이 카메라 쪽, 흰색)
+  - **기물 Y는 -0.01**이고, 나이트만 **-0.26**입니다(모델 탓에 -0.01이면 떠 보여서 눈으로 맞춤). 판 윗면의 정확한 높이는 -0.044입니다. 기물 32개 기본 배치를 마쳤고(퀸 d, 킹 e), 검은 기물은 Rotation Y 180입니다.
+  - **다음 할 일**:
+    1. 검은 나이트 2개(`Horse (1)`)의 Y를 -0.26으로 맞춥니다. 지금은 -0.01입니다.
+    2. 오른쪽 만들기: `BW_board Left`를 복제해 `BW_board Right`로 바꾸고 (90.77, -2.63, -9.81) Rotation Y 90에 둡니다. `Left`를 복제해 `Right`로 바꾸고 Position X를 100으로 둡니다(안의 좌표는 그대로).
+    3. 정답 개수를 정합니다(아직 미정, 3~5). 오른쪽에서 정답만 그대로 두고 나머지를 바꿉니다(기물 종류, 색 변형 프리팹, 한 칸 이동, 회전).
+    4. `PlayArea Left` Size를 약 24 × 15 × 24로 늘립니다(판이 약 21.1 × 22.4). Create Answer Pair로 등록하고, Play로 확인합니다.
+  - 튜토리얼 씬은 디오라마 작업 중이라 정답 쌍이 없습니다. Menu에서 시작하면 튜토리얼에서 막히므로, 1-1은 씬을 직접 열어 테스트합니다.
 - ✅ 코드: `TutorialGuide`(새로 추가, `OnClosed`), `GameManager.ReportStageClear(..., addRecord)`, `StageManager.addToRecords`와 타이머 시작 시점, `PauseController`(안내 중 Esc 무시).
 - ✅ 튜토리얼 안내 패널 UI(3페이지, 임시 흰 창 + 검정 반투명 배경, 나중에 UI 에셋으로 꾸밈)와 `Prefabs/Tutorial Guide.prefab`, Add To Records 끔, 안내 중 타이머 00:00.00 확인(에디터 첫 Play 포함), 기획서 3.1·4.2와 변경 이력 갱신 (2026-10-23).
 - ✅ 무반응 레이어 (2026-10-23): `Background` 레이어(User Layer 10)와 `ClickInteractor.silentLayers`를 추가했고, 미끼 큐브로 테스트해 X·로그가 없는 것을 확인했습니다.
