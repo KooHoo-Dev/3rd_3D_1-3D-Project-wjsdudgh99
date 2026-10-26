@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: d85ea9ba0e8a03646b6d3345681e0853, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
+  m_Sun: {fileID: 1188482372}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -413,7 +413,7 @@ Camera:
   m_GameObject: {fileID: 275080781}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -468,21 +468,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 985087762}
     m_Modifications:
+    - target: {fileID: 4065602428795925316, guid: dc9c860c0461534488018ebede9b5f12, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2c1cb20b129b70a44855389db094899c, type: 2}
     - target: {fileID: 7074948992791993279, guid: dc9c860c0461534488018ebede9b5f12, type: 3}
       propertyPath: m_Name
       value: Soccer
       objectReference: {fileID: 0}
     - target: {fileID: 8527729748016212629, guid: dc9c860c0461534488018ebede9b5f12, type: 3}
       propertyPath: m_LocalScale.x
-      value: 10.5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8527729748016212629, guid: dc9c860c0461534488018ebede9b5f12, type: 3}
       propertyPath: m_LocalScale.y
-      value: 10.5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8527729748016212629, guid: dc9c860c0461534488018ebede9b5f12, type: 3}
       propertyPath: m_LocalScale.z
-      value: 10.5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8527729748016212629, guid: dc9c860c0461534488018ebede9b5f12, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2659,7 +2663,7 @@ Camera:
   m_GameObject: {fileID: 1372187988}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -3503,7 +3507,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6447903539749146584, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.9990483
+      value: 0.9961947
       objectReference: {fileID: 0}
     - target: {fileID: 6447903539749146584, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
       propertyPath: m_LocalRotation.x
@@ -3511,7 +3515,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6447903539749146584, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.043619405
+      value: 0.08715578
       objectReference: {fileID: 0}
     - target: {fileID: 6447903539749146584, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
       propertyPath: m_LocalRotation.z
@@ -3523,7 +3527,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6447903539749146584, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 6447903539749146584, guid: 9b087ad3ee72dbd408584ba96bc2cc57, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
