@@ -163,7 +163,17 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
   8. Create Answer Pair로 3쌍을 등록하고, Emission 경고가 나오면 머티리얼에서 Emission을 켜고 색을 검정으로 둡니다.
   9. Play 확인 → 저장 → Claude에게 씬 확인을 요청합니다.
 - **튜토리얼 = 공 비교 맵 (2026-10-26 결정)**: 야구·농구·축구·테니스공을 두고 비교합니다. 프로젝트에는 공 모델이 없어(Palmov의 크리스마스 장식 공뿐) Asset Store(`low poly sports balls`)에서 구하거나 임시로 색 입힌 Sphere를 씁니다. 섬 바닥 후보는 Palmov `Models/Lands/land soccer field`(Background 레이어), 장식은 `soccer goal`·`mesh fence`. **뼈대 완료 (2026-10-26)**: 공은 `Assets/Saritasa/Models/Sport_Balls`(7종 프리팹, MeshCollider 포함, 약 62MB, 머티리얼 URP 변환 완료). 이 에셋을 임포트할 때 Post Processing v2 패키지가 같이 들어와 변환 창이 깨져서 패키지를 제거함(Player의 Scripting Define에 `UNITY_POST_PROCESSING_STACK_V2`가 남아 있으면 지울 것). 섬은 `Stage/land soccer field Left`·`Right` (∓100, -5, 0), 공 7개(Scale 10)는 `Props/Left`·`Right`(회전 없음), 정답은 미식축구공·골프공·배구공. 카메라 Pitch Min 5, Distance Max 25. **2026-10-26 집에서 한 일**: ✅ 하늘 — `Materials/M_Sky_Tutorial.mat`(Skybox/Procedural: Sun High Quality, Size 0.04, Convergence 5, Thickness 0.8, Sky Tint (110,160,220), Ground (90,110,80), Exposure 1.2)을 Lighting 창 Skybox Material로, Sun Source는 Directional Light, 두 카메라 Background Type은 Skybox(튜토리얼만 단색 대신 하늘). ✅ 축구장 바닥 — 씬이 아니라 프리팹 에셋 `land soccer field.prefab` 자체를 Background 레이어로 바꿈(튜토리얼에서만 씀). ✅ 정답 머티리얼 Emission(검정) 켬: `endesga64`(체스 전체), `Football`·`Golf`·`Volleyball`. ✅ 축구공 색 차이 — 오른쪽 축구공만 `Saritasa/.../Materials/Soccer Navy.mat`(Base Map `Soccer_A Navy.png`: 원본 `Soccer_A.png`의 검은 무늬를 남색 (25,40,110)으로 바꾼 것. 텍스처의 검은 부분은 Base Color 곱하기로는 안 바뀌어서 PowerShell + 인라인 C#(System.Drawing, 밝기 0.5 미만을 새 색으로 섞음)으로 만듦), 크기는 양쪽 10. 테니스공은 양쪽 Scale 10으로 맞춤.
-  ⏳ **남은 오답 차이 (추천안, 사용자 승인)**: 공 자리는 x -6/0/6 × z -6/0/6. 야구공 (6,0) → 오른쪽을 테니스공으로 바꾸기, 농구공 (6,-6) → 양쪽 회전 0, 오른쪽 Scale 6, 테니스공 (-6,0) → 회전 0, 오른쪽에서 빼기, 새 공 (0,6) 왼쪽 축구공 / 오른쪽 농구공, (0,-6) 왼쪽 야구공만. 크기를 바꾼 공은 Y를 조절해 잔디에 붙임. 끝나면 Validate Stage로 함정 후보가 사라졌는지 확인. **당구공 2쌍 추가 (2026-10-26, 사용자)**: `Assets/Eight-ball Rack`(약 5.8MB, 머티리얼 15개 URP Lit 변환)의 8번·10번 공을 (0,2,-6)·(0,2,6)에 두고, 오른쪽만 회전을 다르게 함(8번 180°: 반대편 숫자가 보여 숫자 크기가 다름, 10번 120°). 둘 다 의도한 차이라 검사 도구에서는 함정 후보(ℹ)로 나오는 것이 정상입니다. 이 때문에 위 "새 공 (0,6)·(0,-6)" 계획은 당구공으로 바뀐 것으로 봅니다. 튜토리얼 원칙: 공 8~10개·정답 3쌍, 차이는 종류·색·크기·빼기로 눈에 띄게, **회전으로 차이를 만들지 않음**, 크기는 과장(큰 공 1.2, 작은 공 0.6 정도), `Props/Right`는 회전 없이 복제. 테스트 큐브·`AnswerPair_01` 정리, 안내 1페이지에 3초 제한 문구 추가.
+  ✅ **오답 차이 완료 (2026-10-26, 공 9개)**: 공 자리는 x -6/0/6 × z -6/0/6이고, 모두 Y 2입니다.
+  | 자리 (x, z) | 왼쪽 | 오른쪽 | 차이 |
+  |---|---|---|---|
+  | (6, 6) / (-6, -6) / (0, 0) | 미식축구공 / 배구공 / 골프공 | 같음 | **정답** |
+  | (-6, 6) | 축구공 | 남색 축구공(`Soccer Navy`) | 색 |
+  | (6, 0) | 야구공 Scale 10 | 야구공 Scale 12 | 크기 |
+  | (-6, 0) | 테니스공 | 야구공 | 종류 |
+  | (6, -6) | 농구공 | 농구공, 솔기 각도가 다름 | 회전 |
+  | (0, -6) | 8번 당구공 | 8번, 180° (`Eight-ball Rack`, 반대편 숫자가 보여 숫자 크기가 다름) | 회전 |
+  | (0, 6) | 10번 당구공 | 10번, 120° | 회전 |
+  검사 도구에서는 오류 0, 함정 후보(ℹ) 4개(야구공 크기, 농구공·8번·10번 회전)가 나오는 것이 정상입니다. 튜토리얼 원칙: 공 8~10개·정답 3쌍, 차이는 종류·색·크기·빼기로 눈에 띄게, 크기는 과장(큰 공 1.2, 작은 공 0.6 정도). **회전 차이는 미세하면(5° 등) 쓰지 않지만, 농구공 솔기나 당구공 숫자처럼 한눈에 보이면 허용합니다(사용자 결정).** ⏳ 남은 것: 야구공 1.2배가 작은 공이라 덜 보일 수 있음(0.6이나 1.5 이상 제안, 사용자 판단), 작은 공(야구·테니스·골프)이 Y 2라 떠 보임(의도가 아니면 Y를 낮춤), 안내 1페이지에 3초 제한 문구 추가.
 - **1-1 진행 상황 (2026-10-24, 사용자가 튜토리얼보다 1-1을 먼저 만들기로 함)**
   - **1-1 = 체스판 맵**입니다. 에셋은 `Assets/SmallBigSquare/LowPolyChessPieces`(git에 있음)이고, 나이트는 `Horse` 프리팹입니다. 기물 프리팹은 기준점이 바닥 가운데입니다.
   - **왼쪽 판 `Stage/BW_board Left`**: Position (-109.23, -2.63, -9.81), Rotation Y 90, Scale 20, Background 레이어(자식 포함). 에셋의 기준점이 판 모서리에 있어서 Box Collider Center를 (-0.4906, 0.0658, 0.4616)로 고쳤습니다(Size는 원래 값). 판 가운데가 (-100, 0, 0)이고, Y 90으로 돌려 h1(오른쪽 아래)이 밝은 칸이 되게 했습니다.
