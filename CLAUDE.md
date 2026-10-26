@@ -220,6 +220,10 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 - 결과 화면: 기록은 최대 6줄(튜토리얼 제외)이라 지금 `Result Panel`(1000 × 750)에 들어갈 것으로 보입니다. 마무리 때 확인합니다.
 
 **나중에 할 일**
-- Play 모드 자동 테스트를 만듭니다(`Assets/100. 3D Project-1/Tests/PlayMode/` + asmdef). 확인할 흐름: Menu → Start → 스테이지 4개 정답 처리 → Result 기록 4개와 Total 합계 → 메인 메뉴 → 재시작 시 기록 초기화, 오답·중복 클릭은 무시. 사용자가 집 컴퓨터에서 확인을 마친 뒤 진행하기로 했습니다. CliBridge에 `/tests/run` 엔드포인트를 추가해 Claude가 직접 실행하는 방식을 제안해 둔 상태입니다.
+- Play 모드 자동 테스트를 만듭니다(`Assets/100. 3D Project-1/Tests/PlayMode/` + asmdef). 지금은 Claude가 Unity에서 Play·클릭을 할 수 없어서 흐름 테스트는 사용자가 직접 하고, Claude는 `[GameManager] 씬 이동` 로그로 확인합니다. **언제 만들지는 미정**입니다(디오라마를 먼저 만들고 13단계 마무리 때 만드는 것을 추천, 2026-10-27).
+  - **확인할 흐름 (7스테이지 기준)**: Menu → Start → 튜토리얼 안내 닫기 → 각 스테이지 정답 쌍을 코드로 찾음 처리(`AnswerPair.TryFind`) → 클리어 창 Next → … 순서 7개와 HUD 이름, 튜토리얼 기록 제외, Result 기록 6개와 Total 합계, 3-2 클리어 버튼 "최종 결과", 이미 찾은 쌍 다시 누르기 무시, Result → 메뉴 → 재시작 시 기록 초기화, 일시정지 → 메뉴.
+  - **확인하지 못하는 것**: 실제 마우스 클릭(Raycast·PlayArea·Background 레이어·3초 제한)과 화면 모습. 이 부분은 직접 Play와 검사 도구로 봅니다.
+  - **예상 시간 약 3~4.5시간**: 테스트 어셈블리 준비 30~45분, 테스트용 연결 20분, 테스트 작성 1~1.5시간, CliBridge `/tests/run`(실행·결과 조회 두 단계) 45분~1시간, 디버깅 30분~1시간(씬을 넘어 살아남는 `GameManager`·`SoundManager` 정리, 씬 로딩 대기, `timeScale`). `/tests/run`을 빼면 약 2~3시간(사용자가 Test Runner 창에서 실행).
+  - **asmdef: A안으로 정함(Claude 추천, 사용자 동의 2026-10-27)**. 테스트 asmdef는 Assembly-CSharp을 참조할 수 없으므로, 게임 코드(`Assets/100. 3D Project-1/Scripts`)에 `YoureRight.asmdef`를 추가하고 Editor 도구(`AnswerPairCreator`, `StageValidator`)는 Editor 전용 asmdef로 나눕니다. 처음 한 번 컴파일 오류 정리가 필요합니다. (B안 "Enable playmode tests for all assemblies"는 테스트 코드가 Assembly-CSharp에 섞이고 `#if UNITY_INCLUDE_TESTS`로 감싸야 해서 쓰지 않음)
 - 디오라마 아래쪽에도 문제를 둘 예정입니다. 섬 바닥은 두께가 있는 메시로 만들고(Plane은 아래에서 투명하게 보임), 아랫면이 어둡지 않게 조명을 보강합니다.
 - 플랫폼·바닥·길 오브젝트는 `Background` 레이어로 둡니다(Collider는 남겨 둬서 클릭을 막게 함). 예전 계획(Terrain을 Clickable Layers에서 빼기)은 클릭이 바닥을 뚫고 지나가는 문제가 있어서 쓰지 않습니다.
