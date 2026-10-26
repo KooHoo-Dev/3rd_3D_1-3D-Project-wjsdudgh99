@@ -87,6 +87,7 @@ namespace YoureRight
         {
             // 일시정지 상태로 씬을 넘기면 다음 씬도 멈춘 채로 시작하므로 항상 되돌립니다.
             Time.timeScale = 1f;
+            Debug.Log($"[GameManager] 씬 이동: {SceneManager.GetActiveScene().name} → {sceneName} (기록 {records.Count}개)");
             SceneManager.LoadScene(sceneName);
         }
     }
