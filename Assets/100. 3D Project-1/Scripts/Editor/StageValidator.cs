@@ -3,6 +3,7 @@ using System.Linq;
 using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 namespace YoureRight
@@ -27,6 +28,8 @@ namespace YoureRight
         private const float ScaleTolerance = 0.01f;       // 비율 (1%)
         private const float TrapDistance = 0.5f;          // 이 거리 안에 있는 같은 물체는 함정 후보
         private const float SymmetryTolerance = 0.01f;    // 메시 크기 대비 꼭짓점 오차 비율
+        private const float ColorTolerance = 0.05f;       // 색(0~1) 채널별 오차
+        private const int RayDirections = 4096;           // 대칭 판단 때 쏘는 광선 수 (방향 간격 약 3.5°)
         private const int MinPairs = 3;
         private const int MaxPairs = 5;
         private const int MaxStageLayerReports = 10;
@@ -48,12 +51,40 @@ namespace YoureRight
             public string Shape;               // 메시·머티리얼·자식 구성
         }
 
+        // 메시 하나의 꼭짓점 위치, UV(없으면 null), 서브메시별 삼각형 인덱스
+        private class MeshPoints
+        {
+            public Vector3[] Vertices;
+            public Vector2[] Uvs;
+            public int[][] SubMeshTriangles;
+        }
+
+        // 루트 기준 삼각형 하나와, 색을 읽을 텍스처 정보
+        private class Triangle
+        {
+            public Vector3 A, B, C;
+            public Vector2 UvA, UvB, UvC;
+            public Texture2D Texture;      // 없으면 null (색은 흰색)
+            public Vector2 Scale, Offset;  // 머티리얼의 Tiling·Offset
+        }
+
+        // 광선 하나의 결과: 맞았는지, 가장 바깥 면까지의 거리, 그 자리의 색
+        private struct RaySample
+        {
+            public bool Hit;
+            public float Distance;
+            public Color Color;
+        }
+
+        private static Vector3[] rayDirections;   // 피보나치 구 방향 (처음 한 번만 계산)
+
         private static Island leftIsland;
         private static Island rightIsland;
         private static int errorCount;
         private static int warningCount;
         private static int infoCount;
-        private static readonly Dictionary<Mesh, Vector3[]> vertexCache = new Dictionary<Mesh, Vector3[]>();
+        private static readonly Dictionary<Mesh, MeshPoints> meshCache = new Dictionary<Mesh, MeshPoints>();
+        private static readonly Dictionary<Texture, Texture2D> readableTextures = new Dictionary<Texture, Texture2D>();
         private static readonly HashSet<Material> warnedMaterials = new HashSet<Material>();
 
         [MenuItem(MenuPath)]
@@ -67,7 +98,7 @@ namespace YoureRight
 
             Scene scene = SceneManager.GetActiveScene();
             errorCount = warningCount = infoCount = 0;
-            vertexCache.Clear();
+            meshCache.Clear();
             warnedMaterials.Clear();
             Debug.Log($"{LogPrefix} {scene.name} 검사를 시작합니다.");
 
@@ -87,6 +118,10 @@ namespace YoureRight
                 CheckCameras(cameras);
                 CheckLights(scene);
             }
+
+            // 대칭 판단에 쓴 텍스처 임시 복사본을 지웁니다.
+            foreach (Texture2D copy in readableTextures.Values) Object.DestroyImmediate(copy);
+            readableTextures.Clear();
 
             Finish(scene);
         }
@@ -506,73 +541,219 @@ namespace YoureRight
             return string.Join("|", parts);
         }
 
-        // b가 a를 돌려 놓은 것과 똑같아 보이는지, 꼭짓점을 그만큼 돌려서 자기 자신과 겹치는지로 판단합니다.
+        // b가 a를 돌려 놓은 것과 똑같아 보이는지 판단합니다.
+        // a의 기준점에서 사방으로 광선을 쏴서, 모든 방향 d에서 d와 (돌린 만큼 돌아간) Δd의 거리·색이 같으면 똑같아 보입니다.
+        // 메시를 삼각형으로 어떻게 나눴는지와 상관없이 겉모습(모양 + 색)만으로 판단합니다.
         private static bool IsRotationallySymmetric(Transform a, Transform b, out string note)
         {
             note = "";
-            List<Vector3> points = GetLocalPoints(a, out float tolerance);
-            if (points == null)
+            List<Triangle> triangles = GetLocalTriangles(a, out float size);
+            if (triangles == null)
             {
-                note = " (꼭짓점을 읽지 못해 대칭 여부를 판단할 수 없음)";
+                note = " (메시를 읽지 못해 대칭 여부를 판단할 수 없음)";
                 return false;
             }
 
-            var cells = new HashSet<Vector3Int>(points.Select(p => ToCell(p, tolerance)));
+            float distanceTolerance = Mathf.Max(size * SymmetryTolerance, 0.0001f);
             Quaternion delta = Quaternion.Inverse(a.rotation) * b.rotation;
 
-            foreach (Vector3 point in points)
+            foreach (Vector3 direction in GetRayDirections())
             {
-                if (HasNearbyCell(cells, ToCell(delta * point, tolerance)) == false) return false;
+                RaySample first = CastRay(triangles, direction);
+                RaySample second = CastRay(triangles, delta * direction);
+
+                if (first.Hit != second.Hit) return false;
+                if (first.Hit == false) continue;
+                if (Mathf.Abs(first.Distance - second.Distance) > distanceTolerance) return false;
+                if (SameColor(first.Color, second.Color) == false) return false;
             }
             return true;
         }
 
-        // 루트 기준 로컬 좌표의 꼭짓점들입니다. 메시를 하나라도 못 읽으면 null입니다.
-        private static List<Vector3> GetLocalPoints(Transform root, out float tolerance)
+        // 루트 기준 삼각형들입니다. 서브메시마다 그 머티리얼의 텍스처를 붙여 둡니다.
+        // size는 전체 크기(가장 긴 변)입니다. 메시를 못 읽으면 null입니다.
+        private static List<Triangle> GetLocalTriangles(Transform root, out float size)
         {
-            tolerance = 0f;
-            var points = new List<Vector3>();
+            size = 0f;
+            var triangles = new List<Triangle>();
             Matrix4x4 toRoot = root.worldToLocalMatrix;
+            bool hasBounds = false;
+            Bounds bounds = default;
 
             foreach (MeshFilter meshFilter in root.GetComponentsInChildren<MeshFilter>())
             {
                 if (meshFilter.sharedMesh == null) continue;
 
-                Vector3[] vertices = GetVertices(meshFilter.sharedMesh);
-                if (vertices == null || vertices.Length == 0) return null;
+                MeshPoints data = GetMeshPoints(meshFilter.sharedMesh);
+                if (data == null || data.Vertices.Length == 0) return null;
 
+                Renderer renderer = meshFilter.GetComponent<Renderer>();
+                Material[] materials = renderer != null ? renderer.sharedMaterials : new Material[0];
                 Matrix4x4 matrix = toRoot * meshFilter.transform.localToWorldMatrix;
-                foreach (Vector3 vertex in vertices) points.Add(matrix.MultiplyPoint3x4(vertex));
-            }
-            if (points.Count == 0) return null;
 
-            Bounds bounds = new Bounds(points[0], Vector3.zero);
-            foreach (Vector3 point in points) bounds.Encapsulate(point);
-            tolerance = Mathf.Max(Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z) * SymmetryTolerance, 0.0001f);
-            return points;
+                var vertices = new Vector3[data.Vertices.Length];
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    vertices[i] = matrix.MultiplyPoint3x4(data.Vertices[i]);
+                    if (hasBounds) bounds.Encapsulate(vertices[i]);
+                    else
+                    {
+                        bounds = new Bounds(vertices[i], Vector3.zero);
+                        hasBounds = true;
+                    }
+                }
+
+                // 서브메시마다 그 서브메시에 칠해지는 머티리얼의 텍스처에서 색을 읽습니다.
+                for (int s = 0; s < data.SubMeshTriangles.Length; s++)
+                {
+                    Material material = s < materials.Length ? materials[s] : null;
+                    Texture2D readable = material != null && material.mainTexture != null && data.Uvs != null
+                        ? GetReadableTexture(material.mainTexture)
+                        : null;
+
+                    int[] indices = data.SubMeshTriangles[s];
+                    for (int t = 0; t + 2 < indices.Length; t += 3)
+                    {
+                        var triangle = new Triangle
+                        {
+                            A = vertices[indices[t]],
+                            B = vertices[indices[t + 1]],
+                            C = vertices[indices[t + 2]],
+                            Texture = readable,
+                        };
+                        if (readable != null)
+                        {
+                            triangle.UvA = data.Uvs[indices[t]];
+                            triangle.UvB = data.Uvs[indices[t + 1]];
+                            triangle.UvC = data.Uvs[indices[t + 2]];
+                            triangle.Scale = material.mainTextureScale;
+                            triangle.Offset = material.mainTextureOffset;
+                        }
+                        triangles.Add(triangle);
+                    }
+                }
+            }
+            if (triangles.Count == 0) return null;
+
+            size = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+            return triangles;
+        }
+
+        // 기준점(원점)에서 direction 쪽으로 광선을 쏴서 가장 먼 면(바깥에서 보이는 면)을 찾습니다. (양면, Möller–Trumbore)
+        private static RaySample CastRay(List<Triangle> triangles, Vector3 direction)
+        {
+            var result = new RaySample();
+            Triangle best = null;
+            float bestU = 0f;
+            float bestV = 0f;
+
+            foreach (Triangle triangle in triangles)
+            {
+                Vector3 edge1 = triangle.B - triangle.A;
+                Vector3 edge2 = triangle.C - triangle.A;
+                Vector3 p = Vector3.Cross(direction, edge2);
+                float det = Vector3.Dot(edge1, p);
+                if (Mathf.Abs(det) < 1e-9f) continue;
+
+                float inverse = 1f / det;
+                Vector3 s = -triangle.A;   // 광선 시작점(원점) - A
+                float u = Vector3.Dot(s, p) * inverse;
+                if (u < 0f || u > 1f) continue;
+
+                Vector3 q = Vector3.Cross(s, edge1);
+                float v = Vector3.Dot(direction, q) * inverse;
+                if (v < 0f || u + v > 1f) continue;
+
+                float distance = Vector3.Dot(edge2, q) * inverse;
+                if (distance <= 0f || (result.Hit && distance <= result.Distance)) continue;
+
+                result.Hit = true;
+                result.Distance = distance;
+                best = triangle;
+                bestU = u;
+                bestV = v;
+            }
+
+            result.Color = Color.white;
+            if (best != null && best.Texture != null)
+            {
+                Vector2 uv = best.UvA * (1f - bestU - bestV) + best.UvB * bestU + best.UvC * bestV;
+                result.Color = best.Texture.GetPixelBilinear(
+                    uv.x * best.Scale.x + best.Offset.x,
+                    uv.y * best.Scale.y + best.Offset.y);
+            }
+            return result;
+        }
+
+        // 구 위에 고르게 퍼진 방향들입니다. (피보나치 구, 처음 한 번만 계산)
+        private static Vector3[] GetRayDirections()
+        {
+            if (rayDirections != null) return rayDirections;
+
+            rayDirections = new Vector3[RayDirections];
+            float goldenAngle = Mathf.PI * (3f - Mathf.Sqrt(5f));
+            for (int i = 0; i < RayDirections; i++)
+            {
+                float y = 1f - 2f * (i + 0.5f) / RayDirections;
+                float radius = Mathf.Sqrt(1f - y * y);
+                float angle = goldenAngle * i;
+                rayDirections[i] = new Vector3(Mathf.Cos(angle) * radius, y, Mathf.Sin(angle) * radius);
+            }
+            return rayDirections;
         }
 
         // Read/Write가 꺼진 FBX 메시도 에디터에서는 MeshData로 읽을 수 있습니다. 실패하면 null입니다.
-        private static Vector3[] GetVertices(Mesh mesh)
+        private static MeshPoints GetMeshPoints(Mesh mesh)
         {
-            if (vertexCache.TryGetValue(mesh, out Vector3[] cached)) return cached;
+            if (meshCache.TryGetValue(mesh, out MeshPoints cached)) return cached;
 
-            Vector3[] result = null;
+            MeshPoints result = null;
             try
             {
                 if (mesh.isReadable)
                 {
-                    result = mesh.vertices;
+                    Vector2[] uvs = mesh.uv;
+                    result = new MeshPoints
+                    {
+                        Vertices = mesh.vertices,
+                        Uvs = uvs.Length > 0 ? uvs : null,
+                        SubMeshTriangles = new int[mesh.subMeshCount][],
+                    };
+                    for (int s = 0; s < mesh.subMeshCount; s++) result.SubMeshTriangles[s] = mesh.GetTriangles(s);
                 }
                 else
                 {
                     using (Mesh.MeshDataArray dataArray = Mesh.AcquireReadOnlyMeshData(mesh))
                     {
                         Mesh.MeshData data = dataArray[0];
-                        using (var buffer = new NativeArray<Vector3>(data.vertexCount, Allocator.Temp))
+                        result = new MeshPoints { SubMeshTriangles = new int[data.subMeshCount][] };
+                        using (var vertices = new NativeArray<Vector3>(data.vertexCount, Allocator.Temp))
                         {
-                            data.GetVertices(buffer);
-                            result = buffer.ToArray();
+                            data.GetVertices(vertices);
+                            result.Vertices = vertices.ToArray();
+                        }
+                        if (data.HasVertexAttribute(VertexAttribute.TexCoord0))
+                        {
+                            using (var uvs = new NativeArray<Vector2>(data.vertexCount, Allocator.Temp))
+                            {
+                                data.GetUVs(0, uvs);
+                                result.Uvs = uvs.ToArray();
+                            }
+                        }
+                        for (int s = 0; s < data.subMeshCount; s++)
+                        {
+                            // 삼각형이 아닌 서브메시(선·점)는 면이 없으므로 비워 둡니다.
+                            SubMeshDescriptor subMesh = data.GetSubMesh(s);
+                            if (subMesh.topology != MeshTopology.Triangles)
+                            {
+                                result.SubMeshTriangles[s] = new int[0];
+                                continue;
+                            }
+                            using (var indices = new NativeArray<int>(subMesh.indexCount, Allocator.Temp))
+                            {
+                                data.GetIndices(indices, s);
+                                result.SubMeshTriangles[s] = indices.ToArray();
+                            }
                         }
                     }
                 }
@@ -582,25 +763,36 @@ namespace YoureRight
                 result = null;
             }
 
-            vertexCache[mesh] = result;
+            meshCache[mesh] = result;
             return result;
         }
 
-        private static Vector3Int ToCell(Vector3 point, float size)
+        // Read/Write가 꺼진 텍스처도 읽을 수 있도록 GPU로 그려서 임시 복사본을 만듭니다. (검사가 끝나면 지움)
+        private static Texture2D GetReadableTexture(Texture texture)
         {
-            return new Vector3Int(Mathf.RoundToInt(point.x / size), Mathf.RoundToInt(point.y / size), Mathf.RoundToInt(point.z / size));
+            if (readableTextures.TryGetValue(texture, out Texture2D cached)) return cached;
+
+            RenderTexture renderTexture = RenderTexture.GetTemporary(texture.width, texture.height, 0, RenderTextureFormat.ARGB32);
+            RenderTexture previous = RenderTexture.active;
+            Graphics.Blit(texture, renderTexture);
+            RenderTexture.active = renderTexture;
+
+            var copy = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
+            copy.ReadPixels(new Rect(0, 0, texture.width, texture.height), 0, 0);
+            copy.Apply();
+
+            RenderTexture.active = previous;
+            RenderTexture.ReleaseTemporary(renderTexture);
+
+            readableTextures[texture] = copy;
+            return copy;
         }
 
-        // 반올림 경계에 걸린 점도 찾도록 주변 27칸을 봅니다.
-        private static bool HasNearbyCell(HashSet<Vector3Int> cells, Vector3Int cell)
+        private static bool SameColor(Color a, Color b)
         {
-            for (int x = -1; x <= 1; x++)
-            for (int y = -1; y <= 1; y++)
-            for (int z = -1; z <= 1; z++)
-            {
-                if (cells.Contains(cell + new Vector3Int(x, y, z))) return true;
-            }
-            return false;
+            return Mathf.Abs(a.r - b.r) <= ColorTolerance
+                && Mathf.Abs(a.g - b.g) <= ColorTolerance
+                && Mathf.Abs(a.b - b.b) <= ColorTolerance;
         }
 
         #endregion
