@@ -147,6 +147,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 **10단계 메모 (진행 중, 2026-10-22~23)**
 - 결정: 튜토리얼 정답 3개. 튜토리얼 시작 전 **안내 패널(A안: 규칙 → 조작법 → 시작하기, 2~3페이지)**을 튜토리얼에 들어올 때마다 보여 줍니다(한국어). **튜토리얼 시간은 HUD에만 보이고 기록에서 뺍니다.**
 - **에셋과 디오라마는 사용자가 직접 구해서 만듭니다.** Claude는 코드, 도구, 단계별 안내를 맡습니다. 디오라마용 에셋은 Synty POLYGON Apocalypse(`99. External Assets/Synty`)와 **Palmov Island `Low Poly Atmospheric Locations Pack`**(`Assets/Palmov Island`, 약 14MB, 2026-10-23 추가, `99. External Assets`가 아니라 Assets 바로 아래에 있음)입니다. 둘 다 git에 있습니다.
+- 2026-10-26: **GeeZyyGames `Desert`**(`Assets/GeeZyyGames`, 약 22MB) 추가, 머티리얼 80개 URP Lit으로 변환. 에셋을 지우고 다시 임포트하면 Render Pipeline Converter가 예전 결과("Complete")를 기억해 Convert 버튼이 꺼지므로, 창을 닫았다 열고 Initialize Converters부터 다시 합니다. 변환 여부는 `.mat`에 `m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000}`(Standard)가 남았는지로 확인합니다.
 - 2026-10-23에 Render Pipeline Converter로 Built-in Standard 머티리얼(Synty, Parazite, Paper Plane 등 20개)을 URP Lit으로 바꿨습니다.
 - 지금 섬 바닥과 테스트 큐브가 쓰는 `Lit` 머티리얼은 **URP 패키지 기본 머티리얼**(guid `31321ba1…`, 읽기 전용)입니다. Emission을 켤 수 없으므로, 정답 오브젝트에는 프로젝트 안의 머티리얼(`100. 3D Project-1/Materials`)을 씁니다.
 - **디오라마 형태 (사용자 결정, 2026-10-24)**: 공중에 뜬 문제 구역 하나만 둡니다(네모 블록 또는 공중 섬, 맵마다 고름). 바깥 풍경·장식 섬은 없고, 배경은 두 카메라 모두 Solid Color(스테이지마다 다른 색)입니다. 아래쪽 문제 계획은 유지합니다.
@@ -172,6 +173,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
   - **e4 흰 나이트는 의도한 함정**입니다(양쪽 같은 칸, 방향만 85° vs 95°로 10° 다름). 정답으로 등록하지 않습니다.
   - 기물 프리팹에는 MeshCollider가 원래 들어 있습니다.
   - **1-1 카메라 (2026-10-26)**: `Main Camera` (-100, 15, -30), `Pitch Min` 15(체스판이라 아래를 볼 필요 없음), `Distance Max` 30. 배치 거리(약 33.5)가 Distance Max보다 커서 시작 거리는 30으로 잘리고 시작 각도는 약 26.6°입니다. 스테이지마다 시작 거리·각도는 `Main Camera` 위치로 정합니다.
+  - **1-1 조명 (2026-10-26, 취조실 느낌)**: 두 카메라 Solid Color `0B0C0F`, Lighting 창 Environment Lighting Source Color (26, 26, 31), Reflections Intensity 0.2(이 값들은 씬마다 저장됨), Directional Light 0.05. `Lights/Spot Light Left`·`Right`: (∓100, 20, 0), Rotation X 90, 색 `FFE6B8`, Intensity 1000, Range 25, Spot 70 / Inner 30, Soft Shadows. **양쪽 조명은 반드시 같은 값**이어야 합니다(그림자·밝기 차이가 오답 단서처럼 보임). 빛기둥 원뿔·전등 모델은 넣지 않음. HDR 색상 창(Ambient Color 등)은 Hex 칸이 없어서 RGB로 넣습니다. PC_RPAsset은 추가 조명 그림자·Soft Shadows를 지원하지만 Mobile_RPAsset은 지원하지 않습니다.
 - **오답 클릭 제한 + 클리어 창 (2026-10-26, 사용자 결정)**: 제한 3초, 제한 중 커서는 빨간 원 타이머(12시에서 시계 방향으로 지워짐), 클리어 창에는 이번 기록 + Next·Main Menu만 넣음(누적 시간·Retry는 넣지 않음). 기획서 4.2·5.1과 변경 이력 갱신.
   - ✅ 코드·`T_LockRing.png` 완료, 컴파일 확인.
   - ✅ 1-1에 UI 생성(2026-10-26): `Click Lock Indicator`(바늘 없이 Ring만, 사용자가 이 모양으로 결정), `Stage Clear Pannel`(Pause Menu를 본떠 만듦). `T_LockRing.png`는 Sprite Mode가 Multiple이고 128px 전체가 `T_LockRing_1` 하나라 Single과 같습니다(이 때문에 `com.unity.2d.sprite` 패키지가 추가됨). Pause Menu 프리팹 버튼 순서를 바꿈(Main Menu 왼쪽, Continue 오른쪽, 클리어 창과 맞춤).
@@ -197,7 +199,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 
 - 구성: Tutorial / 1-1~1-3 / 2-1~2-3 / 3-1~3-3. 씬 번호는 월드 1이 11~13, 월드 2가 21~23, 월드 3이 31~33입니다.
 - **월드 1에 먼저 집중합니다.** 시간이 모자라면 월드 1까지만 완성해서 제출합니다.
-- 월드 1: 지금의 좌우 분할 그대로입니다. **튜토리얼과 1-1에는 조명 연출을 넣지 않고, 1-2·1-3에는 맵에 어울리는 연출을 넣습니다**(사용자 결정: 기본에 충실한 뒤 커스텀).
+- 월드 1: 지금의 좌우 분할 그대로입니다. **튜토리얼에는 조명 연출을 넣지 않고, 1-1~1-3에는 맵에 어울리는 연출을 넣습니다**(처음에는 1-1도 기본 조명이었으나 2026-10-26에 1-1 취조실 조명으로 바꿈, 사용자 결정).
 - 월드 2: 2-1~2-3 모두 가로(위아래) 분할입니다. 카메라 Viewport만 바꾸면 되고 `ClickInteractor`가 그대로 동작합니다. 대각선 분할은 하지 않습니다.
 - 월드 3: 좌우 분할 + 월드 1과 같은 오빗 카메라(±80도, 입력 동일)입니다. 물체 하나를 두 버전(A/B)으로 만들어 두 Pivot에 두고, 두 카메라가 **화면 전체 기준 투영**으로 그린 뒤 각자 반쪽만 보여 줍니다. 그래서 물체가 화면 정중앙에서 반반으로 보입니다. Viewport만 반으로 나누면 물체가 각 반쪽 가운데로 옮겨져 월드 1처럼 보이므로, 투영을 조정하는 코드가 필요합니다.
 - 조명 연출: 1-2부터 맵마다 어울리는 것을 그때그때 고릅니다.
