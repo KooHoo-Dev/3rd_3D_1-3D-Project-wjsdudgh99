@@ -5,7 +5,7 @@
 
 ## 프로젝트 개요
 
-- **게임**: 'You're Right'. 좌우 분할 화면에 나란히 보이는 두 3D 디오라마를 오빗 카메라로 함께 돌려 보며 **완전히 똑같은 쌍둥이 오브젝트**를 찾는 관찰형 퍼즐 게임입니다. 스테이지는 튜토리얼 1개와 월드 3개 × 3스테이지(월드 1 우선)이고, 스톱워치로 기록을 잽니다.
+- **게임**: 'You're Right'. 좌우 분할 화면에 나란히 보이는 두 3D 디오라마를 오빗 카메라로 함께 돌려 보며 **완전히 똑같은 쌍둥이 오브젝트**를 찾는 관찰형 퍼즐 게임입니다. 스테이지는 튜토리얼 1개와 월드 3개 × 2스테이지(모두 필수, 시간이 모자라면 뒤에서부터 뺌)이고, 스톱워치로 기록을 잽니다.
 - **기획서**: `Assets/01. Docs/3D 프로젝트 기획서 - 1 수정본.md`. 게임 작업 전에 먼저 읽습니다.
 - **작업 폴더**: `Assets/100. 3D Project-1/` (Scenes, Scripts, Prefabs, Materials, Audio, UI)
 - **환경**: Unity 6000.3.15f1, URP 17, Cinemachine 3.1.7(사용 안 함), Test Framework 1.6.0
@@ -106,11 +106,11 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | Editor | `StageValidator` | 에디터 전용(빌드 제외). **Tools → You're Right → Validate Stage**: 열린 씬을 읽기만 해서 검사하고 Console(❌ 오류 / ⚠ 경고 / ℹ 참고)과 요약 창으로 알려 줍니다. 섬 중심은 `OrbitCameraController` Views의 Pivot 2개(없으면 이름)이고, 위치는 Pivot 기준 상대 위치, 회전은 월드 회전으로 비교합니다(돌려 둔 `Props/Right`도 화면 그대로 비교). 단위는 프리팹 루트, 오차는 위치 0.01·회전 1°·크기 1%. 검사: Pivot·Props, 정답 쌍 개수(0 오류, 3~5 밖 경고), 쌍 연결·같은 섬·쌍 없는 AnswerTarget, 정답 Collider(없음·꺼짐·Trigger)·Background 레이어·PlayArea 밖, **쌍둥이 동일성**(위치·크기·메시/머티리얼/자식 구성·회전), 정답 머티리얼 Emission, **의도하지 않은 쌍둥이**(정답이 아닌데 똑같아 보임 → 오류), **함정 후보**(같은 물체가 0.5 안에서 조금만 다름 → 참고), `Stage` 아래 Background가 아닌 Collider, 두 카메라 설정, 섬마다 둔 Point/Spot 조명 대칭. 회전만 다르면 **방향별 광선**으로 **회전 대칭**을 판단합니다: 루트 기준점에서 4096방향(피보나치 구)으로 광선을 쏴서 가장 바깥 면까지의 거리와 그 자리 텍스처 색(서브메시별 머티리얼의 `mainTexture`, UV 보간, Tiling·Offset 반영)을 구하고, 모든 방향 d에서 d와 Δd(Δ = 두 물체의 회전 차이)의 결과가 같으면(거리 크기의 1%, 색 채널 0.05) 똑같아 보인다고 봅니다. 메시 삼각형 나눔과 상관없이 겉모습만으로 판단하기 위한 방식이고, 꼭짓점 위치·꼭짓점 UV·꼭짓점 색·면 안쪽 격자 점 방식은 1-1 폰(진짜 대칭)과 튜토리얼 8번 당구공(반대편 숫자 크기가 다름)을 동시에 맞히지 못해서 버렸습니다(2026-10-26). Read/Write 꺼진 FBX 메시는 `Mesh.AcquireReadOnlyMeshData`로, 텍스처는 `Graphics.Blit` 임시 복사본으로 읽고(검사 끝에 지움), 메시를 못 읽으면 "판단 불가"입니다. 삼각형이 1만 개 넘는 물체는 몇 초 걸릴 수 있습니다. |
 | Utils | `SimpleInput`, `SingletonBase` | `19. Legacy/9. Utils`에서 복사해 네임스페이스를 바꾼 파일입니다. |
 
-**씬** (Build Settings 순서): `00. Menu` → `10. Stage Tutorial` → `11. Stage 1-1` → `12. Stage 1-2` → `13. Stage 1-3` → `90. Result`
+**씬** (Build Settings 순서): `00. Menu` → `10. Stage Tutorial` → `11. Stage 1-1` → `12. Stage 1-2` → `21. Stage 2-1` → `22. Stage 2-2` → `31. Stage 3-1` → `32. Stage 3-2` → `90. Result` (2026-10-27 계획 변경. `21. Stage 2-1`은 예전 `13. Stage 1-3`의 이름을 바꾼 것이라 GUID가 같고, 22·31·32는 Template을 복제해 만듦)
 - 스테이지 씬 4개는 같은 구조이고, `StageNameText`의 글자와 `StageManager`의 Stage Name만 다릅니다. `Stage` 아래에는 임시 섬 바닥 `Stage Left`·`Stage Right`(큐브 20 × 2 × 20, y -2, Background 레이어)와 `PlayArea Left`·`PlayArea Right`(y 6.5)가 있습니다. 지금은 큐브로 된 테스트용 정답 쌍(`AnswerPair_01`: 왼쪽 섬 `Cube`, 오른쪽 섬 `Cube (2)`)과 섬마다 미끼 큐브 하나가 배치되어 있습니다.
 - 분할 화면 구성: `Main Camera`는 Viewport X 0 / W 0.5, `Right Camera`는 X 0.5 / W 0.5이고, 둘 다 Far Clip 60입니다. `MainCamera` 태그와 Audio Listener는 `Main Camera`에만 있습니다. Canvas 첫 자식인 `Divider`(Width 4, 위아래 stretch, Raycast Target 끔)가 화면을 가르고, `TimerText` 바로 위의 `TimerBackground`가 분할선을 가립니다.
 - **예비 씬**: `Scenes/Template/Stage Template.unity`. 스테이지 씬과 같은 구성이고 이름만 `New Stage`입니다. Build Settings와 `SceneNames`에는 넣지 않습니다. 스테이지를 늘릴 때는 다음 순서로 합니다.
-  1. Project 창에서 Ctrl + D로 복제합니다(새 GUID가 생김). `Scenes`로 옮기고 이름을 `21. Stage 2-1`처럼 바꿉니다(월드 2는 21~23, 월드 3은 31~33).
+  1. Project 창에서 Ctrl + D로 복제합니다(새 GUID가 생김). `Scenes`로 옮기고 이름을 `21. Stage 2-1`처럼 바꿉니다(월드 2는 21·22, 월드 3은 31·32).
   2. `StageNameText`와 `StageManager`의 이름을 바꿉니다.
   3. Build Settings에서 마지막 스테이지 다음, `90. Result` 앞에 추가합니다.
   4. `SceneNames.Stages` 배열에 씬 이름을 추가합니다. 빠뜨리면 그 씬을 건너뛰고 Result로 넘어갑니다.
@@ -130,10 +130,11 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | 7 | 시각 피드백: 정답 Emission(황금빛) + 반짝임 파티클, 오답 물체 클릭 시 커서 위치 붉은 X(0.5초). 빈 곳 클릭은 무반응, 오답 흔들림은 보류 | ✅ |
 | 8 | SoundManager: BGM(씬을 넘어가도 이어짐, 일시정지 때 볼륨 낮춤), 정답·오답·버튼 SFX | ✅ 코드·배치 완료 / ⏳ 사운드 파일 대기 |
 | 9 | 월드 1 씬 정리: Stage 1·2·3 → 1-1·1-2·1-3 (파일 이름은 Unity에서 바꿔 GUID 유지, SceneNames·HUD 이름) | ✅ |
-| 10 | 월드 1 디오라마 제작 (Synty 등): Tutorial + 1-1~1-3, 스테이지마다 정답 3~5쌍 배치 | **다음** |
-| 10.5 | 1-2·1-3 조명 연출 (디오라마에 맞춰 고름), 월드 1 마무리 | |
-| 11 | (여유가 있으면) 월드 2: 가로 분할, 2-1~2-3 디오라마, 결과 화면 레이아웃, 맵별 조명 연출 | |
-| 12 | (여유가 있으면) 월드 3: 반반 투영 코드, 3-1~3-3 물체, 맵별 조명 연출 | |
+| 10 | 월드 1 디오라마: Tutorial ✅, 1-1 ✅, **1-2** (맵별 조명 연출 포함, 스테이지마다 정답 3~5쌍) | **다음** |
+| 10.5 | 씬 정리: 1-3 → 2-1 이름 변경, 22·31·32 생성, SceneNames·Build Settings 7개 | ✅ |
+| 11 | 월드 2: 가로 분할, 2-1·2-2 디오라마, 맵별 조명 연출 | |
+| 12 | 월드 3: 반반 투영 코드, 3-1·3-2 물체, 맵별 조명 연출 | |
+| 13 | 마무리: 사운드 파일, 결과 화면 6줄 확인, 빌드 테스트 | |
 
 **7단계 메모 (완료)**
 - 반짝임 파티클 `Prefabs/Sparkle`: Burst 25, Sphere 0.3, Start Speed 7~9, Lifetime 0.6~1, Limit Velocity Dampen 0.2, Start Size 0.2~0.4, Billboard, Rotation over Lifetime 180°/s, Size over Lifetime 1→0. **퍼지는 거리 ≈ Start Speed × Lifetime**(Dampen을 켜면 그보다 짧아짐)이고, 거리는 Start Speed로 조절합니다.
@@ -190,7 +191,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 - **오답 클릭 제한 + 클리어 창 (2026-10-26, 사용자 결정)**: 제한 3초, 제한 중 커서는 빨간 원 타이머(12시에서 시계 방향으로 지워짐), 클리어 창에는 이번 기록 + Next·Main Menu만 넣음(누적 시간·Retry는 넣지 않음). 기획서 4.2·5.1과 변경 이력 갱신.
   - ✅ 코드·`T_LockRing.png` 완료, 컴파일 확인.
   - ✅ 1-1에 UI 생성(2026-10-26): `Click Lock Indicator`(바늘 없이 Ring만, 사용자가 이 모양으로 결정), `Stage Clear Pannel`(Pause Menu를 본떠 만듦). `T_LockRing.png`는 Sprite Mode가 Multiple이고 128px 전체가 `T_LockRing_1` 하나라 Single과 같습니다(이 때문에 `com.unity.2d.sprite` 패키지가 추가됨). Pause Menu 프리팹 버튼 순서를 바꿈(Main Menu 왼쪽, Continue 오른쪽, 클리어 창과 맞춤).
-  - ✅ 프리팹 `Prefabs/Click Lock Indicator`·`Prefabs/Stage Clear Panel`을 튜토리얼·1-1~1-3·Template에 배치하고 Play 확인 완료(2026-10-26). 1-3의 `Last Stage Next Text`는 "스테이지 1 결과"입니다. 결과 씬 `Result Panel`은 1000 × 750으로 키웠습니다.
+  - ✅ 프리팹 `Prefabs/Click Lock Indicator`·`Prefabs/Stage Clear Panel`을 튜토리얼·1-1~1-3·Template에 배치하고 Play 확인 완료(2026-10-26). 1-3의 `Last Stage Next Text`는 "스테이지 1 결과"입니다. 결과 씬 `Result Panel`은 1000 × 750으로 키웠습니다. 2026-10-27: 기록이 6줄이 되면서 6번째 줄이 하늘의 흰 지평선과 겹쳐 안 보여서, 결과 씬 카메라 배경을 Skybox에서 Solid Color(진한 남색 0, 0, 30)로 바꿈(창이 반투명이라 뒤 배경이 비침).
   - (완료된 계획) UI 배치: 1-1에서 `Click Lock Indicator`·`Stage Clear Panel` 오브젝트를 만들어 `Prefabs/`에 프리팹으로 저장 → 튜토리얼·1-2·1-3·Template Canvas에 배치(Canvas 자식 순서: … `Stage Clear Panel` → `Pause Menu` → `Tutorial Guide` → `Click Lock Indicator`). `T_LockRing.png`는 Texture Type을 Sprite (2D and UI)로 바꿔야 함. 튜토리얼 안내 1페이지에 "틀리면 3초 동안 클릭할 수 없음" 문구 추가 권장.
   - 카메라(`OrbitCameraController`)는 UI 위에서도 돌아가므로, 클리어 창은 화면 전체를 어둡게 덮지 않고 가운데 창만 두는 것을 권함(쉼터에서 디오라마를 보게).
   - 튜토리얼 씬은 디오라마 작업 중이라 정답 쌍이 없습니다. Menu에서 시작하면 튜토리얼에서 막히므로, 1-1은 씬을 직접 열어 테스트합니다.
@@ -208,15 +209,15 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
   - 도구는 `Scripts/Editor/`에 두고(빌드 제외), 메뉴는 `Tools → You're Right`로 제안해 두었습니다.
   - Synty Apocalypse 프리팹은 약 80%에 Collider가 있고 모두 Default 레이어입니다. 그래서 플랫폼·길 조각은 Background로 바꿔야 합니다.
 
-## 확정: 10스테이지 확장 (2026-10-22)
+## 확정: 7스테이지 (2026-10-27)
 
-- 구성: Tutorial / 1-1~1-3 / 2-1~2-3 / 3-1~3-3. 씬 번호는 월드 1이 11~13, 월드 2가 21~23, 월드 3이 31~33입니다.
-- **월드 1에 먼저 집중합니다.** 시간이 모자라면 월드 1까지만 완성해서 제출합니다.
-- 월드 1: 지금의 좌우 분할 그대로입니다. **튜토리얼에는 조명 연출을 넣지 않고, 1-1~1-3에는 맵에 어울리는 연출을 넣습니다**(처음에는 1-1도 기본 조명이었으나 2026-10-26에 1-1 취조실 조명으로 바꿈, 사용자 결정).
-- 월드 2: 2-1~2-3 모두 가로(위아래) 분할입니다. 카메라 Viewport만 바꾸면 되고 `ClickInteractor`가 그대로 동작합니다. 대각선 분할은 하지 않습니다.
+- 구성: Tutorial / 1-1·1-2 / 2-1·2-2 / 3-1·3-2. 씬 번호는 월드 1이 11·12, 월드 2가 21·22, 월드 3이 31·32입니다. (2026-10-22에 10스테이지로 정했으나, 2026-10-27에 시간이 모자라 각 월드의 3번 맵을 취소함, 사용자 결정)
+- **월드 1·2·3 모두 필수입니다.** 시간이 모자라면 **뒤에서부터(3-2 → 3-1 → …) 뺍니다.** 월드 3은 투영 코드가 따로 필요해 가장 위험하므로 월드 2까지 먼저 확실히 끝냅니다.
+- 월드 1: 지금의 좌우 분할 그대로입니다. **튜토리얼에는 조명 연출을 넣지 않고, 1-1·1-2에는 맵에 어울리는 연출을 넣습니다**(처음에는 1-1도 기본 조명이었으나 2026-10-26에 1-1 취조실 조명으로 바꿈, 사용자 결정).
+- 월드 2: 2-1·2-2 모두 가로(위아래) 분할입니다. 카메라 Viewport만 바꾸면 되고 `ClickInteractor`가 그대로 동작합니다. 대각선 분할은 하지 않습니다.
 - 월드 3: 좌우 분할 + 월드 1과 같은 오빗 카메라(±80도, 입력 동일)입니다. 물체 하나를 두 버전(A/B)으로 만들어 두 Pivot에 두고, 두 카메라가 **화면 전체 기준 투영**으로 그린 뒤 각자 반쪽만 보여 줍니다. 그래서 물체가 화면 정중앙에서 반반으로 보입니다. Viewport만 반으로 나누면 물체가 각 반쪽 가운데로 옮겨져 월드 1처럼 보이므로, 투영을 조정하는 코드가 필요합니다.
-- 조명 연출: 1-2부터 맵마다 어울리는 것을 그때그때 고릅니다.
-- 결과 화면은 스테이지가 7개 이상이 되면(월드 2 추가 때) 두 줄 또는 월드별 소계로 바꿉니다.
+- 조명 연출: 맵마다 어울리는 것을 그때그때 고릅니다.
+- 결과 화면: 기록은 최대 6줄(튜토리얼 제외)이라 지금 `Result Panel`(1000 × 750)에 들어갈 것으로 보입니다. 마무리 때 확인합니다.
 
 **나중에 할 일**
 - Play 모드 자동 테스트를 만듭니다(`Assets/100. 3D Project-1/Tests/PlayMode/` + asmdef). 확인할 흐름: Menu → Start → 스테이지 4개 정답 처리 → Result 기록 4개와 Total 합계 → 메인 메뉴 → 재시작 시 기록 초기화, 오답·중복 클릭은 무시. 사용자가 집 컴퓨터에서 확인을 마친 뒤 진행하기로 했습니다. CliBridge에 `/tests/run` 엔드포인트를 추가해 Claude가 직접 실행하는 방식을 제안해 둔 상태입니다.
