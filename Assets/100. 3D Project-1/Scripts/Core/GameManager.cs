@@ -53,19 +53,20 @@ namespace YoureRight
                 Debug.Log($"[GameManager] 기록 제외: {stageName} {TimeFormatter.Format(time)}");
             }
 
-            // 현재 씬이 스테이지 목록의 몇 번째인지로 다음 씬을 정합니다.
-            // 에디터에서 중간 스테이지 씬을 바로 Play해도 그 다음 스테이지로 이어집니다.
+            LoadScene(GetNextSceneName());
+        }
+
+        // 지금 스테이지 다음에 또 스테이지가 있으면 true, 다음이 결과 화면이면 false 입니다. (클리어 창 버튼 글자용)
+        public bool HasNextStage => GetNextSceneName() != SceneNames.Result;
+
+        // 현재 씬이 스테이지 목록의 몇 번째인지로 다음 씬을 정합니다.
+        // 에디터에서 중간 스테이지 씬을 바로 Play해도 그 다음 스테이지로 이어집니다.
+        private string GetNextSceneName()
+        {
             int current = Array.IndexOf(SceneNames.Stages, SceneManager.GetActiveScene().name);
             int next = current + 1;
 
-            if (current >= 0 && next < SceneNames.Stages.Length)
-            {
-                LoadScene(SceneNames.Stages[next]);
-            }
-            else
-            {
-                LoadScene(SceneNames.Result);
-            }
+            return current >= 0 && next < SceneNames.Stages.Length ? SceneNames.Stages[next] : SceneNames.Result;
         }
 
         public void LoadMainMenu()

@@ -9,6 +9,7 @@ namespace YoureRight
     // 빈 곳(아무 Collider도 맞지 않음)을 클릭하면 아무 반응도 하지 않습니다.
     // 무반응 레이어(기본: Background)의 물체(플랫폼, 바닥, 길 등)는 클릭을 막아 주기만 하고 반응하지 않습니다.
     // 씬에 PlayArea가 있으면, 클릭 지점이 어느 PlayArea에도 없을 때(섬 바깥 장식 등) 반응하지 않습니다.
+    // 오답을 클릭하면 잠시(기본 3초) 좌클릭을 받지 않습니다. 카메라 조작은 그대로 됩니다.
     public class ClickInteractor : MonoBehaviour
     {
         [Header("Ref")]
@@ -22,7 +23,15 @@ namespace YoureRight
         // 비워 두면(Nothing) "Background" 레이어를 자동으로 사용합니다.
         [SerializeField] private LayerMask silentLayers;
 
+        [Header("Wrong Click Lock")]
+        // 오답 후 클릭을 막는 시간 입니다. 스톱워치는 계속 돌기 때문에 사실상 벌점이 됩니다. (0이면 사용 안 함)
+        [SerializeField] private float wrongClickLockTime = 3f;
+
         private const string DefaultSilentLayerName = "Background";
+
+        public float LockDuration => wrongClickLockTime;
+        public float LockRemaining { get; private set; }
+        public bool IsLocked => LockRemaining > 0f;
 
         // 정답 쌍을 새로 찾았을 때 (클릭한 오브젝트)
         public event Action<AnswerTarget> OnAnswerClicked;
@@ -46,11 +55,17 @@ namespace YoureRight
 
         private void Update()
         {
+            // 제한 시간은 Time.deltaTime으로 줄이므로 일시정지 중에는 같이 멈춥니다. (일시정지로 기다리는 꼼수 방지)
+            if (LockRemaining > 0f) LockRemaining = Mathf.Max(0f, LockRemaining - Time.deltaTime);
+
             // 일시정지 중이거나, 스테이지를 클리어했거나, UI 위를 클릭한 경우에는 판정하지 않습니다.
             if (Time.timeScale == 0f) return;
             if (stageManager != null && stageManager.IsCleared) return;
             if (SimpleInput.GetMouseButtonDown(SimpleInput.MouseButton.Left) == false) return;
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
+
+            // 오답 제한 중에는 정답·오답 모두 받지 않습니다.
+            if (IsLocked) return;
 
             Vector2 screenPos = SimpleInput.GetMousePosition();
             Camera cam = FindCameraAt(screenPos);
@@ -112,6 +127,7 @@ namespace YoureRight
         private void HandleWrong(Vector2 screenPos, Collider hitCollider)
         {
             Debug.Log($"[ClickInteractor] 오답: {hitCollider.name}");
+            LockRemaining = wrongClickLockTime;
             OnWrongClicked?.Invoke(screenPos, hitCollider);
         }
     }

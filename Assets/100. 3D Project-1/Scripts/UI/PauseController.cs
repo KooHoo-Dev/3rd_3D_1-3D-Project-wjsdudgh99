@@ -41,7 +41,7 @@ namespace YoureRight
             // 시작 안내가 떠 있는 동안에는 일시정지하지 않습니다.
             if (tutorialGuide != null && tutorialGuide.IsOpen) return;
 
-            // 클리어 후 다음 씬으로 넘어가는 동안에는 새로 일시정지하지 않습니다.
+            // 클리어 후(클리어 창이 떠 있는 동안)에는 새로 일시정지하지 않습니다.
             if (IsPaused == false && stageManager != null && stageManager.IsCleared) return;
 
             if (IsPaused) Resume();

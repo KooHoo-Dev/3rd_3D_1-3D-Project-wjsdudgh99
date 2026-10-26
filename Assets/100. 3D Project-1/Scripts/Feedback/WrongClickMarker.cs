@@ -4,7 +4,7 @@ using UnityEngine;
 namespace YoureRight
 {
     // 오답 클릭 시 마우스 커서 위치에 작은 붉은 X 표시를 잠깐 띄웁니다. (기획서 5.1)
-    // 타격감만 주고 패널티는 없습니다.
+    // 클릭 제한(벌점)은 ClickInteractor가, 제한 중 커서 표시는 ClickLockIndicator가 맡습니다.
     // Screen Space - Overlay Canvas에 붙입니다. X 표시는 프리팹으로 만들어 연결합니다.
     public class WrongClickMarker : MonoBehaviour
     {
