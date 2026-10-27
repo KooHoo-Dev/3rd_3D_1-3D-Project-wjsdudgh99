@@ -48,6 +48,9 @@ namespace YoureRight
         private Light sun;
         private float elapsed;
 
+        // 해의 밝기입니다. 한낮 1 → 일출·일몰 약 0.5 → 한밤중 0 (NightLight, 배경색이 사용)
+        public float Daylight => sun != null && noonIntensity > 0f ? Mathf.Clamp01(sun.intensity / noonIntensity) : 1f;
+
         private float CycleLength => dayDuration + Mathf.Max(0f, nightDuration);
 
         private void Reset()
@@ -115,7 +118,7 @@ namespace YoureRight
         {
             if (backgrounds == null) return;
 
-            float daylight = noonIntensity > 0f ? Mathf.Clamp01(sun.intensity / noonIntensity) : 0f;
+            float daylight = Daylight;
             foreach (CameraBackground background in backgrounds)
             {
                 if (background.camera == null) continue;
