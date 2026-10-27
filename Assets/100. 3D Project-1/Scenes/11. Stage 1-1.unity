@@ -4838,10 +4838,11 @@ MonoBehaviour:
     pivot: {fileID: 643824021}
   - camera: {fileID: 275080782}
     pivot: {fileID: 552552446}
-  keyRotateSpeed: 90
   degreesPerPixel: 0.2
   pitchMin: 15
   pitchMax: 80
+  moveSpeed: 10
+  moveLimit: 10
   zoomStep: 1
   distanceMin: 5
   distanceMax: 30

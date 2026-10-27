@@ -440,7 +440,12 @@ namespace YoureRight
             var diffs = new List<string>();
 
             if (a.clearFlags != b.clearFlags) diffs.Add($"Background Type ({a.clearFlags} / {b.clearFlags})");
-            else if (a.clearFlags == CameraClearFlags.SolidColor && a.backgroundColor != b.backgroundColor) diffs.Add("배경색");
+
+            // 배경색은 정답 비교에 영향이 없고, 1-2처럼 테마마다 일부러 다르게 둘 수 있어서 참고로만 알립니다.
+            if (a.clearFlags == b.clearFlags && a.clearFlags == CameraClearFlags.SolidColor && a.backgroundColor != b.backgroundColor)
+            {
+                Report(Severity.Info, $"두 카메라({a.name}, {b.name})의 배경색이 다릅니다. 테마마다 일부러 다르게 둔 것이면 괜찮습니다.", a);
+            }
             if (a.orthographic != b.orthographic) diffs.Add("Projection");
             if (Mathf.Abs(a.fieldOfView - b.fieldOfView) > 0.01f) diffs.Add($"Field of View ({a.fieldOfView} / {b.fieldOfView})");
             if (Mathf.Abs(a.nearClipPlane - b.nearClipPlane) > 0.001f) diffs.Add($"Near ({a.nearClipPlane} / {b.nearClipPlane})");
