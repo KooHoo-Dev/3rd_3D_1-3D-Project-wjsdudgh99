@@ -13516,6 +13516,13 @@ MonoBehaviour:
     m_NumColorKeys: 3
     m_NumAlphaKeys: 2
   nightAmbient: {r: 0.12, g: 0.12, b: 0.2, a: 1}
+  backgrounds:
+  - camera: {fileID: 0}
+    dayColor: {r: 0, g: 0, b: 0, a: 0}
+    nightColor: {r: 0, g: 0, b: 0, a: 0}
+  - camera: {fileID: 0}
+    dayColor: {r: 0, g: 0, b: 0, a: 0}
+    nightColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1001 &1189224968
 PrefabInstance:
   m_ObjectHideFlags: 0
