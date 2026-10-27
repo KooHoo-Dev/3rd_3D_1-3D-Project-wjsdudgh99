@@ -33,6 +33,18 @@ namespace YoureRight
         [SerializeField] private Gradient ambientColor;              // 낮 동안의 주변광 (일출 → 한낮 → 일몰)
         [SerializeField] private Color nightAmbient = new Color(0.12f, 0.12f, 0.2f);
 
+        // 낮·밤에 따라 배경색을 바꿀 카메라 하나와 그 카메라의 낮·밤 색
+        [System.Serializable]
+        private class CameraBackground
+        {
+            public Camera camera;
+            public Color dayColor;
+            public Color nightColor;
+        }
+
+        [Header("Background (Play 중에만. 해가 밝을수록 Day Color 쪽, 카메라 Background Type은 Solid Color)")]
+        [SerializeField] private CameraBackground[] backgrounds;
+
         private Light sun;
         private float elapsed;
 
@@ -92,6 +104,22 @@ namespace YoureRight
                     Color dusk = Color.Lerp(ambientColor.Evaluate(1f), ambientColor.Evaluate(0f), n);
                     RenderSettings.ambientLight = Color.Lerp(dusk, nightAmbient, dark);
                 }
+            }
+
+            // 에디터에서 바꾸면 씬에 저장된 배경색이 덮이므로 Play 중에만 바꿉니다(Play를 끄면 원래 색으로 돌아감).
+            if (Application.isPlaying) ApplyBackgrounds();
+        }
+
+        // 해의 밝기(한낮 1 → 일출·일몰 약 0.5 → 한밤중 0)만큼 낮 색과 밤 색을 섞습니다.
+        private void ApplyBackgrounds()
+        {
+            if (backgrounds == null) return;
+
+            float daylight = noonIntensity > 0f ? Mathf.Clamp01(sun.intensity / noonIntensity) : 0f;
+            foreach (CameraBackground background in backgrounds)
+            {
+                if (background.camera == null) continue;
+                background.camera.backgroundColor = Color.Lerp(background.nightColor, background.dayColor, daylight);
             }
         }
 
