@@ -1,14 +1,17 @@
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace YoureRight
 {
     // 분할 화면의 카메라들을 각자의 디오라마 중앙(pivot) 기준으로 똑같이 공전시키는 오빗 카메라 입니다.
     // 회전: 마우스 우클릭 드래그
     // 이동: WASD 키 (바라보는 방향 기준 앞뒤좌우, 바닥과 평행하게. 섬(PlayArea) 범위 안에서만)
+    //       Q 하강 / E 상승 (PlayArea 높이 범위 안에서만)
     // 줌: 마우스 휠
     // 입력은 목표값(target)에 쌓고, 실제 카메라는 목표값을 부드럽게 따라갑니다.
     // 모든 카메라가 같은 각도·거리를 쓰므로 두 화면이 항상 같은 시점으로 보입니다.
+    // Block Layers를 지정하면 카메라가 그 레이어의 Collider(예: 열차 몸통 상자) 안으로 들어가지 않습니다.
     public class OrbitCameraController : MonoBehaviour
     {
         // 카메라 한 대와 그 카메라가 바라볼 중심점 한 쌍
@@ -30,11 +33,18 @@ namespace YoureRight
         [Header("Move")]
         [SerializeField] private float moveSpeed = 10f;          // WASD 입력시 초당 이동 거리
         [SerializeField] private float moveLimit = 10f;          // 씬에 PlayArea가 없을 때 섬 중심에서 움직일 수 있는 거리
+        [SerializeField] private bool verticalMove = true;       // 끄면 Q/E 상하 이동을 쓰지 않습니다
+        [SerializeField] private Key downKey = Key.Q;
+        [SerializeField] private Key upKey = Key.E;
 
         [Header("Zoom")]
         [SerializeField] private float zoomStep = 1f;            // 휠 한 칸당 거리 변화량
         [SerializeField] private float distanceMin = 5f;
         [SerializeField] private float distanceMax = 25f;
+
+        [Header("Collision (비워 두면 끔)")]
+        [SerializeField] private LayerMask blockLayers;          // 카메라가 뚫고 들어가지 못할 레이어 (예: CameraBlock)
+        [SerializeField] private float collisionRadius = 0.3f;   // 카메라를 감싸는 공의 반지름. Near Clip(0.3)보다 작으면 벽이 잘려 보입니다
 
         [Header("Smoothing")]
         [SerializeField] private float sharpness = 10f;          // 클수록 목표값을 빨리 따라갑니다
@@ -51,7 +61,7 @@ namespace YoureRight
         private float distance;
         private Vector3 move;            // 모든 Pivot에 똑같이 더하는 이동량 (Pivot 자체는 옮기지 않음)
 
-        // 이동 범위 (0번 Pivot 기준 상대 좌표, XZ만 사용)
+        // 이동 범위 (0번 Pivot 기준 상대 좌표)
         private Vector3 moveMin;
         private Vector3 moveMax;
 
@@ -112,8 +122,8 @@ namespace YoureRight
 
             if (area == null)
             {
-                moveMin = new Vector3(-moveLimit, 0f, -moveLimit);
-                moveMax = new Vector3(moveLimit, 0f, moveLimit);
+                moveMin = new Vector3(-moveLimit, -moveLimit, -moveLimit);
+                moveMax = new Vector3(moveLimit, moveLimit, moveLimit);
                 return;
             }
 
@@ -128,15 +138,53 @@ namespace YoureRight
         {
             // 바라보는 방향(Yaw)만 따서 바닥과 평행하게 움직입니다. W/S 앞뒤, A/D 좌우
             Vector2 axis = Vector2.ClampMagnitude(SimpleInput.GetMoveAxisRaw(), 1f);
-            if (axis == Vector2.zero) return;
+            float vertical = GetVerticalAxis();
+            if (axis == Vector2.zero && vertical == 0f) return;
 
             Quaternion heading = Quaternion.Euler(0f, yaw, 0f);
             Vector3 direction = heading * new Vector3(axis.x, 0f, axis.y);
-            targetMove += direction * moveSpeed * Time.deltaTime;
+            Vector3 step = (direction + Vector3.up * vertical) * moveSpeed * Time.deltaTime;
 
-            targetMove.x = Mathf.Clamp(targetMove.x, moveMin.x, moveMax.x);
-            targetMove.y = 0f;
-            targetMove.z = Mathf.Clamp(targetMove.z, moveMin.z, moveMax.z);
+            // 막는 물체 안으로는 들어가지 않습니다. 축마다 따로 시도해서 벽을 따라 미끄러지듯 움직입니다.
+            TryMove(new Vector3(step.x, 0f, 0f));
+            TryMove(new Vector3(0f, 0f, step.z));
+            TryMove(new Vector3(0f, step.y, 0f));
+        }
+
+        // E를 누르면 1(상승), Q를 누르면 -1(하강), 둘 다거나 안 누르면 0 입니다.
+        private float GetVerticalAxis()
+        {
+            if (verticalMove == false) return 0f;
+
+            float value = 0f;
+            if (SimpleInput.GetKey(upKey)) value += 1f;
+            if (SimpleInput.GetKey(downKey)) value -= 1f;
+            return value;
+        }
+
+        // 한 축으로 이동해 보고, 범위 밖이거나 어느 Pivot이라도 막는 물체에 닿으면 그 축은 움직이지 않습니다.
+        private void TryMove(Vector3 step)
+        {
+            Vector3 next = targetMove + step;
+            next.x = Mathf.Clamp(next.x, moveMin.x, moveMax.x);
+            next.y = Mathf.Clamp(next.y, moveMin.y, moveMax.y);
+            next.z = Mathf.Clamp(next.z, moveMin.z, moveMax.z);
+
+            if (IsBlockedAt(next)) return;
+            targetMove = next;
+        }
+
+        // 이동량 offset을 더한 Pivot 자리 중 하나라도 막는 물체와 겹치면 true 입니다.
+        private bool IsBlockedAt(Vector3 offset)
+        {
+            if (blockLayers.value == 0) return false;
+
+            foreach (OrbitView view in views)
+            {
+                if (view.pivot == null) continue;
+                if (Physics.CheckSphere(view.pivot.position + offset, collisionRadius, blockLayers, QueryTriggerInteraction.Ignore)) return true;
+            }
+            return false;
         }
 
         private void UpdateRotateInput()
@@ -160,7 +208,12 @@ namespace YoureRight
         private void ApplyTransform()
         {
             Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
-            Vector3 offset = rotation * new Vector3(0f, 0f, -distance);
+            Vector3 back = rotation * Vector3.back;
+
+            // 두 화면 중 더 많이 막힌 쪽 거리를 같이 써서 두 카메라가 항상 같은 시점을 유지합니다.
+            // 휠로 정한 distance는 그대로 두므로, 막는 물체를 벗어나면 원래 거리로 돌아갑니다.
+            float shownDistance = GetUnblockedDistance(back, distance);
+            Vector3 offset = back * shownDistance;
 
             foreach (OrbitView view in views)
             {
@@ -171,10 +224,30 @@ namespace YoureRight
             }
         }
 
+        // 각 Pivot에서 카메라 쪽으로 공을 굴려 보고, 막는 물체 바로 앞까지의 가장 짧은 거리를 돌려줍니다.
+        private float GetUnblockedDistance(Vector3 back, float wanted)
+        {
+            if (blockLayers.value == 0) return wanted;
+
+            float shortest = wanted;
+            foreach (OrbitView view in views)
+            {
+                if (view.pivot == null) continue;
+
+                Vector3 origin = view.pivot.position + move;
+                if (Physics.SphereCast(origin, collisionRadius, back, out RaycastHit hit, wanted, blockLayers, QueryTriggerInteraction.Ignore))
+                {
+                    shortest = Mathf.Min(shortest, hit.distance);
+                }
+            }
+            return shortest;
+        }
+
         private void OnValidate()
         {
             pitchMax = Mathf.Max(pitchMin, pitchMax);
             distanceMax = Mathf.Max(distanceMin, distanceMax);
+            collisionRadius = Mathf.Max(0.01f, collisionRadius);
         }
 
         private void OnDrawGizmosSelected()
