@@ -140,7 +140,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | 9 | 월드 1 씬 정리: Stage 1·2·3 → 1-1·1-2·1-3 (파일 이름은 Unity에서 바꿔 GUID 유지, SceneNames·HUD 이름) | ✅ |
 | 10 | 월드 1 디오라마: Tutorial ✅, 1-1 ✅, **1-2 사막 ↔ 설원 + 일출·일몰 반복** (정답 5쌍, `SunCycle` 코드 ✅) | **진행 중** |
 | 10.5 | 씬 정리: 1-3 → 2-1 이름 변경, 22·31·32 생성, SceneNames·Build Settings 7개 | ✅ |
-| 11 | 월드 2: 가로 분할, 2-1·2-2 디오라마, 맵별 조명 연출 | **진행 중** (2-2 기차역 ✅ 정답 5쌍·검사 통과, 2-1 테마 고르는 중) |
+| 11 | 월드 2: 가로 분할, 2-1·2-2 디오라마, 맵별 조명 연출 | **진행 중** (2-2 기차역 ✅ 정답 5쌍·검사 통과, 2-1 자동차 전시장 시작) |
 | 12 | 월드 3: 반반 투영 코드, 3-1·3-2 물체, 맵별 조명 연출 | |
 | 13 | 마무리: 사운드 파일, 결과 화면 6줄 확인, 빌드 테스트 | |
 
@@ -227,7 +227,12 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 **11단계 메모 (진행 중, 2026-10-27)**
 - **2-1 가로 분할 완료**: `Main Camera`(왼쪽 섬 x -100)는 Viewport X 0 / Y 0.5 / W 1 / H 0.5로 **위 화면**, `Right Camera`(오른쪽 섬 x +100)는 Y 0 / H 0.5로 **아래 화면**입니다. 코드는 그대로입니다(`ClickInteractor`가 `pixelRect`로 카메라를 고름). `Divider`는 가운데 가로 stretch, Height 4.
   - 화면 하나가 1920 × 540이라 **FOV를 두 카메라 모두 32**로 둡니다(60이면 물체가 반 크기, 가로 시야 약 128°로 휨). FOV 32, 거리 25에서 보이는 범위는 약 가로 51 × 세로 14라서 **가로로 넓고 낮은 디오라마**가 어울립니다.
-- 2-1 테마는 아직 고르는 중입니다. 씬에 `Cobra Games Studio/Low Poly Subway Pack`의 `1995_stock_train` 하나가 놓여 있습니다.
+- **2-1 = 자동차 전시장 (2026-10-29 결정)**: 어두운 전시장, 뒤쪽 세로 빛줄기, 세단·SUV 4~5대를 한 줄로 두고 두 섬의 차 배치를 다르게 합니다. 씬에 Floreswa 세단 2대(`free_sedan_red`, `free_sedan_gray`)를 놓아 둔 상태입니다(예전 `1995_stock_train`도 아직 씬에 있으면 정리).
+  - **주력 에셋 `Assets/Floreswa`** (0.6MB, git에 있음): 세단 1종 × 차체 2종(`free_sedan`, 차체가 낮은 `free_sedan_low`) × 4색(기본·black·gray·red) = 프리팹 8개, URP Lit. 구조는 빈 루트 아래 `Body`(머티리얼 칸 9개, 부위별) + 바퀴 `FL`·`FR`·`RL`·`RR`(따로, 칸 3개씩). 색 버전은 Body의 차체 칸 하나만 `Floreswa/Materials/*.mat`(16색)으로 바꾼 것이라 **칸만 바꿔서 부위별 차이**를 만들 수 있습니다. Collider가 없으니 씬에서 `Body`와 바퀴에 MeshCollider를 붙입니다.
+  - **해야 할 일**: ① `Models/free_sedan.fbx`·`free_sedan_low.fbx`에서 **Materials 탭 → Extract Materials**(기본 머티리얼이 FBX 안에 있어 읽기 전용이라 Emission을 켤 수 없음) ② Body 칸 0~8이 어느 부위인지 확인 ③ 세단만 있어 실루엣이 비슷하므로 **SUV 등 다른 차 에셋 추가**(고르는 기준: 부위별 머티리얼 칸이 나뉘어 있는가) ④ 전시장 바닥·조명.
+  - **조명·환경 추천 값**(아직 적용 안 함): 두 카메라 Solid Color `0A0B0E`, Emission 켠 세로 빛줄기 판 + 양쪽 같은 값의 Spot Light, 헤드라이트 Emission, 광택 바닥(Smoothness 0.85~0.9) + 섬마다 Reflection Probe.
+  - **차이 만드는 방법**: 대부분 같은 자리에 두고 세부(바퀴 하나의 림 색·각도, 라이트 색, 차체 칸 색, 번호판)를 바꾸고, 1~2대는 차 자체를 바꿈. `free_sedan` ↔ `free_sedan_low`는 미묘한 함정 후보.
+  - 써 보고 뺀 에셋: `Low poly vehicle pack lite`(색마다 텍스처 한 장 + Rigidbody·WheelCollider가 붙어 있음), `Awbmecreations`(모든 차가 텍스처 `Color.png` 한 장을 같이 씀). 둘 다 칠이 텍스처에 그려져 있어 부위별 차이를 만들기 어려워 지웠습니다.
 - 2026-10-27 추가 에셋(git에 있음, 모두 작음): `Assets/Polyeler/Simple Aircraft Pack`(1.7MB), `Assets/Alstra Infinite/Planes LowPoly`(1.4MB), `Assets/Cobra Games Studio/Low Poly Subway Pack`(0.4MB).
 - **2-2 = 기차역 (2026-10-28 결정)**: 한쪽은 **일본 시골 간이역**, 한쪽은 **스크린도어가 있는 최신 역**(1-2처럼 같은 뼈대, 다른 옷). 열차는 Polyeler `Simple Train Pack`(`Assets/Polyeler/Simple Train Pack`, 6.3MB, URP 변환 완료) `Train_Type B`(위, 왼쪽 섬)·`Train_Type A`(아래, 오른쪽 섬), **둘 다 3량으로 줄였고 일부러 다른 열차**입니다. 스크린도어는 오른쪽 섬(`Props/Right/PSD Left`·`PSD Right`, Train_Type B의 문 12개 위치)에 있고, 그 섬의 `Train_Type A`는 **역을 통과하는 특급 열차라 문(차량마다 1개, z -25.26 / 9.22 / 25.26)이 스크린도어와 맞지 않는 것이 의도**입니다(사용자 결정). **위(왼쪽 섬)는 종착역, 아래(오른쪽 섬)는 중간역인 것도 의도**입니다(사용자 결정, 2026-10-29): `Stage Left/Straight Rails`의 `Straight rail (1)` 자리(z 5.08)에 `Straight rail Terminal`을 두고, `Stage Right`는 원본 선로 2개 그대로 둡니다. 울타리는 기둥이 한쪽 끝(로컬 z -1)에만 있어서, 줄 끝은 `Fence ... Post`를 마지막 칸과 같은 자리에 180° 돌려 놓아 기둥을 채웁니다(전에는 돌린 울타리를 겹쳤음). 열차는 Collider 없음, 폭 2.7(x -3.7 ~ -1.0), 지붕 약 4.4(팬터그래프 5.1). 레일 `Straight rail`은 복선(선로 중심 x ±2.375). 카메라 FOV 32, Pitch Min 5, Distance 5~10. 처음 배치한 `Assets/Japanese_Station` 플랫폼은 사실적이라 다른 스테이지와 안 어울려서 `StationKitBuilder` 키트로 바꿉니다. 아래 비행기 메모는 다른 스테이지에서 쓸 수 있어 남겨 둡니다.
   - **카메라 충돌 설정 (2026-10-28)**: 열차 대차도 문제로 쓸 예정이라 Pivot을 올리지 않고 충돌 코드로 해결함. 레이어 **User Layer 11 = `CameraBlock`**(ProjectSettings/TagManager), `Managers/ClickInteractor`의 `Clickable Layers`에서 빼서 클릭이 통과합니다. `Train_Type B` 아래 자식 `Camera Block`(CameraBlock 레이어, BoxCollider, 위치 y 2.25, Scale 3 × 3 × 60이라 높이 0.75~3.75, 대차는 상자 밖). 막는 상자는 열차의 자식으로 둡니다(`Props` 바로 아래면 양쪽 같은 빈 상자가 의도하지 않은 쌍둥이로 잡힘). 아래 `Train_Type A`에는 상자가 없지만 코드가 두 Pivot을 모두 검사하고 짧은 거리를 같이 써서 위 상자가 함께 막습니다(Type A가 더 길거나 높은 부분은 막히지 않음). 지붕(약 4.4) 근처에서 속이 보이면 상자 Scale Y 3.65·위치 Y 2.575로 올립니다. `Main Camera`의 **Block Layers는 Background + CameraBlock**이라 Background 플랫폼·바닥도 카메라를 막고 Q로 바닥 아래로 내려가지 않습니다. **플랫폼은 Background 그대로** 둡니다(CameraBlock으로 바꾸면 클릭이 뚫고 지나감). PlayArea 길이는 70으로 늘림. 정답은 `AnswerPair_01` 매표기(`SM_Ticket_Machine`)부터 진행 중.
