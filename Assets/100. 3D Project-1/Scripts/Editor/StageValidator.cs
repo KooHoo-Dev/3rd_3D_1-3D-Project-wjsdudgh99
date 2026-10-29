@@ -232,10 +232,20 @@ namespace YoureRight
 
             if (go.activeInHierarchy == false) Report(Severity.Error, $"{who}이(가) 꺼져 있어 보이지 않습니다.", go);
 
+            // 자신 또는 자식의 Collider (거울처럼 부품마다 붙인 경우). 메시가 빈 MeshCollider는 아무것도 맞지 않습니다.
             Collider col = go.GetComponent<Collider>();
-            if (col == null) Report(Severity.Error, $"{who}에 Collider가 없어 클릭할 수 없습니다.", go);
-            else if (col.enabled == false) Report(Severity.Error, $"{who}의 {col.GetType().Name}이(가) 꺼져 있어 클릭할 수 없습니다.", go);
-            else if (col.isTrigger) Report(Severity.Error, $"{who}의 {col.GetType().Name}이(가) Trigger라서 클릭할 수 없습니다.", go);
+            Collider[] parts = go.GetComponentsInChildren<Collider>(true);
+            foreach (MeshCollider empty in parts.OfType<MeshCollider>().Where(c => c.sharedMesh == null))
+            {
+                Report(Severity.Error, $"{who}의 {empty.name}에 있는 MeshCollider의 Mesh가 비어 있어 그 부분은 클릭되지 않습니다.", empty);
+            }
+            bool clickable = parts.Any(c => c.enabled && c.gameObject.activeInHierarchy && c.isTrigger == false &&
+                                            (c is not MeshCollider mesh || mesh.sharedMesh != null));
+
+            if (parts.Length == 0) Report(Severity.Error, $"{who}와 자식에 Collider가 없어 클릭할 수 없습니다.", go);
+            else if (col != null && col.enabled == false) Report(Severity.Error, $"{who}의 {col.GetType().Name}이(가) 꺼져 있어 클릭할 수 없습니다.", go);
+            else if (col != null && col.isTrigger) Report(Severity.Error, $"{who}의 {col.GetType().Name}이(가) Trigger라서 클릭할 수 없습니다.", go);
+            else if (clickable == false) Report(Severity.Error, $"{who}와 자식의 Collider가 모두 꺼져 있거나 Trigger라서 클릭할 수 없습니다.", go);
 
             int backgroundLayer = LayerMask.NameToLayer(BackgroundLayerName);
             if (backgroundLayer >= 0)

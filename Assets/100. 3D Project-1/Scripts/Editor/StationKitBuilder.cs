@@ -16,7 +16,7 @@ namespace YoureRight
     // 스크린도어·울타리의 기준점은 자기 밑면 가운데입니다. 플랫폼과 같은 회전으로, 플랫폼 윗면(y 1.2)에 둡니다.
     //   - 스크린도어: 가장자리에서 0.5 안쪽 / 울타리: 가장자리에서 4.65 안쪽(뒤쪽 끝)
     //
-    // 플랫폼은 Background 레이어 + BoxCollider(클릭을 막고 무반응), 스크린도어·울타리는 Collider 없음(무반응, 클릭이 통과)입니다.
+    // 플랫폼은 Background 레이어 + BoxCollider(클릭을 막고 무반응), 스크린도어는 양쪽 하우징 Body에만 MeshCollider(Default, 클릭하면 오답), 문짝·유리 패널·울타리는 Collider 없음(무반응, 클릭이 통과)입니다.
     // 다시 실행하면 같은 이름의 머티리얼·프리팹을 덮어씁니다(씬에 놓인 인스턴스는 그대로 따라 바뀜).
     public static class StationKitBuilder
     {
@@ -239,7 +239,8 @@ namespace YoureRight
                 float zIn = side * 0.75f;
                 float zOut = side * 1.2f;
                 GameObject housing = Group(root, name);
-                Box(housing, "Body", new Vector3(DoorLineX - 0.12f, y0, Mathf.Min(zIn, zOut)), new Vector3(DoorLineX + 0.12f, y1 + 0.1f, Mathf.Max(zIn, zOut)), m.DoorBody);
+                GameObject body = Box(housing, "Body", new Vector3(DoorLineX - 0.12f, y0, Mathf.Min(zIn, zOut)), new Vector3(DoorLineX + 0.12f, y1 + 0.1f, Mathf.Max(zIn, zOut)), m.DoorBody);
+                body.AddComponent<MeshCollider>().sharedMesh = cube;   // 하우징만 클릭을 받음(Default 레이어라 오답), 문짝·유리는 통과
                 Box(housing, "Accent", new Vector3(DoorLineX + 0.12f, y1 - 0.12f, Mathf.Min(zIn, zOut)), new Vector3(DoorLineX + 0.13f, y1 - 0.04f, Mathf.Max(zIn, zOut)), m.DoorAccent);
                 Box(housing, "Cap", new Vector3(DoorLineX - 0.13f, y1 + 0.1f, Mathf.Min(zIn, zOut)), new Vector3(DoorLineX + 0.13f, y1 + 0.14f, Mathf.Max(zIn, zOut)), m.DoorFrame);
             }
@@ -351,7 +352,7 @@ namespace YoureRight
         }
 
         // min ~ max 범위를 채우는 상자 하나 (부모 로컬 좌표, Collider 없음)
-        private static void Box(GameObject parent, string name, Vector3 min, Vector3 max, Material material)
+        private static GameObject Box(GameObject parent, string name, Vector3 min, Vector3 max, Material material)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent.transform, false);
@@ -361,12 +362,14 @@ namespace YoureRight
             var renderer = go.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = material;
             if (material.renderQueue >= (int)RenderQueue.Transparent) renderer.shadowCastingMode = ShadowCastingMode.Off;
+            return go;
         }
 
         private static void Save(GameObject root, string fileName, Scene preview)
         {
+            PivotUtility.CenterGroupPivots(root);
             SceneManager.MoveGameObjectToScene(root, preview);
-            PrefabUtility.SaveAsPrefabAsset(root, $"{PrefabFolder}/{fileName}.prefab");
+            PrefabSaveUtility.SaveKeepingIds(root, $"{PrefabFolder}/{fileName}.prefab");
             Object.DestroyImmediate(root);
         }
 

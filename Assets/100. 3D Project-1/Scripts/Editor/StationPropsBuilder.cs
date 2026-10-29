@@ -14,6 +14,7 @@ namespace YoureRight
     // 앞에서 볼 때 오른쪽이 +Z입니다(글자·숫자는 -Z에서 +Z로 읽힘).
     //
     // 루트에 전체를 감싸는 BoxCollider 하나를 붙입니다(Default 레이어라 클릭하면 오답, 정답으로 등록하면 그대로 씀).
+    // 예외: Platform Mirror는 빈 곳이 많아서 부품마다 MeshCollider를 붙입니다(루트에는 Collider 없음).
     // 머티리얼은 모두 Emission을 켜고 검정으로 둡니다(정답 반짝임용). LED 글자와 자판기 진열창만 스스로 빛나는 색입니다.
     // 색 변형용 머티리얼(M_Prop_*)도 함께 만들어 두므로, 씬에서 부품 머티리얼만 바꿔 미끼를 만들 수 있습니다.
     // 다시 실행하면 같은 이름의 머티리얼·프리팹을 덮어씁니다(씬에 놓인 인스턴스는 그대로 따라 바뀜).
@@ -64,8 +65,9 @@ namespace YoureRight
                 Save(BuildModernNameSign(m), preview);
                 Save(BuildRuralNameSign(m), preview);
                 Save(BuildVendingMachine(m), preview);
+                Save(BuildTicketGate(m), preview);
                 Save(BuildDigitalClock(m), preview);
-                Save(BuildPlatformMirror(m), preview);
+                Save(BuildPlatformMirror(m), preview, partColliders: true);
                 Save(BuildStopMarker(m), preview);
                 Save(BuildExitSign(m), preview);
                 Save(BuildFireExtinguisherBox(m), preview);
@@ -116,6 +118,7 @@ namespace YoureRight
             public readonly Material LedGreen = Glow("M_Prop_LED_Green", "3DDC6A", 1.2f);
             public readonly Material LedRed = Glow("M_Prop_LED_Red", "FF3B30", 1.2f);
             public readonly Material LedWhite = Glow("M_Prop_LED_White", "F0F4FF", 1.2f);
+            public readonly Material LedBlue = Glow("M_Prop_LED_Blue", "3FA9FF", 1.2f);
             public readonly Material LedOff = Prop("M_Prop_LED_Off", "3A2E24");
             public readonly Material VendingWindow = Glow("M_Prop_Vending_Window", "E8F4FF", 1f);
         }
@@ -274,7 +277,8 @@ namespace YoureRight
         #region 안내판
 
         // LED 발차 안내기 (폭 2): 천장에 매다는 검은 패널. 기준점은 매다는 점(맨 위).
-        // 1·3줄 주황, 2줄 초록. 시각(7세그먼트) + 행선지(한자 모양) + 량수
+        // 1·3줄 주황, 2줄 초록. 시각(7세그먼트) + 행선지(한자 모양) + 량수. 1줄에는 행선지와 량수 사이에 빨간 "急行"(종별)
+        // 앞뒤 양면입니다. 뒷면(Back)은 디지털 시계처럼 같은 글자를 Y 180° 돌린 그룹에 다시 만듭니다(면마다 따로 고칠 수 있음).
         private static GameObject BuildLedBoard(Materials m)
         {
             GameObject root = Root("LED Departure Board");
@@ -285,16 +289,25 @@ namespace YoureRight
             Box(root, "Panel", new Vector3(-fx, -1.15f, -1f), new Vector3(fx, -0.45f, 1f), m.Black);
             Box(root, "Frame Bottom", new Vector3(-0.07f, -1.2f, -1.02f), new Vector3(0.07f, -1.15f, 1.02f), m.Dark);
 
+            AddLedRows(Group(root, "Front"), fx, m);
+            AddLedRows(Group(root, "Back", Vector3.zero, new Vector3(0f, 180f, 0f)), fx, m);
+            return root;
+        }
+
+        // LED 안내기 한 면의 글자 3줄
+        private static void AddLedRows(GameObject root, float fx, Materials m)
+        {
             GameObject row1 = Group(root, "Row 1");
             Digits(row1, "Time", fx, -0.57f, -0.92f, "10:42", 0.12f, m.LedOrange);
-            Word(row1, "Destination", fx, -0.57f, -0.3f, "KEJ", 0.12f, m.LedOrange);
-            Digits(row1, "Cars", fx, -0.57f, 0.55f, "10", 0.12f, m.LedOrange);
+            Word(row1, "Destination", fx, -0.57f, -0.3f, "HMK", 0.12f, m.LedOrange);   // 행선지는 두 줄 모두 역명판(Station Name Sign Modern)과 같은 글자
+            Word(row1, "Type", fx, -0.57f, 0.2f, "QG", 0.12f, m.LedRed);
+            Digits(row1, "Cars", fx, -0.57f, 0.6f, "3", 0.12f, m.LedOrange);
             Glyph(row1, "Cars Unit", fx, -0.57f, 0.85f, 0.12f, 'H', m.LedOrange);
 
             GameObject row2 = Group(root, "Row 2");
             Digits(row2, "Time", fx, -0.75f, -0.92f, "10:55", 0.12f, m.LedGreen);
-            Word(row2, "Destination", fx, -0.75f, -0.3f, "MHK", 0.12f, m.LedGreen);
-            Digits(row2, "Cars", fx, -0.75f, 0.6f, "8", 0.12f, m.LedGreen);
+            Word(row2, "Destination", fx, -0.75f, -0.3f, "HMK", 0.12f, m.LedGreen);
+            Digits(row2, "Cars", fx, -0.75f, 0.6f, "3", 0.12f, m.LedGreen);
             Glyph(row2, "Cars Unit", fx, -0.75f, 0.85f, 0.12f, 'H', m.LedGreen);
 
             // 3줄: 흐르는 안내 문구 (막대 4개)
@@ -304,7 +317,6 @@ namespace YoureRight
             {
                 Box(row3, $"Text {i + 1}", new Vector3(fx, -0.975f, bars[i, 0]), new Vector3(fx + Inlay, -0.925f, bars[i, 1]), m.LedOrange);
             }
-            return root;
         }
 
         // 천장에 매다는 디지털 시계 (폭 1): 검은 패널 앞뒤에 흰색 LED 시각. 기준점은 매다는 점(맨 위).
@@ -461,6 +473,59 @@ namespace YoureRight
             return root;
         }
 
+        // 자동 개찰구 (3통로): 통 4개(폭 0.22, 길이 1.4, 높이 1) 사이에 통로 3개(폭 0.6). 전체 폭 2.68.
+        // 사람은 X 방향(앞뒤)으로 지나가고 통은 Z로 늘어섭니다. 플랫폼 끝에서 길이 방향으로 지나가게 하려면 Y 90°로 놓습니다.
+        // 통마다 IC 카드 단말(파랗게 빛남, +X 끝 윗면), 표 넣는 곳·나오는 곳, 양 끝 표시등(+X 초록 / -X 빨강), 옆 파란 띠가 있고,
+        // 통로마다 양쪽 통에서 나온 주황 문짝 2장(닫힌 상태, "Lane N Flaps")이 있습니다. 문짝 그룹을 끄면 열린 개찰구가 됩니다.
+        private static GameObject BuildTicketGate(Materials m)
+        {
+            GameObject root = Root("Ticket Gate");
+            const int cabinets = 4;
+            const float cabinetWidth = 0.22f;
+            const float laneWidth = 0.6f;
+            const float hx = 0.7f;      // 통 길이의 절반
+            const float top = 1f;
+            float pitch = cabinetWidth + laneWidth;
+            float firstZ = -(cabinets - 1) * pitch / 2f;
+
+            for (int i = 0; i < cabinets; i++)
+            {
+                float cz = firstZ + i * pitch;
+                float hz = cabinetWidth / 2f;
+                GameObject cabinet = Group(root, $"Cabinet {i + 1}");
+                Box(cabinet, "Base", new Vector3(-hx - 0.01f, 0f, cz - hz - 0.01f), new Vector3(hx + 0.01f, 0.05f, cz + hz + 0.01f), m.Dark);
+                Box(cabinet, "Body", new Vector3(-hx, 0.05f, cz - hz), new Vector3(hx, top - 0.04f, cz + hz), m.BodyLight);
+                Box(cabinet, "Top", new Vector3(-hx - 0.02f, top - 0.04f, cz - hz - 0.01f), new Vector3(hx + 0.02f, top, cz + hz + 0.01f), m.Dark);
+
+                // 옆 파란 띠 (양쪽 옆면)
+                Box(cabinet, "Stripe Left", new Vector3(-hx, 0.68f, cz - hz - Inlay), new Vector3(hx, 0.74f, cz - hz), m.Blue);
+                Box(cabinet, "Stripe Right", new Vector3(-hx, 0.68f, cz + hz), new Vector3(hx, 0.74f, cz + hz + Inlay), m.Blue);
+
+                // 윗면: IC 카드 단말(+X 끝), 표 넣는 곳(+X 끝), 표 나오는 곳(-X 끝)
+                Box(cabinet, "IC Reader", new Vector3(0.25f, top, cz - 0.08f), new Vector3(0.5f, top + Inlay, cz + 0.08f), m.LedBlue);
+                Box(cabinet, "Ticket Slot In", new Vector3(0.56f, top, cz - 0.05f), new Vector3(0.62f, top + Inlay, cz + 0.05f), m.Black);
+                Box(cabinet, "Ticket Slot Out", new Vector3(-0.62f, top, cz - 0.05f), new Vector3(-0.5f, top + Inlay, cz + 0.05f), m.Black);
+
+                // 양 끝 표시등: 검은 판 + 들어가는 쪽(+X) 초록, 나가는 쪽(-X) 빨강
+                Box(cabinet, "Sign Panel Front", new Vector3(hx, 0.76f, cz - 0.08f), new Vector3(hx + Inlay, 0.92f, cz + 0.08f), m.Black);
+                Box(cabinet, "Sign Light Front", new Vector3(hx + Inlay, 0.8f, cz - 0.045f), new Vector3(hx + Inlay * 2f, 0.88f, cz + 0.045f), m.LedGreen);
+                Box(cabinet, "Sign Panel Back", new Vector3(-hx - Inlay, 0.76f, cz - 0.08f), new Vector3(-hx, 0.92f, cz + 0.08f), m.Black);
+                Box(cabinet, "Sign Light Back", new Vector3(-hx - Inlay * 2f, 0.8f, cz - 0.045f), new Vector3(-hx - Inlay, 0.88f, cz + 0.045f), m.LedRed);
+            }
+
+            // 통로마다 양쪽 통에서 가운데로 나온 문짝 2장 (가운데에 0.04 틈)
+            for (int lane = 0; lane < cabinets - 1; lane++)
+            {
+                float z0 = firstZ + lane * pitch + cabinetWidth / 2f;
+                float z1 = z0 + laneWidth;
+                float mid = (z0 + z1) / 2f;
+                GameObject flaps = Group(root, $"Lane {lane + 1} Flaps");
+                Box(flaps, "Flap Left", new Vector3(-0.02f, 0.45f, z0), new Vector3(0.02f, 0.85f, mid - 0.02f), m.Orange);
+                Box(flaps, "Flap Right", new Vector3(-0.02f, 0.45f, mid + 0.02f), new Vector3(0.02f, 0.85f, z1), m.Orange);
+            }
+            return root;
+        }
+
         // 차장용 볼록거울: 기둥 + 팔 + 15° 아래로 기운 둥근 거울(주황 테두리)
         private static GameObject BuildPlatformMirror(Materials m)
         {
@@ -582,7 +647,7 @@ namespace YoureRight
             }
         }
 
-        // 한자처럼 보이는 글자 하나(진짜 글자 대신 막대 조합): K 口, H 日, E 工, J 十, M 山
+        // 한자처럼 보이는 글자 하나(진짜 글자 대신 막대 조합): K 口, H 日, E 工, J 十, M 山, Q 急, G 行
         private static void Glyph(GameObject parent, string name, float fx, float cy, float cz, float size, char shape, Material material)
         {
             GameObject group = Group(parent, name);
@@ -610,6 +675,30 @@ namespace YoureRight
                 case 'J':
                     Bar("Cross", -t / 2f, t / 2f, -h, h);
                     Bar("Stem", -h, h, -t / 2f, t / 2f);
+                    break;
+                case 'Q':
+                    // 위 ⺈ + 가운데 彐 + 아래 心
+                    Bar("Top", h - t, h, -h * 0.5f, h * 0.3f);
+                    Bar("Top Left", h * 0.65f, h, -h * 0.5f, -h * 0.5f + t);
+                    Bar("Middle Top", h * 0.6f - t, h * 0.6f, -h * 0.6f, h * 0.6f);
+                    Bar("Middle Center", h * 0.3f - t / 2f, h * 0.3f + t / 2f, -h * 0.4f, h * 0.6f);
+                    Bar("Middle Bottom", 0f, t, -h * 0.6f, h * 0.6f);
+                    Bar("Middle Right", 0f, h * 0.6f, h * 0.6f - t, h * 0.6f);
+                    Bar("Heart Left", -h * 0.75f, -h * 0.3f, -h, -h + t);
+                    Bar("Heart Stem", -h, -h * 0.3f, -h * 0.5f, -h * 0.5f + t);
+                    Bar("Heart Base", -h, -h + t, -h * 0.5f, h * 0.55f);
+                    Bar("Heart Dot", -h * 0.6f, -h * 0.3f, h * 0.05f, h * 0.05f + t);
+                    Bar("Heart Right", -h * 0.75f, -h * 0.35f, h - t, h);
+                    break;
+                case 'G':
+                    // 왼쪽 彳 + 오른쪽 亍
+                    Bar("Left Top", h * 0.55f, h * 0.55f + t, -h, -h * 0.35f);
+                    Bar("Left Middle", 0f, t, -h, -h * 0.35f);
+                    Bar("Left Stem", -h, h * 0.1f, -h * 0.65f - t / 2f, -h * 0.65f + t / 2f);
+                    Bar("Right Top", h - t, h, h * 0.05f, h * 0.85f);
+                    Bar("Right Middle", h * 0.25f, h * 0.25f + t, -h * 0.1f, h);
+                    Bar("Right Stem", -h, h * 0.25f, h * 0.5f - t / 2f, h * 0.5f + t / 2f);
+                    Bar("Right Hook", -h, -h + t, h * 0.2f, h * 0.5f);
                     break;
                 default:
                     Bar("Bottom", -h, -h + t, -h, h);
@@ -684,11 +773,23 @@ namespace YoureRight
             collider.size = bounds.size;
         }
 
-        private static void Save(GameObject root, Scene preview)
+        // 부품마다 그 메시 모양의 MeshCollider를 붙입니다. 상자 하나로 감싸면 빈 곳(거울 기둥 옆 등)까지 눌리는 소품에 씁니다.
+        // 클릭 판정은 맞은 부품의 부모에서 AnswerTarget을 찾으므로, 정답으로 등록할 때는 루트에 AnswerTarget을 붙이면 됩니다.
+        private static void AddPartColliders(GameObject root)
         {
-            AddRootCollider(root);
+            foreach (MeshFilter filter in root.GetComponentsInChildren<MeshFilter>())
+            {
+                filter.gameObject.AddComponent<MeshCollider>().sharedMesh = filter.sharedMesh;
+            }
+        }
+
+        private static void Save(GameObject root, Scene preview, bool partColliders = false)
+        {
+            PivotUtility.CenterGroupPivots(root);
+            if (partColliders) AddPartColliders(root);
+            else AddRootCollider(root);
             SceneManager.MoveGameObjectToScene(root, preview);
-            PrefabUtility.SaveAsPrefabAsset(root, $"{PrefabFolder}/{root.name}.prefab");
+            PrefabSaveUtility.SaveKeepingIds(root, $"{PrefabFolder}/{root.name}.prefab");
             Object.DestroyImmediate(root);
         }
 

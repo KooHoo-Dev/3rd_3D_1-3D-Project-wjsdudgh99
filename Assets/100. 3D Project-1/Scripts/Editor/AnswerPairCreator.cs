@@ -207,11 +207,14 @@ namespace YoureRight
 
         #region 생성
 
-        // 루트에 클릭용 Collider와 AnswerTarget을 준비합니다. (AnswerTarget은 같은 오브젝트에 Collider가 필요함)
+        // 루트에 클릭용 Collider와 AnswerTarget을 준비합니다.
+        // 루트에 Collider가 없어도 자식에 클릭되는 Collider가 있으면(거울처럼 부품마다 붙인 경우) 그대로 씁니다.
         private static AnswerTarget PrepareTarget(GameObject go)
         {
             Collider col = go.GetComponent<Collider>();
-            if (col == null)
+            bool partColliders = go.GetComponentsInChildren<Collider>(true)
+                .Any(c => c.enabled && c.isTrigger == false && (c is not MeshCollider mesh || mesh.sharedMesh != null));
+            if (col == null && partColliders == false)
             {
                 MeshFilter meshFilter = go.GetComponent<MeshFilter>();
                 if (meshFilter != null && meshFilter.sharedMesh != null)
@@ -226,7 +229,7 @@ namespace YoureRight
                     FitBoxToRenderers(box);
                 }
             }
-            else if (col.isTrigger || col.enabled == false)
+            else if (col != null && (col.isTrigger || col.enabled == false))
             {
                 // Raycast가 Trigger와 꺼진 Collider를 무시하므로 클릭에 걸리도록 고칩니다.
                 Undo.RecordObject(col, Title);
