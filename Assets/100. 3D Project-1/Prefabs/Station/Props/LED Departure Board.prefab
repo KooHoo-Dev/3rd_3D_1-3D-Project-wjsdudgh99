@@ -2114,7 +2114,7 @@ Transform:
   m_GameObject: {fileID: 1090206683766182631}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.0000000014710654, y: 0, z: 0.6134}
+  m_LocalPosition: {x: -0.0000000014710654, y: 0, z: 0.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -8141,7 +8141,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3324774962948423437}
-  - component: {fileID: 3877905164836649340}
+  - component: {fileID: 5571507025862097621}
   m_Layer: 0
   m_Name: LED Departure Board
   m_TagString: Untagged
@@ -8171,8 +8171,8 @@ Transform:
   - {fileID: 7637844064935452780}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &3877905164836649340
-BoxCollider:
+--- !u!64 &5571507025862097621
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -8189,9 +8189,10 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.14000008, y: 1.2, z: 2.04}
-  m_Center: {x: -0.000000037252903, y: -0.6, z: 0}
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
 --- !u!1 &3964002565374912758
 GameObject:
   m_ObjectHideFlags: 0
@@ -8487,7 +8488,7 @@ Transform:
   m_GameObject: {fileID: 3999153674336616869}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.0000000014710654, y: 0, z: 0.6134}
+  m_LocalPosition: {x: -0.0000000014710654, y: 0, z: 0.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -19623,7 +19624,7 @@ Transform:
   m_GameObject: {fileID: 8373857183419112027}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.6134}
+  m_LocalPosition: {x: 0, y: 0, z: 0.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -19745,7 +19746,7 @@ Transform:
   m_GameObject: {fileID: 8521895671479783400}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.6134}
+  m_LocalPosition: {x: 0, y: 0, z: 0.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

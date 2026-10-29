@@ -291,7 +291,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3812091694193389173}
-  - component: {fileID: 4263337985321163929}
+  - component: {fileID: -3250402795057512519}
   m_Layer: 0
   m_Name: Fire Extinguisher Box
   m_TagString: Untagged
@@ -317,8 +317,8 @@ Transform:
   - {fileID: 674678554457840244}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &4263337985321163929
-BoxCollider:
+--- !u!64 &-3250402795057512519
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -335,9 +335,10 @@ BoxCollider:
   m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.26999998, y: 0.7, z: 0.35}
-  m_Center: {x: 0.00999999, y: 0.35, z: 0}
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}
 --- !u!1 &3620684031557582405
 GameObject:
   m_ObjectHideFlags: 0
