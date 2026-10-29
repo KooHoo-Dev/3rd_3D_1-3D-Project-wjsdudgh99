@@ -30,6 +30,7 @@ namespace YoureRight
         private const float PlatformTop = 1.2f;
         private const float PlatformDepth = 4.8f;
         private const float ModuleLength = 4f;
+        private const float FoundationBottom = -1.85f;  // 선로 바닥 밑면(-1.832)보다 조금 아래까지 채움
 
         // 스크린도어 치수
         private const float DoorLineX = 0f;         // 문 선 = 문 프리팹의 기준점 (놓을 때는 플랫폼 가장자리에서 0.5 안쪽)
@@ -169,6 +170,8 @@ namespace YoureRight
             float h = ModuleLength / 2f;
 
             Box(root, "Body", new Vector3(-PlatformDepth, 0f, -h), new Vector3(-0.25f, PlatformTop - 0.05f, h), m.ModernSide);
+            // 승강장 밑을 선로 바닥 높이까지 채우는 기초
+            Box(root, "Foundation", new Vector3(-PlatformDepth, FoundationBottom, -h), new Vector3(-0.25f, 0f, h), m.ModernSide);
             Box(root, "Floor", new Vector3(-PlatformDepth, PlatformTop - 0.15f, -h), new Vector3(-0.35f, PlatformTop, h), m.ModernFloor);
             Box(root, "Edge", new Vector3(-0.35f, PlatformTop - 0.2f, -h), new Vector3(0f, PlatformTop, h), m.ModernEdge);
             Box(root, "Tactile", new Vector3(-1.3f, PlatformTop, -h), new Vector3(-0.9f, PlatformTop + 0.015f, h), m.Tactile);
@@ -191,6 +194,8 @@ namespace YoureRight
 
             Box(root, "Wall", new Vector3(-PlatformDepth, 0f, -h), new Vector3(-0.3f, PlatformTop - 0.1f, h), m.RuralWall);
             Box(root, "Wall Band", new Vector3(-0.31f, 0f, -h), new Vector3(-0.29f, 0.35f, h), m.RuralWallDark);
+            // 승강장 밑을 선로 바닥 높이까지 채우는 기초
+            Box(root, "Foundation", new Vector3(-PlatformDepth, FoundationBottom, -h), new Vector3(-0.3f, 0f, h), m.RuralWallDark);
             Box(root, "Top", new Vector3(-PlatformDepth, PlatformTop - 0.15f, -h), new Vector3(-0.6f, PlatformTop - 0.02f, h), m.RuralTop);
             Box(root, "Edge", new Vector3(-0.6f, PlatformTop - 0.2f, -h), new Vector3(0f, PlatformTop, h), m.RuralEdge);
             Box(root, "Line", new Vector3(-0.95f, PlatformTop - 0.02f, -h), new Vector3(-0.8f, PlatformTop - 0.01f, h), m.RuralLine);
@@ -206,12 +211,12 @@ namespace YoureRight
             return root;
         }
 
-        // 플랫폼 전체를 감싸는 BoxCollider 하나(루트)와 Background 레이어
+        // 플랫폼과 기초 전체를 감싸는 BoxCollider 하나(루트)와 Background 레이어
         private static void AddPlatformCollider(GameObject root)
         {
             var collider = root.AddComponent<BoxCollider>();
-            collider.center = new Vector3(-PlatformDepth / 2f, PlatformTop / 2f, 0f);
-            collider.size = new Vector3(PlatformDepth, PlatformTop, ModuleLength);
+            collider.center = new Vector3(-PlatformDepth / 2f, (PlatformTop + FoundationBottom) / 2f, 0f);
+            collider.size = new Vector3(PlatformDepth, PlatformTop - FoundationBottom, ModuleLength);
 
             int layer = LayerMask.NameToLayer(BackgroundLayerName);
             if (layer < 0)
