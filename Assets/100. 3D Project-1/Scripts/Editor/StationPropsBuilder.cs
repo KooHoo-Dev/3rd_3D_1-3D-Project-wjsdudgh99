@@ -13,8 +13,9 @@ namespace YoureRight
     // 예외: 천장에 매다는 소품(Exit Sign Hanging, LED Departure Board, Digital Clock Hanging)은 매다는 점(맨 위)이 기준점이고 아래로 늘어집니다.
     // 앞에서 볼 때 오른쪽이 +Z입니다(글자·숫자는 -Z에서 +Z로 읽힘).
     //
-    // 루트에 전체를 감싸는 BoxCollider 하나를 붙입니다(Default 레이어라 클릭하면 오답, 정답으로 등록하면 그대로 씀).
-    // 예외: Platform Mirror는 빈 곳이 많아서 부품마다 MeshCollider를 붙입니다(루트에는 Collider 없음).
+    // 모든 소품은 루트에 Collider 없이 부품마다 MeshCollider를 붙입니다(Default 레이어라 클릭하면 오답).
+    // 루트에 상자를 씌우면 상자 겉면에 먼저 맞아서 자판기 버튼처럼 부품 하나를 정답으로 둘 수 없기 때문입니다.
+    // 소품 통째로 정답일 때는 맞은 부품의 부모에서 AnswerTarget을 찾으므로 루트에 AnswerTarget을 붙이면 됩니다.
     // 머티리얼은 모두 Emission을 켜고 검정으로 둡니다(정답 반짝임용). LED 글자와 자판기 진열창만 스스로 빛나는 색입니다.
     // 색 변형용 머티리얼(M_Prop_*)도 함께 만들어 두므로, 씬에서 부품 머티리얼만 바꿔 미끼를 만들 수 있습니다.
     // 다시 실행하면 같은 이름의 머티리얼·프리팹을 덮어씁니다(씬에 놓인 인스턴스는 그대로 따라 바뀜).
@@ -67,7 +68,7 @@ namespace YoureRight
                 Save(BuildVendingMachine(m), preview);
                 Save(BuildTicketGate(m), preview);
                 Save(BuildDigitalClock(m), preview);
-                Save(BuildPlatformMirror(m), preview, partColliders: true);
+                Save(BuildPlatformMirror(m), preview);
                 Save(BuildStopMarker(m), preview);
                 Save(BuildExitSign(m), preview);
                 Save(BuildFireExtinguisherBox(m), preview);
@@ -761,20 +762,8 @@ namespace YoureRight
             return go;
         }
 
-        // 모든 렌더러를 감싸는 BoxCollider 하나를 루트에 붙입니다. (루트는 원점·회전 없음이라 월드 Bounds = 로컬)
-        private static void AddRootCollider(GameObject root)
-        {
-            Renderer[] renderers = root.GetComponentsInChildren<Renderer>();
-            Bounds bounds = renderers[0].bounds;
-            foreach (Renderer r in renderers) bounds.Encapsulate(r.bounds);
-
-            var collider = root.AddComponent<BoxCollider>();
-            collider.center = bounds.center;
-            collider.size = bounds.size;
-        }
-
-        // 부품마다 그 메시 모양의 MeshCollider를 붙입니다. 상자 하나로 감싸면 빈 곳(거울 기둥 옆 등)까지 눌리는 소품에 씁니다.
-        // 클릭 판정은 맞은 부품의 부모에서 AnswerTarget을 찾으므로, 정답으로 등록할 때는 루트에 AnswerTarget을 붙이면 됩니다.
+        // 부품마다 그 메시 모양의 MeshCollider를 붙입니다. 빈 곳은 눌리지 않고, 부품 하나만 정답으로 둘 수도 있습니다.
+        // 클릭 판정은 맞은 부품의 부모에서 AnswerTarget을 찾으므로, 소품 통째로 정답일 때는 루트에 AnswerTarget을 붙이면 됩니다.
         private static void AddPartColliders(GameObject root)
         {
             foreach (MeshFilter filter in root.GetComponentsInChildren<MeshFilter>())
@@ -783,11 +772,10 @@ namespace YoureRight
             }
         }
 
-        private static void Save(GameObject root, Scene preview, bool partColliders = false)
+        private static void Save(GameObject root, Scene preview)
         {
             PivotUtility.CenterGroupPivots(root);
-            if (partColliders) AddPartColliders(root);
-            else AddRootCollider(root);
+            AddPartColliders(root);
             SceneManager.MoveGameObjectToScene(root, preview);
             PrefabSaveUtility.SaveKeepingIds(root, $"{PrefabFolder}/{root.name}.prefab");
             Object.DestroyImmediate(root);
