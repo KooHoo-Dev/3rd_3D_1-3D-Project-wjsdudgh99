@@ -8,7 +8,7 @@ namespace YoureRight
     // 2-1 자동차 전시장에 쓰는 차 프리팹에 클릭용 Collider를 붙이는 에디터 도구입니다. (여러 번 실행해도 결과는 같음)
     // Tools → You're Right → Fix Vehicle Colliders
     //
-    // 차 에셋은 대부분 Collider가 없어서 클릭이 차를 뚫고 받침대(무반응)에 맞고, LowPolyVehicle1은 Body에 차 전체를 감싸는 상자가 있어서
+    // 차 에셋은 대부분 Collider가 없어서 클릭이 차를 뚫고 받침대(무반응)에 맞고, LowPolyVehicle1·Drivable 픽업은 차 전체를 감싸는 상자가 있어서
     // 문·핸들·좌석을 눌러도 상자에 먼저 맞습니다. 그래서 기차역 소품과 같은 규칙으로 맞춥니다.
     //   - 메시가 있는 부품마다 그 모양의 MeshCollider 하나 (바퀴·문·스포일러 하나만 정답으로 둘 수 있음)
     //   - 상자·구·캡슐·바퀴 Collider와, 메시 없는 오브젝트(루트·그룹)의 Collider는 지움
@@ -25,6 +25,7 @@ namespace YoureRight
             "Assets/BrokenVector/LowPolyCarPack/Prefabs",
             "Assets/ARCADE - FREE Racing Car/Prefabs (Meshes Only)",
             "Assets/LowPolyVehicle1/Prefabs",
+            "Assets/Drivable-Free Low Poly Cars/Prefabs/WithoutLod",   // LOD 버전(WithLod)은 쓰지 않음
         };
 
         // 차가 아닌 프리팹(데모용 바닥 등)은 건너뜁니다.
