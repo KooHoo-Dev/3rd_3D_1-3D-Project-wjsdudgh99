@@ -1,9 +1,76 @@
 fileFormatVersion: 2
 guid: 7a902db29dc26e14183ceb50f4e8c055
+AssetOrigin:
+  serializedVersion: 1
+  productId: 329692
+  packageName: Low Poly Car
+  packageVersion: 1.0
+  assetPath: Assets/Floreswa/Models/free_sedan_low.fbx
+  uploadId: 970126
 ModelImporter:
-  serializedVersion: 22200
+  serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: car
+    second: {fileID: 2100000, guid: ac7c1cef11e8b1d4c885860a44151e58, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: exhaust
+    second: {fileID: 2100000, guid: 988b57456d60e354484bed2cde05ddcf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: fog
+    second: {fileID: 2100000, guid: 08c585c39e6fea541aa24dd84563ad01, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: gap
+    second: {fileID: 2100000, guid: 8d382c8ee06ed67499d6c08ba54e3785, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: grille
+    second: {fileID: 2100000, guid: cacb72955827f8f46b26ed9388f56791, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: headlight
+    second: {fileID: 2100000, guid: 62767ff8154901e4b81ddb2dec0b29e3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: rim
+    second: {fileID: 2100000, guid: a4233b06464f1c1499d9a166ccd50e31, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: side mirror
+    second: {fileID: 2100000, guid: 646f2e07e86670a4db998c6506efd1d5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tail light
+    second: {fileID: 2100000, guid: 10ed9f07695993343a5a1da1fdd1d7be, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tire
+    second: {fileID: 2100000, guid: c4aae959ca6ef4b4a901442dc0342011, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: underbody
+    second: {fileID: 2100000, guid: f510f5e2fa59efc41a5f253267392103, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: window
+    second: {fileID: 2100000, guid: cbdafac05a78f6642bf7b94bcd8dba35, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -56,6 +123,9 @@ ModelImporter:
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
+    generateMeshLods: 0
+    meshLodGenerationFlags: 0
+    maximumMeshLod: -1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
@@ -105,10 +175,3 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 329692
-  packageName: Low Poly Car
-  packageVersion: 1.0
-  assetPath: Assets/Floreswa/Models/free_sedan_low.fbx
-  uploadId: 970126
