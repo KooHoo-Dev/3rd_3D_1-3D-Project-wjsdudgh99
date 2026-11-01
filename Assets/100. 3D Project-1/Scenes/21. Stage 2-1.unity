@@ -5136,7 +5136,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Stage 2-1
+  m_text: Stage 3
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -6866,7 +6866,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0006d63e5c6193f4eaa4044a9ca7cd9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::YoureRight.StageManager
-  stageName: Stage 2-1
+  stageName: Stage 3
   nextStageDelay: 1.5
   addToRecords: 1
 --- !u!1001 &1029812967

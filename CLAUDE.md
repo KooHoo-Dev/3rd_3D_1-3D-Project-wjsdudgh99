@@ -120,7 +120,8 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | Lighting | `NightLight` | 가로등마다 하나씩 붙여 해가 지면 켜고 해가 뜨면 끕니다(2026-10-27, 1-2). 씬의 `SunCycle.Daylight`를 읽어 `Off Above`(0.5)보다 밝으면 꺼짐, `Full On Below`(0.25)보다 어두우면 다 켜짐, 그 사이는 서서히 밝아집니다. `Lights`를 비우면 자식 Light를 모두 쓰고, 씬에 저장된 Intensity가 최대 밝기입니다. 선택 항목 `Glow Renderers`(+ `Glow Material Index`, -1이면 전부)를 넣으면 그 머티리얼 복사본에 `Glow Color` Emission을 같이 켭니다. **Play 중에만** 동작하고, SunCycle이 없으면 경고 후 꺼집니다. 양쪽 불빛은 같은 값으로 두고, 가로등은 정답 쌍으로 쓰지 않습니다(정답 반짝임과 머티리얼 복사본이 겹침). |
 | Utils | `SimpleInput`, `SingletonBase` | `19. Legacy/9. Utils`에서 복사해 네임스페이스를 바꾼 파일입니다. |
 
-**씬** (Build Settings 순서): `00. Menu` → `10. Stage Tutorial` → `11. Stage 1-1` → `12. Stage 1-2` → `21. Stage 2-1` → `22. Stage 2-2` → `31. Stage 3-1` → `32. Stage 3-2` → `90. Result` (2026-10-27 계획 변경. `21. Stage 2-1`은 예전 `13. Stage 1-3`의 이름을 바꾼 것이라 GUID가 같고, 22·31·32는 Template을 복제해 만듦)
+**씬** (Build Settings 순서): `00. Menu` → `10. Stage Tutorial` → `11. Stage 1-1` → `12. Stage 1-2` → `21. Stage 2-1` → `22. Stage 2-2` → `31. Stage 3-1` → `90. Result` (2026-10-27 계획 변경. `21. Stage 2-1`은 예전 `13. Stage 1-3`의 이름을 바꾼 것이라 GUID가 같고, 22·31은 Template을 복제해 만듦. 2026-11-01에 `32. Stage 3-2`는 취소해 지움)
+- **화면 이름은 Stage 1 ~ 5**(2026-11-01, 사용자 결정): 씬 파일 이름(11·12·21·22·31)은 GUID를 지키려고 그대로 두고, `StageNameText`와 `StageManager` Stage Name만 `Stage 1`(1-1) · `Stage 2`(1-2) · `Stage 3`(2-1) · `Stage 4`(2-2) · `Stage 5`(3-1)로 바꿈. 이 문서에서 1-1·2-2 같은 이름은 씬 파일 기준입니다. 마지막인 3-1 클리어 창 Next 글자는 "최종 결과".
 - 스테이지 씬 4개는 같은 구조이고, `StageNameText`의 글자와 `StageManager`의 Stage Name만 다릅니다. `Stage` 아래에는 임시 섬 바닥 `Stage Left`·`Stage Right`(큐브 20 × 2 × 20, y -2, Background 레이어)와 `PlayArea Left`·`PlayArea Right`(y 6.5)가 있습니다. 지금은 큐브로 된 테스트용 정답 쌍(`AnswerPair_01`: 왼쪽 섬 `Cube`, 오른쪽 섬 `Cube (2)`)과 섬마다 미끼 큐브 하나가 배치되어 있습니다.
 - 분할 화면 구성: `Main Camera`는 Viewport X 0 / W 0.5, `Right Camera`는 X 0.5 / W 0.5이고, 둘 다 Far Clip 60입니다. `MainCamera` 태그와 Audio Listener는 `Main Camera`에만 있습니다. Canvas 첫 자식인 `Divider`(Width 4, 위아래 stretch, Raycast Target 끔)가 화면을 가르고, `TimerText` 바로 위의 `TimerBackground`가 분할선을 가립니다.
 - **예비 씬**: `Scenes/Template/Stage Template.unity`. 스테이지 씬과 같은 구성이고 이름만 `New Stage`입니다. Build Settings와 `SceneNames`에는 넣지 않습니다. 스테이지를 늘릴 때는 다음 순서로 합니다.
@@ -147,8 +148,8 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | 10 | 월드 1 디오라마: Tutorial ✅, 1-1 ✅, **1-2 사막 ↔ 설원 + 일출·일몰 반복** (정답 5쌍, `SunCycle` 코드 ✅) | **진행 중** |
 | 10.5 | 씬 정리: 1-3 → 2-1 이름 변경, 22·31·32 생성, SceneNames·Build Settings 7개 | ✅ |
 | 11 | 월드 2: 가로 분할, 2-1·2-2 디오라마, 맵별 조명 연출 | ✅ (2-2 기차역, 2-1 자동차 전시장 모두 정답 5쌍·검사 통과) |
-| 12 | 월드 3: 반반 투영 코드, 3-1·3-2 물체, 맵별 조명 연출 | **진행 중** (3-1 공중 SF 섬 도시 ✅ 정답 5쌍·검사 통과, 3-2 남음) |
-| 13 | 마무리: 사운드 파일, 결과 화면 6줄 확인, 빌드 테스트 | |
+| 12 | 월드 3: 반반 투영 코드, 3-1 물체, 맵별 조명 연출 | ✅ (3-1 공중 SF 섬 도시 정답 5쌍·검사 통과. 3-2는 2026-11-01 취소) |
+| 13 | 마무리: 사운드 파일, 결과 화면 5줄 확인, 빌드 테스트 | |
 
 **7단계 메모 (완료)**
 - 반짝임 파티클 `Prefabs/Sparkle`: Burst 25, Sphere 0.3, Start Speed 7~9, Lifetime 0.6~1, Limit Velocity Dampen 0.2, Start Size 0.2~0.4, Billboard, Rotation over Lifetime 180°/s, Size over Lifetime 1→0. **퍼지는 거리 ≈ Start Speed × Lifetime**(Dampen을 켜면 그보다 짧아짐)이고, 거리는 Start Speed로 조절합니다.
@@ -263,19 +264,18 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
   - 가로등 `Streetlight 1`·`2`: 오른쪽 섬은 1·2를 바꿔 놓음(줄 간격·개수가 달라 그룹 회전으로는 못 맞춰 Prefab Replace 권장).
 - **낮/밤 화면 나누기는 하지 않습니다**(2026-10-27 논의): 조명이 다르면 정답 쌍둥이도 달라 보여 공정성이 깨집니다. 밤 분위기는 1-2처럼 **배경색·Emission 소품(불 켜진 창문, 별, 달 등, Collider 없음)**으로만 내고, 물체를 비추는 해·주변광은 양쪽 같게 둡니다.
 
-## 확정: 7스테이지 (2026-10-27)
+## 확정: 6스테이지 (2026-10-27, 2026-11-01 수정)
 
-- 구성: Tutorial / 1-1·1-2 / 2-1·2-2 / 3-1·3-2. 씬 번호는 월드 1이 11·12, 월드 2가 21·22, 월드 3이 31·32입니다. (2026-10-22에 10스테이지로 정했으나, 2026-10-27에 시간이 모자라 각 월드의 3번 맵을 취소함, 사용자 결정)
-- **월드 1·2·3 모두 필수입니다.** 시간이 모자라면 **뒤에서부터(3-2 → 3-1 → …) 뺍니다.** 월드 3은 투영 코드가 따로 필요해 가장 위험하므로 월드 2까지 먼저 확실히 끝냅니다.
+- 구성: Tutorial / 1-1·1-2 / 2-1·2-2 / 3-1, 화면 이름은 Stage 1 ~ 5. 씬 번호는 월드 1이 11·12, 월드 2가 21·22, 월드 3이 31입니다. (2026-10-22에 10스테이지로 정했으나, 2026-10-27에 각 월드의 3번 맵을, 2026-11-01에 3-2를 시간이 모자라 취소함, 사용자 결정)
 - 월드 1: 지금의 좌우 분할 그대로입니다. **튜토리얼에는 조명 연출을 넣지 않고, 1-1·1-2에는 맵에 어울리는 연출을 넣습니다**(처음에는 1-1도 기본 조명이었으나 2026-10-26에 1-1 취조실 조명으로 바꿈, 사용자 결정).
 - 월드 2: 2-1·2-2 모두 가로(위아래) 분할입니다. 카메라 Viewport만 바꾸면 되고 `ClickInteractor`가 그대로 동작합니다. 대각선 분할은 하지 않습니다.
 - 월드 3: 좌우 분할 + 월드 1과 같은 오빗 카메라(±80도, 입력 동일)입니다. 물체 하나를 두 버전(A/B)으로 만들어 두 Pivot에 두고, 두 카메라가 **화면 전체 기준 투영**으로 그린 뒤 각자 반쪽만 보여 줍니다. 그래서 물체가 화면 정중앙에서 반반으로 보입니다. Viewport만 반으로 나누면 물체가 각 반쪽 가운데로 옮겨져 월드 1처럼 보이므로, 투영을 조정하는 코드가 필요합니다.
 - 조명 연출: 맵마다 어울리는 것을 그때그때 고릅니다.
-- 결과 화면: 기록은 최대 6줄(튜토리얼 제외)이라 지금 `Result Panel`(1000 × 750)에 들어갈 것으로 보입니다. 마무리 때 확인합니다.
+- 결과 화면: 기록은 최대 5줄(튜토리얼 제외)이라 지금 `Result Panel`(1000 × 750)에 들어갈 것으로 보입니다. 마무리 때 확인합니다.
 
 **나중에 할 일**
 - Play 모드 자동 테스트를 만듭니다(`Assets/100. 3D Project-1/Tests/PlayMode/` + asmdef). 지금은 Claude가 Unity에서 Play·클릭을 할 수 없어서 흐름 테스트는 사용자가 직접 하고, Claude는 `[GameManager] 씬 이동` 로그로 확인합니다. **언제 만들지는 미정**입니다(디오라마를 먼저 만들고 13단계 마무리 때 만드는 것을 추천, 2026-10-27).
-  - **확인할 흐름 (7스테이지 기준)**: Menu → Start → 튜토리얼 안내 닫기 → 각 스테이지 정답 쌍을 코드로 찾음 처리(`AnswerPair.TryFind`) → 클리어 창 Next → … 순서 7개와 HUD 이름, 튜토리얼 기록 제외, Result 기록 6개와 Total 합계, 3-2 클리어 버튼 "최종 결과", 이미 찾은 쌍 다시 누르기 무시, Result → 메뉴 → 재시작 시 기록 초기화, 일시정지 → 메뉴.
+  - **확인할 흐름 (6스테이지 기준)**: Menu → Start → 튜토리얼 안내 닫기 → 각 스테이지 정답 쌍을 코드로 찾음 처리(`AnswerPair.TryFind`) → 클리어 창 Next → … 순서 6개와 HUD 이름, 튜토리얼 기록 제외, Result 기록 5개와 Total 합계, 3-1 클리어 버튼 "최종 결과", 이미 찾은 쌍 다시 누르기 무시, Result → 메뉴 → 재시작 시 기록 초기화, 일시정지 → 메뉴.
   - **확인하지 못하는 것**: 실제 마우스 클릭(Raycast·PlayArea·Background 레이어·3초 제한)과 화면 모습. 이 부분은 직접 Play와 검사 도구로 봅니다.
   - **예상 시간 약 3~4.5시간**: 테스트 어셈블리 준비 30~45분, 테스트용 연결 20분, 테스트 작성 1~1.5시간, CliBridge `/tests/run`(실행·결과 조회 두 단계) 45분~1시간, 디버깅 30분~1시간(씬을 넘어 살아남는 `GameManager`·`SoundManager` 정리, 씬 로딩 대기, `timeScale`). `/tests/run`을 빼면 약 2~3시간(사용자가 Test Runner 창에서 실행).
   - **asmdef: A안으로 정함(Claude 추천, 사용자 동의 2026-10-27)**. 테스트 asmdef는 Assembly-CSharp을 참조할 수 없으므로, 게임 코드(`Assets/100. 3D Project-1/Scripts`)에 `YoureRight.asmdef`를 추가하고 Editor 도구(`AnswerPairCreator`, `StageValidator`)는 Editor 전용 asmdef로 나눕니다. 처음 한 번 컴파일 오류 정리가 필요합니다. (B안 "Enable playmode tests for all assemblies"는 테스트 코드가 Assembly-CSharp에 섞이고 `#if UNITY_INCLUDE_TESTS`로 감싸야 해서 쓰지 않음)

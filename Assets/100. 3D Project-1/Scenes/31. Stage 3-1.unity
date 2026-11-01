@@ -3720,6 +3720,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1577023461}
     m_Modifications:
+    - target: {fileID: 2608851602699385498, guid: c87dab4a590e244c58340d99e0061830, type: 3}
+      propertyPath: m_Name
+      value: Space_Car_1 (1)
+      objectReference: {fileID: 0}
     - target: {fileID: 3422542311205806112, guid: c87dab4a590e244c58340d99e0061830, type: 3}
       propertyPath: m_LocalPosition.x
       value: 25
@@ -3759,10 +3763,6 @@ PrefabInstance:
     - target: {fileID: 3422542311205806112, guid: c87dab4a590e244c58340d99e0061830, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2608851602699385498, guid: c87dab4a590e244c58340d99e0061830, type: 3}
-      propertyPath: m_Name
-      value: Space_Car_1 (1)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4725,6 +4725,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1577023461}
     m_Modifications:
+    - target: {fileID: 2608851602699385498, guid: c87dab4a590e244c58340d99e0061830, type: 3}
+      propertyPath: m_Name
+      value: Space_Car_1 (11)
+      objectReference: {fileID: 0}
     - target: {fileID: 3422542311205806112, guid: c87dab4a590e244c58340d99e0061830, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -4764,10 +4768,6 @@ PrefabInstance:
     - target: {fileID: 3422542311205806112, guid: c87dab4a590e244c58340d99e0061830, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2608851602699385498, guid: c87dab4a590e244c58340d99e0061830, type: 3}
-      propertyPath: m_Name
-      value: Space_Car_1 (11)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6628,6 +6628,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1577023461}
     m_Modifications:
+    - target: {fileID: 2608851602699385498, guid: c87dab4a590e244c58340d99e0061830, type: 3}
+      propertyPath: m_Name
+      value: Space_Car_1 (10)
+      objectReference: {fileID: 0}
     - target: {fileID: 3422542311205806112, guid: c87dab4a590e244c58340d99e0061830, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.5
@@ -6667,10 +6671,6 @@ PrefabInstance:
     - target: {fileID: 3422542311205806112, guid: c87dab4a590e244c58340d99e0061830, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2608851602699385498, guid: c87dab4a590e244c58340d99e0061830, type: 3}
-      propertyPath: m_Name
-      value: Space_Car_1 (10)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -9476,7 +9476,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Stage 3-1
+  m_text: Stage 5
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -10509,6 +10509,10 @@ PrefabInstance:
     - target: {fileID: 1209420700473805128, guid: 63855957f98a9824192e3656240264cd, type: 3}
       propertyPath: m_Name
       value: Stage Clear Panel
+      objectReference: {fileID: 0}
+    - target: {fileID: 1856189157569981645, guid: 63855957f98a9824192e3656240264cd, type: 3}
+      propertyPath: lastStageNextText
+      value: "\uCD5C\uC885 \uACB0\uACFC"
       objectReference: {fileID: 0}
     - target: {fileID: 6043754781226493799, guid: 63855957f98a9824192e3656240264cd, type: 3}
       propertyPath: m_Pivot.x
@@ -11963,7 +11967,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0006d63e5c6193f4eaa4044a9ca7cd9a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::YoureRight.StageManager
-  stageName: Stage 3-1
+  stageName: Stage 5
   nextStageDelay: 1.5
   addToRecords: 1
 --- !u!1 &1027896406
@@ -12982,30 +12986,6 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 619521853057097061, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_Name
-      value: Space_Car_2 (6)
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 6.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 65
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
@@ -13032,6 +13012,14 @@ PrefabInstance:
     - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 619521853057097061, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
+      propertyPath: m_Name
+      value: Space_Car_2 (6)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13736,46 +13724,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 619521853057097061, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_Name
-      value: Space_Car_2
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 65
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 7.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
@@ -13786,6 +13734,14 @@ PrefabInstance:
     - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 619521853057097061, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
+      propertyPath: m_Name
+      value: Space_Car_2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14072,30 +14028,6 @@ PrefabInstance:
       value: 2.5
       objectReference: {fileID: 0}
     - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 619521853057097061, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_Name
-      value: Space_Car_2 (7)
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 6.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 65
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 2.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
@@ -14122,6 +14054,14 @@ PrefabInstance:
     - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 619521853057097061, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
+      propertyPath: m_Name
+      value: Space_Car_2 (7)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14659,7 +14599,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1252245570
 Transform:
   m_ObjectHideFlags: 0
@@ -18051,30 +17991,6 @@ PrefabInstance:
       value: -22.5
       objectReference: {fileID: 0}
     - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_ConstrainProportionsScale
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 619521853057097061, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_Name
-      value: Space_Car_2 (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 6.8
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 65
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -22.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
@@ -18101,6 +18017,14 @@ PrefabInstance:
     - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 275611810902509535, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 619521853057097061, guid: 7b398ba8db000490c9ec17f1fcd65a79, type: 3}
+      propertyPath: m_Name
+      value: Space_Car_2 (2)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -19992,6 +19916,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1577023461}
     m_Modifications:
+    - target: {fileID: 2608851602699385498, guid: c87dab4a590e244c58340d99e0061830, type: 3}
+      propertyPath: m_Name
+      value: Space_Car_1 (9)
+      objectReference: {fileID: 0}
     - target: {fileID: 3422542311205806112, guid: c87dab4a590e244c58340d99e0061830, type: 3}
       propertyPath: m_LocalPosition.x
       value: -20
@@ -20031,10 +19959,6 @@ PrefabInstance:
     - target: {fileID: 3422542311205806112, guid: c87dab4a590e244c58340d99e0061830, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2608851602699385498, guid: c87dab4a590e244c58340d99e0061830, type: 3}
-      propertyPath: m_Name
-      value: Space_Car_1 (9)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -27,9 +27,6 @@ EditorBuildSettings:
     path: Assets/100. 3D Project-1/Scenes/31. Stage 3-1.unity
     guid: f9776cdb08231294285628458e03d8f2
   - enabled: 1
-    path: Assets/100. 3D Project-1/Scenes/32. Stage 3-2.unity
-    guid: cff66f8fa86489447a43bda25c40807f
-  - enabled: 1
     path: Assets/100. 3D Project-1/Scenes/90. Result.unity
     guid: 83a841e74016a79428cf51f5498b9f69
   m_configObjects:

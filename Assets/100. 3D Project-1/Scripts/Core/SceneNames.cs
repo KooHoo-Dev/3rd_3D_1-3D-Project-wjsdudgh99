@@ -6,7 +6,7 @@ namespace YoureRight
         public const string Menu = "00. Menu";
         public const string Result = "90. Result";
 
-        // 플레이 순서대로 나열합니다. (튜토리얼 + 월드 3개 × 2스테이지)
+        // 플레이 순서대로 나열합니다. (튜토리얼 + 스테이지 5개)
         public static readonly string[] Stages =
         {
             "10. Stage Tutorial",
@@ -15,7 +15,6 @@ namespace YoureRight
             "21. Stage 2-1",
             "22. Stage 2-2",
             "31. Stage 3-1",
-            "32. Stage 3-2",
         };
     }
 }
