@@ -158,7 +158,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 
 **8단계 메모**
 - 일시정지 중 BGM은 **볼륨 낮추기**로 정했습니다(사용자 결정).
-- **사운드 파일은 아직 없습니다.** 파일을 구하면 `Assets/100. 3D Project-1/Audio/`에 넣고, **`Prefabs/SoundManager.prefab`**(씬 인스턴스가 아님)의 `bgm`, `correctAnswerClip`, `wrongAnswerClip`, `buttonClickClip`에 연결합니다. 그러면 모든 씬에 한 번에 들어갑니다. 이때 `Audio.meta`도 같이 커밋합니다.
+- **사운드 파일 추가 (2026-11-01, 아직 연결 안 함)**: `Assets/100. 3D Project-1/Sounds/`(`Audio` 폴더 대신 이 폴더를 씀). `BGM/`에 후보 6곡(`Creo - Flow`, `524693_Mesmerizing-Midnight`, `551069_Glittering-Shores`, `551453_Circumnavigating-the-Glob`, `577625_Sunlit-Thunderscapes`, `584024_Big-Potato`, 곡당 7~9MB), `SFX/`에 `freesound_gamestudio-material-gold`(정답 후보), `SOUND108.WAV`(오답 후보), `freesound_gamestudio-button`(버튼 후보). **학원에서 할 일**: BGM 하나 고르기, **`Prefabs/SoundManager.prefab`**(씬 인스턴스가 아님)의 `bgm`, `correctAnswerClip`, `wrongAnswerClip`, `buttonClickClip`에 연결하고 프리팹 저장(모든 씬에 한 번에 들어감), 쓰지 않는 BGM을 지울지 정하기, 곡마다 출처·크레딧 확인(Creo는 크레딧 한 줄 필요).
 - 기획서 기준 소리: BGM은 잔잔한 Lofi나 어쿠스틱 루프, 정답은 맑은 실로폰·종소리, 오답은 불쾌하지 않은 '뾱'이나 '삐빅', 버튼은 깔끔한 클릭음입니다.
 
 **10단계 메모 (진행 중, 2026-10-22~23)**
