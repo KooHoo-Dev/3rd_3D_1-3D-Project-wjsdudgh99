@@ -9,7 +9,7 @@ namespace YoureRight
     // Tools → You're Right → Build Move Lock Notice
     //
     // 화면 아래 가운데에 붙는 반투명 띠 + 글자 하나입니다(앵커·Pivot 모두 아래 가운데, 여백 120).
-    // 스테이지 Canvas에 놓고 TMP 글자를 한국어로 고쳐 씁니다(글꼴은 Noto Sans KR로 넣어 둠).
+    // 스테이지 Canvas에 놓고 TMP 글자를 한국어로 고쳐 씁니다(글꼴은 게임 UI 글꼴).
     // 이미 프리팹이 있으면 덮어쓰지 않습니다. 씬·프리팹에서 고친 문구가 사라지지 않게 하기 위해서입니다.
     // UI라서 PivotUtility는 쓰지 않습니다(3D 조각 그룹용이라 RectTransform 배치를 흐트러뜨림).
     public static class MoveLockNoticeBuilder
@@ -17,7 +17,7 @@ namespace YoureRight
         private const string MenuPath = "Tools/You're Right/Build Move Lock Notice";
         private const string Title = "Build Move Lock Notice";
         private const string PrefabPath = "Assets/100. 3D Project-1/Prefabs/Move Lock Notice.prefab";
-        private const string FontPath = "Assets/99. External Assets/Font/Noto_Sans_KR/static/NotoSansKR-Regular SDF.asset";
+        private const string FontPath = UIFontApplier.FontAssetPath;   // 게임 UI 글꼴 (Apply UI Font가 만듦)
 
         [MenuItem(MenuPath)]
         private static void Build()
