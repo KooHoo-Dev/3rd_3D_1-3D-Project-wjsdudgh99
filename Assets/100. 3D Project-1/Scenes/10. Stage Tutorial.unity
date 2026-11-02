@@ -413,8 +413,8 @@ Camera:
   m_GameObject: {fileID: 275080781}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.6117647, g: 0.78431374, b: 0.9019608, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -2435,8 +2435,8 @@ Camera:
   m_GameObject: {fileID: 1372187988}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.6117647, g: 0.78431374, b: 0.9019608, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0

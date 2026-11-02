@@ -21,7 +21,7 @@ namespace YoureRight
         [SerializeField] private AudioSource sfxSource;   // 비워 두면 자동으로 만듭니다
 
         [Header("BGM")]
-        [SerializeField] private AudioClip bgm;
+        [SerializeField] private AudioClip[] bgmPlaylist;   // 위에서부터 차례로 틀고, 마지막 곡 다음은 처음 곡으로 돌아갑니다
         [Range(0f, 1f)]
         [SerializeField] private float bgmVolume = 0.5f;
         [Range(0f, 1f)]
@@ -37,6 +37,10 @@ namespace YoureRight
 
         // 지금 씬에서 구독 중인 ClickInteractor (씬이 바뀌면 새 씬의 것으로 바꿉니다)
         private ClickInteractor clickInteractor;
+
+        // 지금 재생 중인 곡의 bgmPlaylist 번호 (-1이면 아직 틀지 않음)
+        private int bgmIndex = -1;
+        private bool bgmStarted;   // 지금 곡이 실제로 재생되기 시작했는지
 
         protected override void Awake()
         {
@@ -79,6 +83,12 @@ namespace YoureRight
         {
             if (bgmSource == null) return;
 
+            // 곡이 끝나면 다음 곡을 틉니다. (BGM은 timeScale과 상관없이 계속 재생되므로 일시정지 중에도 넘어갑니다)
+            // Streaming 곡은 Play 직후 잠깐 isPlaying이 false일 수 있어서, 한 번이라도 재생된 것을 본 뒤에만 끝났다고 봅니다.
+            // 창이 포커스를 잃어 소리가 멈춘 것도 끝난 것으로 보지 않습니다.
+            if (bgmSource.isPlaying) bgmStarted = true;
+            else if (bgmStarted && Application.isFocused) PlayNextBgm();
+
             // 일시정지(timeScale = 0) 중에는 BGM을 부드럽게 줄이고, 풀리면 다시 올립니다.
             // timeScale이 0이어도 움직이도록 unscaledDeltaTime을 사용합니다.
             float target = Time.timeScale == 0f ? bgmVolume * pausedBgmVolumeRatio : bgmVolume;
@@ -91,7 +101,7 @@ namespace YoureRight
             if (sfxSource == null) sfxSource = gameObject.AddComponent<AudioSource>();
 
             bgmSource.playOnAwake = false;
-            bgmSource.loop = true;
+            bgmSource.loop = false;   // 한 곡이 끝나면 Update에서 다음 곡으로 넘깁니다
             bgmSource.volume = bgmVolume;
 
             sfxSource.playOnAwake = false;
@@ -148,13 +158,28 @@ namespace YoureRight
 
         public void PlayBgm()
         {
-            if (bgm == null) return;
+            // 이미 틀어 둔 곡이 있으면 처음부터 다시 틀지 않습니다.
+            if (bgmIndex >= 0) return;
+            PlayNextBgm();
+        }
 
-            // 같은 곡이 이미 재생 중이면 처음부터 다시 틀지 않습니다.
-            if (bgmSource.isPlaying && bgmSource.clip == bgm) return;
+        private void PlayNextBgm()
+        {
+            if (bgmPlaylist == null || bgmPlaylist.Length == 0) return;
 
-            bgmSource.clip = bgm;
-            bgmSource.Play();
+            // 비어 있는 칸은 건너뜁니다. 한 바퀴를 돌아도 곡이 없으면 멈춥니다.
+            for (int i = 0; i < bgmPlaylist.Length; i++)
+            {
+                bgmIndex = (bgmIndex + 1) % bgmPlaylist.Length;
+                AudioClip clip = bgmPlaylist[bgmIndex];
+                if (clip == null) continue;
+
+                bgmSource.clip = clip;
+                bgmSource.Play();
+                bgmStarted = false;
+                return;
+            }
+            bgmIndex = -1;
         }
 
         public void PlayCorrectSfx()
