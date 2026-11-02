@@ -127,6 +127,8 @@ namespace YoureRight
                 else if (text.gameObject.name.Contains("Timer") || text.gameObject.name.Contains("Total")) color = Gold;
                 Undo.RecordObject(text, Title);
                 text.color = color;
+                // 느림보 고딕은 Ascent/Descent가 위로 치우쳐 Middle이면 글자가 살짝 위로 뜸 → 버튼 글자는 실제 글자 모양 기준 가운데(Midline)
+                if (button != null) text.verticalAlignment = VerticalAlignmentOptions.Geometry;
                 EditorUtility.SetDirty(text);
                 texts++;
             }
