@@ -46,11 +46,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::YoureRight.SoundManager
   bgmSource: {fileID: 0}
   sfxSource: {fileID: 0}
-  bgm: {fileID: 0}
+  bgm: {fileID: 8300000, guid: c162e3676ba869040b9539e3256f8710, type: 3}
   bgmVolume: 0.5
   pausedBgmVolumeRatio: 0.3
   bgmFadeSpeed: 2
-  correctAnswerClip: {fileID: 0}
-  wrongAnswerClip: {fileID: 0}
-  buttonClickClip: {fileID: 0}
-  sfxVolume: 1
+  correctAnswerClip: {fileID: 8300000, guid: 95765837864f31c4bb1dd2800aa074c3, type: 3}
+  wrongAnswerClip: {fileID: 8300000, guid: f6154904e12980e43a098e5e92d8a208, type: 3}
+  buttonClickClip: {fileID: 8300000, guid: 0da8162def49d37459d11053c8685e89, type: 3}
+  sfxVolume: 0.7

@@ -143,7 +143,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | 6 | PauseController + Pause Menu 프리팹 | ✅ |
 | 6.5 | 좌우 분할 화면 전환(카메라 2대 동기화, 클릭 카메라 선택, 분할선), 일시정지 키 Esc, 클리어 후 입력 차단, 예비 씬 | ✅ |
 | 7 | 시각 피드백: 정답 Emission(황금빛) + 반짝임 파티클, 오답 물체 클릭 시 커서 위치 붉은 X(0.5초). 빈 곳 클릭은 무반응, 오답 흔들림은 보류 | ✅ |
-| 8 | SoundManager: BGM(씬을 넘어가도 이어짐, 일시정지 때 볼륨 낮춤), 정답·오답·버튼 SFX | ✅ 코드·배치 완료 / ⏳ 사운드 파일 대기 |
+| 8 | SoundManager: BGM(씬을 넘어가도 이어짐, 일시정지 때 볼륨 낮춤), 정답·오답·버튼 SFX | ✅ (2026-11-02 사운드 파일 연결) |
 | 9 | 월드 1 씬 정리: Stage 1·2·3 → 1-1·1-2·1-3 (파일 이름은 Unity에서 바꿔 GUID 유지, SceneNames·HUD 이름) | ✅ |
 | 10 | 월드 1 디오라마: Tutorial ✅, 1-1 ✅, **1-2 사막 ↔ 설원 + 일출·일몰 반복** (정답 5쌍, `SunCycle` 코드 ✅) | **진행 중** |
 | 10.5 | 씬 정리: 1-3 → 2-1 이름 변경, 22·31·32 생성, SceneNames·Build Settings 7개 | ✅ |
@@ -158,7 +158,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 
 **8단계 메모**
 - 일시정지 중 BGM은 **볼륨 낮추기**로 정했습니다(사용자 결정).
-- **사운드 파일 추가 (2026-11-01, 아직 연결 안 함)**: `Assets/100. 3D Project-1/Sounds/`(`Audio` 폴더 대신 이 폴더를 씀). `BGM/`에 후보 6곡(`Creo - Flow`, `524693_Mesmerizing-Midnight`, `551069_Glittering-Shores`, `551453_Circumnavigating-the-Glob`, `577625_Sunlit-Thunderscapes`, `584024_Big-Potato`, 곡당 7~9MB), `SFX/`에 `freesound_gamestudio-material-gold`(정답 후보), `SOUND108.WAV`(오답 후보), `freesound_gamestudio-button`(버튼 후보). **학원에서 할 일**: BGM 하나 고르기, **`Prefabs/SoundManager.prefab`**(씬 인스턴스가 아님)의 `bgm`, `correctAnswerClip`, `wrongAnswerClip`, `buttonClickClip`에 연결하고 프리팹 저장(모든 씬에 한 번에 들어감), 쓰지 않는 BGM을 지울지 정하기, 곡마다 출처·크레딧 확인(Creo는 크레딧 한 줄 필요).
+- **사운드 파일 추가 (2026-11-01, 아직 연결 안 함)**: `Assets/100. 3D Project-1/Sounds/`(`Audio` 폴더 대신 이 폴더를 씀). `BGM/`에 후보 6곡(`Creo - Flow`, `524693_Mesmerizing-Midnight`, `551069_Glittering-Shores`, `551453_Circumnavigating-the-Glob`, `577625_Sunlit-Thunderscapes`, `584024_Big-Potato`, 곡당 7~9MB), `SFX/`에 `freesound_gamestudio-material-gold`(정답), `SOUND108.WAV`(오답), `freesound_gamestudio-button`(버튼). ✅ **연결 완료 (2026-11-02)**: BGM은 **한 곡으로 계속**(사용자 결정) `577625_Sunlit-Thunderscapes`(OcularNebula), `Prefabs/SoundManager.prefab`에 bgm·효과음 3개·`sfxVolume` 0.7 저장(메뉴 씬 인스턴스에만 있던 0.7을 프리팹으로 옮김: 처음 살아남는 SoundManager의 값이 게임 내내 쓰이므로 씬마다 달면 시작 씬에 따라 소리가 달라짐). BGM 6곡은 Load Type **Streaming**·Quality 70%(원래 Decompress On Load라 곡당 수십 MB 메모리). ⏳ 남은 일: 메뉴 씬 SoundManager 인스턴스의 덮어쓴 값(bgm·sfxVolume) Revert All, 나머지 5곡 지울지, OcularNebula 크레딧 조건 확인.
 - 기획서 기준 소리: BGM은 잔잔한 Lofi나 어쿠스틱 루프, 정답은 맑은 실로폰·종소리, 오답은 불쾌하지 않은 '뾱'이나 '삐빅', 버튼은 깔끔한 클릭음입니다.
 
 **10단계 메모 (진행 중, 2026-10-22~23)**
