@@ -39,19 +39,20 @@ namespace YoureRight
             if (records.Count == 0)
             {
                 // TMP 기본 폰트에는 한글이 없어서 영어로 표시합니다.
-                recordsText.text = "No records";
+                recordsText.text = "NO RECORDS";
             }
             else
             {
                 var sb = new StringBuilder();
                 foreach (GameManager.StageRecord record in records)
                 {
-                    sb.AppendLine($"{record.stageName}   {TimeFormatter.Format(record.time)}");
+                    // HUD처럼 STAGE 1 대문자로 보여 줍니다. (기록에 저장된 이름은 씬의 Stage Name 그대로)
+                    sb.AppendLine($"{record.stageName.ToUpperInvariant()}   {TimeFormatter.Format(record.time)}");
                 }
                 recordsText.text = sb.ToString();
             }
 
-            totalTimeText.text = $"Total Time: {TimeFormatter.Format(GameManager.Instance.TotalTime)}";
+            totalTimeText.text = $"TOTAL TIME: {TimeFormatter.Format(GameManager.Instance.TotalTime)}";
         }
 
         private IEnumerator AppearRoutine()
