@@ -8,6 +8,7 @@ namespace YoureRight
     // 회전: 마우스 우클릭 드래그
     // 이동: WASD 키 (바라보는 방향 기준 앞뒤좌우, 바닥과 평행하게. 섬(PlayArea) 범위 안에서만)
     //       Q 하강 / E 상승 (PlayArea 높이 범위 안에서만)
+    //       Horizontal Move / Vertical Move로 스테이지마다 끌 수 있고, 꺼 둔 키를 누르면 OnLockedMoveInput을 보냅니다.
     // 줌: 마우스 휠
     // 입력은 목표값(target)에 쌓고, 실제 카메라는 목표값을 부드럽게 따라갑니다.
     // 모든 카메라가 같은 각도·거리를 쓰므로 두 화면이 항상 같은 시점으로 보입니다.
@@ -33,6 +34,7 @@ namespace YoureRight
         [Header("Move")]
         [SerializeField] private float moveSpeed = 10f;          // WASD 입력시 초당 이동 거리
         [SerializeField] private float moveLimit = 10f;          // 씬에 PlayArea가 없을 때 섬 중심에서 움직일 수 있는 거리
+        [SerializeField] private bool horizontalMove = true;     // 끄면 WASD 이동을 쓰지 않습니다
         [SerializeField] private bool verticalMove = true;       // 끄면 Q/E 상하 이동을 쓰지 않습니다
         [SerializeField] private Key downKey = Key.Q;
         [SerializeField] private Key upKey = Key.E;
@@ -64,6 +66,9 @@ namespace YoureRight
         // 이동 범위 (0번 Pivot 기준 상대 좌표)
         private Vector3 moveMin;
         private Vector3 moveMax;
+
+        // 꺼 둔 이동 키(WASD 또는 Q/E)를 누르고 있는 동안 매 프레임 보냅니다. (MoveLockNotice가 안내 문구를 띄움)
+        public event System.Action OnLockedMoveInput;
 
         private void Awake()
         {
@@ -139,6 +144,12 @@ namespace YoureRight
             // 바라보는 방향(Yaw)만 따서 바닥과 평행하게 움직입니다. W/S 앞뒤, A/D 좌우
             Vector2 axis = Vector2.ClampMagnitude(SimpleInput.GetMoveAxisRaw(), 1f);
             float vertical = GetVerticalAxis();
+
+            // 꺼 둔 키를 눌렀으면 알리고, 그 입력은 버립니다.
+            bool locked = (horizontalMove == false && axis != Vector2.zero) || (verticalMove == false && vertical != 0f);
+            if (locked) OnLockedMoveInput?.Invoke();
+            if (horizontalMove == false) axis = Vector2.zero;
+            if (verticalMove == false) vertical = 0f;
             if (axis == Vector2.zero && vertical == 0f) return;
 
             Quaternion heading = Quaternion.Euler(0f, yaw, 0f);
@@ -151,11 +162,9 @@ namespace YoureRight
             TryMove(new Vector3(0f, step.y, 0f));
         }
 
-        // E를 누르면 1(상승), Q를 누르면 -1(하강), 둘 다거나 안 누르면 0 입니다.
+        // E를 누르면 1(상승), Q를 누르면 -1(하강), 둘 다거나 안 누르면 0 입니다. (Vertical Move가 꺼져 있어도 키는 읽음)
         private float GetVerticalAxis()
         {
-            if (verticalMove == false) return 0f;
-
             float value = 0f;
             if (SimpleInput.GetKey(upKey)) value += 1f;
             if (SimpleInput.GetKey(downKey)) value -= 1f;
