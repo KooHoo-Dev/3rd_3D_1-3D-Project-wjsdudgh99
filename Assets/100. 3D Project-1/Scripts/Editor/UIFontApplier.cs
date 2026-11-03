@@ -33,7 +33,7 @@ namespace YoureRight
 
         private static readonly string[] PrefabNames =
         {
-            "Stage HUD", "Pause Menu", "Stage Clear Panel", "Tutorial Guide", "Move Lock Notice", "Wrong Marker", "Click Lock Indicator",
+            "Stage HUD", "Pause Menu", "Stage Clear Panel", "Tutorial Guide", "Wrong Marker", "Click Lock Indicator",
         };
 
         [MenuItem("Tools/You're Right/Apply UI Font")]

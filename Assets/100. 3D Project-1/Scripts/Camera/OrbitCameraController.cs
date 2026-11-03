@@ -9,6 +9,7 @@ namespace YoureRight
     // 이동: WASD 키 (바라보는 방향 기준 앞뒤좌우, 바닥과 평행하게. 섬(PlayArea) 범위 안에서만)
     //       Q 하강 / E 상승 (PlayArea 높이 범위 안에서만)
     //       Horizontal Move / Vertical Move로 스테이지마다 끌 수 있고, 꺼 둔 키를 누르면 OnLockedMoveInput을 보냅니다.
+    //       Space를 누를 때마다 WASD·Q/E 이동을 잠그고 풉니다(지금 위치에 시점 고정). 회전·줌은 그대로 됩니다.
     // 줌: 마우스 휠
     // 입력은 목표값(target)에 쌓고, 실제 카메라는 목표값을 부드럽게 따라갑니다.
     // 모든 카메라가 같은 각도·거리를 쓰므로 두 화면이 항상 같은 시점으로 보입니다.
@@ -38,6 +39,7 @@ namespace YoureRight
         [SerializeField] private bool verticalMove = true;       // 끄면 Q/E 상하 이동을 쓰지 않습니다
         [SerializeField] private Key downKey = Key.Q;
         [SerializeField] private Key upKey = Key.E;
+        [SerializeField] private Key moveLockKey = Key.Space;    // 누를 때마다 이동 잠금을 켜고 끕니다 (None이면 쓰지 않음)
 
         [Header("Zoom")]
         [SerializeField] private float zoomStep = 1f;            // 휠 한 칸당 거리 변화량
@@ -67,8 +69,19 @@ namespace YoureRight
         private Vector3 moveMin;
         private Vector3 moveMax;
 
-        // 꺼 둔 이동 키(WASD 또는 Q/E)를 누르고 있는 동안 매 프레임 보냅니다. (MoveLockNotice가 안내 문구를 띄움)
+        // 꺼 둔 이동 키(WASD 또는 Q/E)를 누르고 있는 동안 매 프레임 보냅니다. (StageHUD의 이동 잠금 알약이 튐)
         public event System.Action OnLockedMoveInput;
+
+        // 스테이지 설정으로 WASD·Q/E 이동을 모두 꺼 둔 스테이지(3-1)입니다. StageHUD가 알약을 처음부터 띄웁니다.
+        public bool IsMoveDisabled => horizontalMove == false && verticalMove == false;
+
+        // 플레이어가 Space로 켜는 이동 잠금입니다. 스테이지 설정(Horizontal / Vertical Move)과는 따로이고, 씬마다 꺼진 채 시작합니다.
+        public bool IsMoveLocked { get; private set; }
+        public event System.Action<bool> OnMoveLockChanged;      // 잠금을 켜고 끌 때 (StageHUD가 표시를 켜고 끔)
+        public event System.Action OnMoveLockedInput;            // 잠금 중에 WASD·Q/E를 누르고 있는 동안 매 프레임
+
+        // 이 스테이지에서 쓸 수 있는 이동이 하나라도 있어야 잠금이 의미가 있습니다. (3-1처럼 둘 다 꺼 두면 Space도 무시)
+        public bool CanLockMove => moveLockKey != Key.None && IsMoveDisabled == false;
 
         private void Awake()
         {
@@ -101,6 +114,7 @@ namespace YoureRight
             if (Time.timeScale == 0f) return;
 
             UpdateRotateInput();
+            UpdateMoveLockInput();
             UpdateMoveInput();
             UpdateZoomInput();
         }
@@ -152,6 +166,13 @@ namespace YoureRight
             if (verticalMove == false) vertical = 0f;
             if (axis == Vector2.zero && vertical == 0f) return;
 
+            // Space로 잠가 두었으면 남은 이동 입력도 버리고 알립니다.
+            if (IsMoveLocked)
+            {
+                OnMoveLockedInput?.Invoke();
+                return;
+            }
+
             Quaternion heading = Quaternion.Euler(0f, yaw, 0f);
             Vector3 direction = heading * new Vector3(axis.x, 0f, axis.y);
             Vector3 step = (direction + Vector3.up * vertical) * moveSpeed * Time.deltaTime;
@@ -160,6 +181,14 @@ namespace YoureRight
             TryMove(new Vector3(step.x, 0f, 0f));
             TryMove(new Vector3(0f, 0f, step.z));
             TryMove(new Vector3(0f, step.y, 0f));
+        }
+
+        private void UpdateMoveLockInput()
+        {
+            if (CanLockMove == false || SimpleInput.GetKeyDown(moveLockKey) == false) return;
+
+            IsMoveLocked = !IsMoveLocked;
+            OnMoveLockChanged?.Invoke(IsMoveLocked);
         }
 
         // E를 누르면 1(상승), Q를 누르면 -1(하강), 둘 다거나 안 누르면 0 입니다. (Vertical Move가 꺼져 있어도 키는 읽음)

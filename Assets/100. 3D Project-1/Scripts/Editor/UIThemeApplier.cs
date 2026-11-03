@@ -12,7 +12,7 @@ namespace YoureRight
     // A안 UI(반투명 둥근 패널 + 금색 포인트)를 기존 UI에 입히는 에디터 도구입니다.
     // Tools → You're Right → Apply UI Theme
     //
-    // 프리팹(Pause Menu, Stage Clear Panel, Tutorial Guide, Move Lock Notice)은 제자리에서 열어 고치고,
+    // 프리팹(Pause Menu, Stage Clear Panel, Tutorial Guide)은 제자리에서 열어 고치고,
     // 메뉴·결과 씬은 열어서 Canvas 아래를 고친 뒤 저장합니다. 오브젝트를 새로 만들지 않고 모양·색만 바꾸므로
     // 스크립트 연결과 씬에서 고친 문구(한국어)는 그대로입니다. 여러 번 실행해도 결과가 같습니다.
     //
@@ -30,7 +30,7 @@ namespace YoureRight
         private const string SpriteFolder = "Assets/100. 3D Project-1/UI/Sprites";
         private const string OutlineName = "Theme Outline";
 
-        private static readonly string[] PrefabNames = { "Pause Menu", "Stage Clear Panel", "Tutorial Guide", "Move Lock Notice" };
+        private static readonly string[] PrefabNames = { "Pause Menu", "Stage Clear Panel", "Tutorial Guide" };
         private static readonly string[] ScenePaths =
         {
             "Assets/100. 3D Project-1/Scenes/00. Menu.unity",
@@ -146,7 +146,7 @@ namespace YoureRight
         }
 
         // 자신부터 위로 Canvas(또는 프리팹 루트)까지 모두 앵커가 0~1이어야 화면 전체입니다.
-        // 자기 부모만 꽉 채우는 것(예: 900 × 70 띠 안을 채운 Move Lock Notice의 Visual)은 창으로 봅니다.
+        // 자기 부모만 꽉 채우는 것(예: 고정 크기 띠 안을 꽉 채운 그림)은 창으로 봅니다.
         private static bool IsFullScreen(RectTransform rect, Transform root)
         {
             for (Transform t = rect; t != null; t = t.parent)

@@ -33,28 +33,82 @@ namespace YoureRight
         [SerializeField] private float popScale = 1.5f;        // 찾은 순간 커지는 배율
         [SerializeField] private float popTime = 0.3f;
 
+        [Header("Move Lock")]
+        // Space로 이동을 잠그면 켜지는 표시 (선택). 잠금 중에 WASD·Q/E를 누르면 살짝 튑니다.
+        [SerializeField] private RectTransform moveLockBadge;
+        [SerializeField] private float badgePopScale = 1.15f;
+        // 이동을 모두 꺼 둔 스테이지(3-1)에서는 알약을 처음부터 띄우고 글자·색을 이것으로 바꿉니다. (Space로 풀 수 없으므로 SPACE를 빼고 빨간색)
+        [SerializeField] private string moveDisabledText = "MOVE DISABLED";
+        [SerializeField] private Color moveDisabledColor = new Color(0.902f, 0.361f, 0.361f);   // E65C5C
+
         private readonly List<Image> dots = new List<Image>();
         private int shownFound;
+        private OrbitCameraController orbitCamera;
+        private Coroutine badgePop;
 
         private void Awake()
         {
             if (stageManager == null) stageManager = FindAnyObjectByType<StageManager>();
             if (dotTemplate != null) dotTemplate.gameObject.SetActive(false);
+            orbitCamera = FindAnyObjectByType<OrbitCameraController>();
+            if (moveLockBadge != null) moveLockBadge.gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
             stageManager.OnProgressChanged += HandleProgressChanged;
+            if (orbitCamera != null)
+            {
+                orbitCamera.OnMoveLockChanged += HandleMoveLockChanged;
+                orbitCamera.OnMoveLockedInput += HandleMoveLockedInput;
+                orbitCamera.OnLockedMoveInput += HandleMoveLockedInput;
+            }
         }
 
         private void OnDisable()
         {
             stageManager.OnProgressChanged -= HandleProgressChanged;
+            if (orbitCamera != null)
+            {
+                orbitCamera.OnMoveLockChanged -= HandleMoveLockChanged;
+                orbitCamera.OnMoveLockedInput -= HandleMoveLockedInput;
+                orbitCamera.OnLockedMoveInput -= HandleMoveLockedInput;
+            }
+        }
+
+        private void HandleMoveLockChanged(bool locked)
+        {
+            if (moveLockBadge == null) return;
+            moveLockBadge.gameObject.SetActive(locked);
+            if (locked) PopBadge();
+        }
+
+        // 누르고 있는 동안 매 프레임 오므로, 튀는 중이면 끝날 때까지 기다렸다가 다시 튑니다. (꾹 누르면 두근거리듯 반복)
+        private void HandleMoveLockedInput()
+        {
+            if (moveLockBadge != null && badgePop == null) PopBadge();
+        }
+
+        private void PopBadge()
+        {
+            if (badgePop != null) StopCoroutine(badgePop);
+            badgePop = StartCoroutine(Pop(moveLockBadge, badgePopScale, () => badgePop = null));
         }
 
         private void Start()
         {
             stageNameText.text = stageManager.StageName;
+
+            if (moveLockBadge != null && orbitCamera != null && orbitCamera.IsMoveDisabled)
+            {
+                TMP_Text badgeText = moveLockBadge.GetComponentInChildren<TMP_Text>(true);
+                if (badgeText != null)
+                {
+                    badgeText.text = moveDisabledText;
+                    badgeText.color = moveDisabledColor;
+                }
+                moveLockBadge.gameObject.SetActive(true);
+            }
         }
 
         private void Update()
@@ -77,7 +131,7 @@ namespace YoureRight
             }
 
             // 새로 찾은 점만 튀게 합니다. (처음 0 / N 알림이나 같은 값이 다시 와도 튀지 않음)
-            for (int i = shownFound; i < found && i < dots.Count; i++) StartCoroutine(Pop(dots[i].rectTransform));
+            for (int i = shownFound; i < found && i < dots.Count; i++) StartCoroutine(Pop(dots[i].rectTransform, popScale));
             shownFound = found;
         }
 
@@ -94,17 +148,18 @@ namespace YoureRight
             for (int i = 0; i < dots.Count; i++) dots[i].gameObject.SetActive(i < total);
         }
 
-        private IEnumerator Pop(RectTransform dot)
+        private IEnumerator Pop(RectTransform target, float fromScale, System.Action onDone = null)
         {
             // 일시정지와 상관없이 끝까지 재생되도록 unscaledDeltaTime을 씁니다.
             for (float t = 0f; t < popTime; t += Time.unscaledDeltaTime)
             {
                 float k = t / popTime;
-                float scale = Mathf.Lerp(popScale, 1f, 1f - (1f - k) * (1f - k));   // EaseOut
-                dot.localScale = Vector3.one * scale;
+                float scale = Mathf.Lerp(fromScale, 1f, 1f - (1f - k) * (1f - k));   // EaseOut
+                target.localScale = Vector3.one * scale;
                 yield return null;
             }
-            dot.localScale = Vector3.one;
+            target.localScale = Vector3.one;
+            onDone?.Invoke();
         }
     }
 }

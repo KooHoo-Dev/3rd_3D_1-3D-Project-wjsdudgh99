@@ -40,6 +40,8 @@ namespace YoureRight
             "Assets/100. 3D Project-1/Scenes/Template/Stage Template.unity",
         };
 
+        private const string MoveLockBadgeName = "Move Lock";
+
         private static readonly string[] OldHudNames = { "StageNameText", "TimerBackground", "TimerText", "ProgressText" };
 
         // A안 색
@@ -101,8 +103,12 @@ namespace YoureRight
                 element.preferredWidth = element.preferredHeight = 22f;
                 template.preserveAspect = true;
 
+                // 가운데 위 타이머 아래: Space 이동 잠금 표시 (평소엔 꺼짐)
+                RectTransform badge = AddMoveLockBadge(root, round, outline, font);
+
                 var hud = root.AddComponent<StageHUD>();
                 var so = new SerializedObject(hud);
+                so.FindProperty("moveLockBadge").objectReferenceValue = badge;
                 so.FindProperty("stageNameText").objectReferenceValue = nameText;
                 so.FindProperty("timerText").objectReferenceValue = timerText;
                 so.FindProperty("progressDots").objectReferenceValue = progressPill.rectTransform;
@@ -127,6 +133,57 @@ namespace YoureRight
 
             Debug.Log($"[{Title}] 프리팹 생성: {PrefabPath}");
             EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Object>(PrefabPath));
+        }
+
+        // Tools → You're Right → Add Move Lock Badge To Stage HUD
+        // 이미 있는 Stage HUD 프리팹을 제자리에서 열어 이동 잠금 표시만 추가합니다. (오브젝트 ID가 그대로라 씬 연결·덮어쓴 값이 유지됨)
+        [MenuItem("Tools/You're Right/Add Move Lock Badge To Stage HUD")]
+        private static void AddMoveLockBadgeToPrefab()
+        {
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath) == null)
+            {
+                EditorUtility.DisplayDialog(Title, "Stage HUD 프리팹이 없습니다. 먼저 Build Stage HUD를 실행해 주세요.", "OK");
+                return;
+            }
+            Sprite round = LoadSprite("T_UI_RoundRect");
+            Sprite outline = LoadSprite("T_UI_RoundRectOutline");
+            if (round == null || outline == null) return;
+            var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontPath);
+
+            GameObject root = PrefabUtility.LoadPrefabContents(PrefabPath);
+            try
+            {
+                if (root.transform.Find(MoveLockBadgeName) != null)
+                {
+                    EditorUtility.DisplayDialog(Title, "이미 이동 잠금 표시가 있습니다.", "OK");
+                    return;
+                }
+                RectTransform badge = AddMoveLockBadge(root, round, outline, font);
+                var so = new SerializedObject(root.GetComponent<StageHUD>());
+                so.FindProperty("moveLockBadge").objectReferenceValue = badge;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(root);
+            }
+
+            Debug.Log($"[{Title}] 이동 잠금 표시 추가: {PrefabPath}");
+            EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<Object>(PrefabPath));
+        }
+
+        // 타이머 알약 바로 아래 가운데의 작은 알약. 영어·기본 문장부호만 써서 Static 글꼴을 다시 굽지 않아도 됩니다.
+        private static RectTransform AddMoveLockBadge(GameObject root, Sprite round, Sprite outline, TMP_FontAsset font)
+        {
+            Image pill = Pill(root, MoveLockBadgeName, new Vector2(0.5f, 1f), new Vector2(0f, -92f), new Vector2(300f, 44f), round, Panel, 44f);
+            AddOutline(pill, outline, 44f);
+            TMP_Text text = Label(pill.gameObject, 22f, font, 16f);
+            text.color = Gold;
+            text.text = "VIEW LOCKED  <size=75%><alpha=#99>SPACE</size>";
+            foreach (Graphic graphic in pill.GetComponentsInChildren<Graphic>(true)) graphic.raycastTarget = false;
+            pill.gameObject.SetActive(false);
+            return pill.rectTransform;
         }
 
         private static Sprite LoadSprite(string name)
