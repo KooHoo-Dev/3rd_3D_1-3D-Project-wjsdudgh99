@@ -8159,6 +8159,10 @@ MonoBehaviour:
   baseColorTint: 0.35
   sparklePrefab: {fileID: 2228330370486419051, guid: 2775a46c2716ad0428a02513c9ec0976, type: 3}
   sparkleHeightOffset: 0.3
+  wrongColor: {r: 1, g: 0.15, b: 0.15, a: 1}
+  wrongPeakIntensity: 2
+  wrongFadeTime: 1
+  wrongBaseColorTint: 0.5
 --- !u!1 &1188482371
 GameObject:
   m_ObjectHideFlags: 0
@@ -12590,7 +12594,7 @@ PrefabInstance:
     - target: {fileID: 3514605656360272338, guid: 710df1c27ea2b03448c40f238f4423b7, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: eb5ee08e1b0e3e741af903e3cf81b196, type: 2}
+      objectReference: {fileID: 2100000, guid: ae3281e36f8c46ec8de3cb3103806ad4, type: 2}
     - target: {fileID: 3572363244438122155, guid: 710df1c27ea2b03448c40f238f4423b7, type: 3}
       propertyPath: m_LocalPosition.y
       value: 1.2225
@@ -12619,6 +12623,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 9e5c2501cc427b34daa59f785d2892c2, type: 2}
+    - target: {fileID: 3740288458596602668, guid: 710df1c27ea2b03448c40f238f4423b7, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: ae3281e36f8c46ec8de3cb3103806ad4, type: 2}
     - target: {fileID: 3881606014143141643, guid: 710df1c27ea2b03448c40f238f4423b7, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.9238797
@@ -12650,7 +12658,7 @@ PrefabInstance:
     - target: {fileID: 5117628471042415497, guid: 710df1c27ea2b03448c40f238f4423b7, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: eb5ee08e1b0e3e741af903e3cf81b196, type: 2}
+      objectReference: {fileID: 2100000, guid: ae3281e36f8c46ec8de3cb3103806ad4, type: 2}
     - target: {fileID: 5154353418551042973, guid: 710df1c27ea2b03448c40f238f4423b7, type: 3}
       propertyPath: m_Name
       value: Pick Up_7NL (1)
@@ -12734,11 +12742,11 @@ PrefabInstance:
     - target: {fileID: 6667312411552350792, guid: 710df1c27ea2b03448c40f238f4423b7, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: eb5ee08e1b0e3e741af903e3cf81b196, type: 2}
+      objectReference: {fileID: 2100000, guid: ae3281e36f8c46ec8de3cb3103806ad4, type: 2}
     - target: {fileID: 8123473247582893333, guid: 710df1c27ea2b03448c40f238f4423b7, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 91c337878402da24f9326693d619e614, type: 2}
+      objectReference: {fileID: 2100000, guid: ae3281e36f8c46ec8de3cb3103806ad4, type: 2}
     m_RemovedComponents:
     - {fileID: 5616294144692692793, guid: 710df1c27ea2b03448c40f238f4423b7, type: 3}
     m_RemovedGameObjects: []

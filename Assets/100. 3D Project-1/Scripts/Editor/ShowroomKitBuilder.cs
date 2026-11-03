@@ -245,6 +245,7 @@ namespace YoureRight
             {
                 filter.gameObject.AddComponent<MeshCollider>().sharedMesh = filter.sharedMesh;
             }
+            root.AddComponent<WrongFlashGroup>();   // 어느 부품을 눌러도 안내판 전체가 빨갛게 깜빡임 (정답도 안내판 전체라 헷갈리지 않게)
             return root;
         }
 

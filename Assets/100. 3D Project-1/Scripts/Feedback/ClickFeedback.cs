@@ -6,7 +6,8 @@ namespace YoureRight
 {
     // 클릭 결과에 따른 3D 연출을 담당합니다. (기획서 5.1)
     // 정답: 쌍둥이 두 오브젝트가 황금빛으로 부드럽게 빛나고, 위쪽에 반짝임 파티클이 재생됩니다.
-    // 오답: 클릭한 오브젝트가 살짝 흔들립니다. → 보류 중 (관련 코드를 // 주석으로 막아 두었습니다. 주석을 풀면 다시 동작합니다)
+    // 오답: 클릭한 오브젝트가 빨갛게 빛났다가 서서히 원래 색으로 돌아갑니다.
+    //       흔들림은 보류 중 (관련 코드를 // 주석으로 막아 두었습니다. 주석을 풀면 다시 동작합니다)
     // ClickInteractor의 이벤트만 구독하므로 다른 게임 로직에는 영향을 주지 않습니다.
     public class ClickFeedback : MonoBehaviour
     {
@@ -26,6 +27,13 @@ namespace YoureRight
         [SerializeField] private ParticleSystem sparklePrefab;
         [SerializeField] private float sparkleHeightOffset = 0.3f; // 오브젝트 윗면에서 얼마나 위에 띄울지
 
+        [Header("Wrong - Flash")]
+        [SerializeField] private Color wrongColor = new Color(1f, 0.15f, 0.15f);   // 빨강
+        [SerializeField] private float wrongPeakIntensity = 2f;    // 클릭한 순간 Emission 세기
+        [SerializeField] private float wrongFadeTime = 1f;         // 원래 색으로 돌아가는 시간
+        [Range(0f, 1f)]
+        [SerializeField] private float wrongBaseColorTint = 0.5f;  // 기본 색을 빨간색 쪽으로 섞는 비율 (Emission이 없는 셰이더 대비)
+
         // [보류] 오답 흔들림
         // [Header("Wrong - Shake")]
         // [SerializeField] private float shakeDuration = 0.3f;
@@ -35,6 +43,19 @@ namespace YoureRight
         private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         private static readonly int ColorId = Shader.PropertyToID("_Color");
+
+        // 원래 색으로 되돌리기 위해 머티리얼마다 처음 값을 기억합니다.
+        private class FlashState
+        {
+            public Coroutine routine;
+            public readonly List<Material> materials = new List<Material>();
+            public readonly List<Color> baseColors = new List<Color>();
+            public readonly List<Color> emissionColors = new List<Color>();
+            public readonly List<bool> emissionWasOn = new List<bool>();
+        }
+
+        // 같은 오브젝트를 연달아 클릭하면 진행 중인 깜빡임을 처음부터 다시 합니다.
+        private readonly Dictionary<Transform, FlashState> flashing = new Dictionary<Transform, FlashState>();
 
         // [보류] 같은 오브젝트를 연달아 클릭해도 흔들림이 겹치지 않도록 진행 중인 흔들림을 기억합니다.
         // private readonly Dictionary<Transform, (Coroutine routine, Vector3 origin)> shaking =
@@ -48,13 +69,23 @@ namespace YoureRight
         private void OnEnable()
         {
             clickInteractor.OnAnswerClicked += HandleAnswer;
+            clickInteractor.OnWrongClicked += HandleWrongFlash;
             // clickInteractor.OnWrongClicked += HandleWrong;   // [보류] 오답 흔들림
         }
 
         private void OnDisable()
         {
             clickInteractor.OnAnswerClicked -= HandleAnswer;
+            clickInteractor.OnWrongClicked -= HandleWrongFlash;
             // clickInteractor.OnWrongClicked -= HandleWrong;   // [보류] 오답 흔들림
+
+            // 깜빡이는 도중에 꺼지면 색이 빨간 채로 남지 않게 바로 되돌립니다.
+            foreach (FlashState state in flashing.Values)
+            {
+                if (state.routine != null) StopCoroutine(state.routine);
+                RestoreFlash(state);
+            }
+            flashing.Clear();
         }
 
         #region 정답 연출
@@ -142,6 +173,78 @@ namespace YoureRight
         {
             if (m.HasProperty(BaseColorId)) m.SetColor(BaseColorId, color);
             else if (m.HasProperty(ColorId)) m.SetColor(ColorId, color);
+        }
+
+        #endregion
+
+        #region 오답 연출 - 빨간 깜빡임
+
+        private void HandleWrongFlash(Vector2 screenPos, Collider hitCollider)
+        {
+            // 맞은 Collider의 물체만 빨갛게 합니다. (부품마다 Collider가 있으면 그 부품만)
+            // 부모에 WrongFlashGroup이 있으면 그 오브젝트 전체를 빨갛게 합니다. (예: Info Stand)
+            WrongFlashGroup group = hitCollider.GetComponentInParent<WrongFlashGroup>();
+            Transform target = group != null ? group.transform : hitCollider.transform;
+
+            // 이미 깜빡이는 중이면 원래 색으로 돌려놓고 처음부터 다시 합니다.
+            if (flashing.TryGetValue(target, out FlashState running))
+            {
+                StopCoroutine(running.routine);
+                RestoreFlash(running);
+                flashing.Remove(target);
+            }
+
+            Renderer[] renderers = target.GetComponentsInChildren<Renderer>();
+            if (renderers.Length == 0) return;
+
+            var state = new FlashState();
+            foreach (Renderer r in renderers)
+            {
+                foreach (Material m in r.materials)
+                {
+                    state.materials.Add(m);
+                    state.baseColors.Add(GetBaseColor(m));
+                    state.emissionColors.Add(m.HasProperty(EmissionColorId) ? m.GetColor(EmissionColorId) : Color.black);
+                    state.emissionWasOn.Add(m.IsKeywordEnabled("_EMISSION"));
+                    if (m.HasProperty(EmissionColorId)) m.EnableKeyword("_EMISSION");
+                }
+            }
+
+            flashing[target] = state;
+            state.routine = StartCoroutine(WrongFlashRoutine(target, state));
+        }
+
+        private IEnumerator WrongFlashRoutine(Transform key, FlashState state)
+        {
+            // 클릭한 순간 가장 빨갛고, wrongFadeTime 동안 서서히 원래 색으로 돌아갑니다.
+            yield return Animate(wrongFadeTime, t =>
+            {
+                float weight = 1f - EaseOut(t);
+                for (int i = 0; i < state.materials.Count; i++)
+                {
+                    Material m = state.materials[i];
+                    if (m == null) continue;
+                    if (m.HasProperty(EmissionColorId))
+                        m.SetColor(EmissionColorId, Color.Lerp(state.emissionColors[i], wrongColor * wrongPeakIntensity, weight));
+
+                    SetBaseColor(m, Color.Lerp(state.baseColors[i], wrongColor, wrongBaseColorTint * weight));
+                }
+            });
+
+            RestoreFlash(state);
+            flashing.Remove(key);
+        }
+
+        private static void RestoreFlash(FlashState state)
+        {
+            for (int i = 0; i < state.materials.Count; i++)
+            {
+                Material m = state.materials[i];
+                if (m == null) continue;
+                if (m.HasProperty(EmissionColorId)) m.SetColor(EmissionColorId, state.emissionColors[i]);
+                if (!state.emissionWasOn[i]) m.DisableKeyword("_EMISSION");
+                SetBaseColor(m, state.baseColors[i]);
+            }
         }
 
         #endregion
