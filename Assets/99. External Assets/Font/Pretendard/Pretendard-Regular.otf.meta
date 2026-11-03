@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: bf1fcefb6092dcd439f0563d4b564a17
+guid: 9b992a48b4deb414d8add115a044e79a
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Y SpotlightOTF
+  - Pretendard
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

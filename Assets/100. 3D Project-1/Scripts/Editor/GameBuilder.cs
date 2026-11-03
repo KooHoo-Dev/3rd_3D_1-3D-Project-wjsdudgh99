@@ -12,7 +12,7 @@ namespace YoureRight
     //
     // Build Settings에 켜 둔 씬을 순서대로 넣어 Builds/Windows/(productName).exe로 빌드합니다. (Builds 폴더는 git에서 빠짐)
     // 끝나면 성공 여부·시간·크기·오류/경고 수, 용량이 큰 에셋 10개, 그리고 빌드에 들어간 글꼴 원본(.otf/.ttf)을 확인해
-    // 창과 Builds/Windows/build_report.txt에 남깁니다. 느림보 고딕은 라이선스 때문에 원본 otf가 빌드에 들어가면 안 됩니다(Static으로 구움).
+    // 창과 Builds/Windows/build_report.txt에 남깁니다. 성공하면 UI 글꼴(Pretendard, SIL OFL 1.1) 라이선스 문서도 빌드 폴더에 복사합니다.
     public static class GameBuilder
     {
         private const string Title = "Build Windows";
@@ -43,6 +43,12 @@ namespace YoureRight
             string text = Describe(report, scenes);
 
             Directory.CreateDirectory(OutputFolder);
+            // UI 글꼴(SIL OFL 1.1)은 배포할 때 라이선스 문서를 같이 넣어야 합니다.
+            if (report.summary.result == BuildResult.Succeeded && File.Exists(UIFontApplier.LicensePath))
+            {
+                File.Copy(UIFontApplier.LicensePath, $"{OutputFolder}/Font License (Pretendard, OFL).txt", true);
+                text += "\n글꼴 라이선스 문서를 빌드 폴더에 복사함: Font License (Pretendard, OFL).txt\n";
+            }
             File.WriteAllText($"{OutputFolder}/build_report.txt", text, Encoding.UTF8);
             Debug.Log($"[{Title}]\n{text}");
             EditorUtility.DisplayDialog(Title, text.Length > 1500 ? text.Substring(0, 1500) + "\n…" : text, "OK");
@@ -63,7 +69,7 @@ namespace YoureRight
                               .Select(a => a.sourceAssetPath).Distinct().ToList();
             sb.AppendLine();
             sb.AppendLine(fonts.Count == 0 ? "글꼴 원본(.otf/.ttf): 빌드에 없음" : "글꼴 원본(.otf/.ttf)이 빌드에 들어감:");
-            foreach (string font in fonts) sb.AppendLine($"  - {font}{(font.Contains("neurimbo") ? "  ← 느림보 고딕 원본! Static으로 다시 굽기" : "")}");
+            foreach (string font in fonts) sb.AppendLine($"  - {font}");
 
             sb.AppendLine();
             sb.AppendLine("용량이 큰 에셋 10개:");

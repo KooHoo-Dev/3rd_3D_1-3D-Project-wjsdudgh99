@@ -24,8 +24,9 @@ namespace YoureRight
     public static class UIFontApplier
     {
         private const string Title = "Apply UI Font";
-        public const string SourceFontPath = "Assets/99. External Assets/Font/Y_spotlight_FONT/YSpotlight-Regular.otf";
-        public const string FontAssetPath = "Assets/99. External Assets/Font/Y_spotlight_FONT/YSpotlight-Regular SDF.asset";
+        public const string SourceFontPath = "Assets/99. External Assets/Font/Pretendard/Pretendard-Regular.otf";
+        public const string LicensePath = "Assets/99. External Assets/Font/Pretendard/LICENSE.txt";   // SIL OFL 1.1, GameBuilder가 빌드 폴더에 같이 넣음
+        public const string FontAssetPath = "Assets/99. External Assets/Font/Pretendard/Pretendard-Regular SDF.asset";
         private const string FallbackPath = "Assets/99. External Assets/Font/Noto_Sans_KR/static/NotoSansKR-Regular SDF.asset";
         private const string TmpSettingsPath = "Assets/TextMesh Pro/Resources/TMP Settings.asset";
         private const string PrefabFolder = "Assets/100. 3D Project-1/Prefabs";
