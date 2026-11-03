@@ -1825,9 +1825,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Music by Creo
+  m_text: 'Music by Sakura Girl (CC BY 3.0)
 
-    Flow / Crystallize / Outlaw'
+    Lemonade / Jazzy Night / City Walk'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9e6ab9099fe782848b85aa3460833960, type: 2}
   m_sharedMaterial: {fileID: 4552731391852027055, guid: 9e6ab9099fe782848b85aa3460833960, type: 2}
@@ -1857,9 +1857,9 @@ MonoBehaviour:
   m_fontSize: 28
   m_fontSizeBase: 28
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 28
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512

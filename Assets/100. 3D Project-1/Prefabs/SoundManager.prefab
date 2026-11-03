@@ -47,9 +47,9 @@ MonoBehaviour:
   bgmSource: {fileID: 0}
   sfxSource: {fileID: 0}
   bgmPlaylist:
-  - {fileID: 8300000, guid: a9a6738edd3ec1f43a4b2cea77eb762b, type: 3}
-  - {fileID: 8300000, guid: 9a3b38778084380498399d464fe704a0, type: 3}
-  - {fileID: 8300000, guid: f2a0887dbbb43ee45b5b3488bf02054b, type: 3}
+  - {fileID: 8300000, guid: 69a37ccbb04c85d44a00f77dc2b3701c, type: 3}
+  - {fileID: 8300000, guid: ca490e58cbc33aa4e94f174d6afbef8d, type: 3}
+  - {fileID: 8300000, guid: 3f12745421a3c0d4ea45e59f6acf58cc, type: 3}
   bgmVolume: 0.25
   pausedBgmVolumeRatio: 0.25
   bgmFadeSpeed: 2

@@ -85,9 +85,10 @@ namespace YoureRight
 
             // 곡이 끝나면 다음 곡을 틉니다. (BGM은 timeScale과 상관없이 계속 재생되므로 일시정지 중에도 넘어갑니다)
             // Streaming 곡은 Play 직후 잠깐 isPlaying이 false일 수 있어서, 한 번이라도 재생된 것을 본 뒤에만 끝났다고 봅니다.
-            // 창이 포커스를 잃어 소리가 멈춘 것도 끝난 것으로 보지 않습니다.
+            // 끝까지 재생된 곡은 재생 위치가 처음(0)으로 돌아가므로, 중간에서 멈춘 것(창이 포커스를 잃은 경우 등)은 끝난 것으로 보지 않습니다.
+            // (예전에는 Application.isFocused로 막았는데, 에디터에서는 Game 창 밖(Inspector 등)을 누르기만 해도 false라 다음 곡으로 넘어가지 않았음)
             if (bgmSource.isPlaying) bgmStarted = true;
-            else if (bgmStarted && Application.isFocused) PlayNextBgm();
+            else if (bgmStarted && (bgmSource.time <= 0f || bgmSource.time >= bgmSource.clip.length - 0.1f)) PlayNextBgm();
 
             // 일시정지(timeScale = 0) 중에는 BGM을 부드럽게 줄이고, 풀리면 다시 올립니다.
             // timeScale이 0이어도 움직이도록 unscaledDeltaTime을 사용합니다.
@@ -180,6 +181,14 @@ namespace YoureRight
                 return;
             }
             bgmIndex = -1;
+        }
+
+        // 곡 넘김 확인용: Play 중에 Inspector의 SoundManager 컴포넌트 ⋮ 메뉴에서 실행하면 지금 곡의 끝 5초 전으로 건너뜁니다.
+        [ContextMenu("Skip BGM To Last 5 Seconds")]
+        private void SkipBgmToEnd()
+        {
+            if (Application.isPlaying == false || bgmSource == null || bgmSource.clip == null) return;
+            bgmSource.time = Mathf.Max(0f, bgmSource.clip.length - 5f);
         }
 
         public void PlayCorrectSfx()

@@ -12,11 +12,12 @@ namespace YoureRight
     //
     // Build Settings에 켜 둔 씬을 순서대로 넣어 Builds/Windows/(productName).exe로 빌드합니다. (Builds 폴더는 git에서 빠짐)
     // 끝나면 성공 여부·시간·크기·오류/경고 수, 용량이 큰 에셋 10개, 그리고 빌드에 들어간 글꼴 원본(.otf/.ttf)을 확인해
-    // 창과 Builds/Windows/build_report.txt에 남깁니다. 성공하면 UI 글꼴(Pretendard, SIL OFL 1.1) 라이선스 문서도 빌드 폴더에 복사합니다.
+    // 창과 Builds/Windows/build_report.txt에 남깁니다. 성공하면 UI 글꼴(Pretendard, SIL OFL 1.1) 라이선스 문서와 크레딧(Sounds/Credits.txt)도 빌드 폴더에 복사합니다.
     public static class GameBuilder
     {
         private const string Title = "Build Windows";
         private const string OutputFolder = "Builds/Windows";
+        private const string CreditsPath = "Assets/100. 3D Project-1/Sounds/Credits.txt";   // 음악·글꼴 크레딧 전체 문구 (곡을 바꾸면 같이 고침)
 
         [MenuItem("Tools/You're Right/Build Windows")]
         private static void Build()
@@ -43,16 +44,23 @@ namespace YoureRight
             string text = Describe(report, scenes);
 
             Directory.CreateDirectory(OutputFolder);
-            // UI 글꼴(SIL OFL 1.1)은 배포할 때 라이선스 문서를 같이 넣어야 합니다.
-            if (report.summary.result == BuildResult.Succeeded && File.Exists(UIFontApplier.LicensePath))
+            // UI 글꼴(SIL OFL 1.1)은 배포할 때 라이선스 문서를, BGM(CC BY 3.0)은 크레딧을 같이 넣어야 합니다.
+            if (report.summary.result == BuildResult.Succeeded)
             {
-                File.Copy(UIFontApplier.LicensePath, $"{OutputFolder}/Font License (Pretendard, OFL).txt", true);
-                text += "\n글꼴 라이선스 문서를 빌드 폴더에 복사함: Font License (Pretendard, OFL).txt\n";
+                text += CopyNextToBuild(UIFontApplier.LicensePath, "Font License (Pretendard, OFL).txt");
+                text += CopyNextToBuild(CreditsPath, "Credits.txt");
             }
             File.WriteAllText($"{OutputFolder}/build_report.txt", text, Encoding.UTF8);
             Debug.Log($"[{Title}]\n{text}");
             EditorUtility.DisplayDialog(Title, text.Length > 1500 ? text.Substring(0, 1500) + "\n…" : text, "OK");
             if (report.summary.result == BuildResult.Succeeded) EditorUtility.RevealInFinder(exe);
+        }
+
+        private static string CopyNextToBuild(string source, string fileName)
+        {
+            if (File.Exists(source) == false) return $"\n⚠ 빌드 폴더에 넣을 파일이 없음: {source}\n";
+            File.Copy(source, $"{OutputFolder}/{fileName}", true);
+            return $"\n빌드 폴더에 복사함: {fileName}\n";
         }
 
         private static string Describe(BuildReport report, string[] scenes)
