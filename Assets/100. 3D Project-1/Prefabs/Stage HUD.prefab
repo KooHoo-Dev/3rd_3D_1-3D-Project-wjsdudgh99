@@ -144,8 +144,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: VIEW LOCKED  <size=75%><alpha=#99>SPACE</size>
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: d6ce3b7ee29ca7a48aced26830db7af3, type: 2}
-  m_sharedMaterial: {fileID: 4010160409207298668, guid: d6ce3b7ee29ca7a48aced26830db7af3, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 69768da2f83e21f4b951c5b14b1d71e0, type: 2}
+  m_sharedMaterial: {fileID: -6883533366755585347, guid: 69768da2f83e21f4b951c5b14b1d71e0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -550,8 +550,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Stage 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: d6ce3b7ee29ca7a48aced26830db7af3, type: 2}
-  m_sharedMaterial: {fileID: 4010160409207298668, guid: d6ce3b7ee29ca7a48aced26830db7af3, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 69768da2f83e21f4b951c5b14b1d71e0, type: 2}
+  m_sharedMaterial: {fileID: -6883533366755585347, guid: 69768da2f83e21f4b951c5b14b1d71e0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -902,8 +902,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: <mspace=0.6em>00:00.00</mspace>
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: d6ce3b7ee29ca7a48aced26830db7af3, type: 2}
-  m_sharedMaterial: {fileID: 4010160409207298668, guid: d6ce3b7ee29ca7a48aced26830db7af3, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 69768da2f83e21f4b951c5b14b1d71e0, type: 2}
+  m_sharedMaterial: {fileID: -6883533366755585347, guid: 69768da2f83e21f4b951c5b14b1d71e0, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1308,3 +1308,5 @@ MonoBehaviour:
   popTime: 0.3
   moveLockBadge: {fileID: 5126716810419445609}
   badgePopScale: 1.15
+  moveDisabledText: MOVE DISABLED
+  moveDisabledColor: {r: 0.902, g: 0.361, b: 0.361, a: 1}

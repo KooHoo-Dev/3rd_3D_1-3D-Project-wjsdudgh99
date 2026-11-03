@@ -21,7 +21,7 @@ namespace YoureRight
     //   Canvas에 붙은 StageHUD)를 지우고 그 자리에 Stage HUD 프리팹을 넣은 뒤 저장합니다. 이미 들어 있는 씬은 건너뜁니다.
     //
     // UI라서 PivotUtility는 쓰지 않습니다(3D 조각 그룹용이라 RectTransform 배치를 흐트러뜨림).
-    // 글꼴은 게임 UI 글꼴(UIFontApplier.FontAssetPath, 느림보 고딕)을 씁니다.
+    // 글꼴은 게임 UI 글꼴(UIFontApplier.FontAssetPath, Y 너만을 비춤체)을 씁니다.
     public static class StageHUDBuilder
     {
         private const string Title = "Stage HUD";

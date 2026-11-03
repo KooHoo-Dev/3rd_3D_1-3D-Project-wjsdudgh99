@@ -24,8 +24,8 @@ namespace YoureRight
     public static class UIFontApplier
     {
         private const string Title = "Apply UI Font";
-        public const string SourceFontPath = "Assets/99. External Assets/Font/Neurimbo_Gothic/neurimboGothicRegular.otf";
-        public const string FontAssetPath = "Assets/99. External Assets/Font/Neurimbo_Gothic/neurimboGothicRegular SDF.asset";
+        public const string SourceFontPath = "Assets/99. External Assets/Font/Y_spotlight_FONT/YSpotlight-Regular.otf";
+        public const string FontAssetPath = "Assets/99. External Assets/Font/Y_spotlight_FONT/YSpotlight-Regular SDF.asset";
         private const string FallbackPath = "Assets/99. External Assets/Font/Noto_Sans_KR/static/NotoSansKR-Regular SDF.asset";
         private const string TmpSettingsPath = "Assets/TextMesh Pro/Resources/TMP Settings.asset";
         private const string PrefabFolder = "Assets/100. 3D Project-1/Prefabs";

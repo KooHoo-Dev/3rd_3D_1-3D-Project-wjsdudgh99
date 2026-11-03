@@ -2562,6 +2562,7 @@ MonoBehaviour:
   verticalMove: 1
   downKey: 31
   upKey: 19
+  moveLockKey: 1
   zoomStep: 1
   distanceMin: 5
   distanceMax: 25
@@ -3433,6 +3434,42 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2149091826267145106, guid: e9367c27d467830459444cfe3ad6e002, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4359645282496704369, guid: e9367c27d467830459444cfe3ad6e002, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4359645282496704369, guid: e9367c27d467830459444cfe3ad6e002, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4359645282496704369, guid: e9367c27d467830459444cfe3ad6e002, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4359645282496704369, guid: e9367c27d467830459444cfe3ad6e002, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4359645282496704369, guid: e9367c27d467830459444cfe3ad6e002, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4359645282496704369, guid: e9367c27d467830459444cfe3ad6e002, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4359645282496704369, guid: e9367c27d467830459444cfe3ad6e002, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4359645282496704369, guid: e9367c27d467830459444cfe3ad6e002, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9125598742902525975, guid: e9367c27d467830459444cfe3ad6e002, type: 3}
       propertyPath: m_Name
       value: Stage HUD
@@ -3779,7 +3816,11 @@ PrefabInstance:
       value: "\uD68C\uC804: \uB9C8\uC6B0\uC2A4 \uC624\uB978\uCABD \uB4DC\uB798\uADF8\n\uC774\uB3D9:
         WASD : XZ\uCD95, QE : Y\uCD95\n\uD655\uB300/\uCD95\uC18C: \uB9C8\uC6B0\uC2A4
         \uD720\n\uC120\uD0DD: \uB9C8\uC6B0\uC2A4 \uC67C\uCABD \uD074\uB9AD\n\uC77C\uC2DC\uC815\uC9C0:
-        Esc"
+        Esc\n\uC774\uB3D9 \uC7A0\uAE08: Space Bar"
+      objectReference: {fileID: 0}
+    - target: {fileID: 2618355958556413120, guid: 74b33b0881d068c41af5a165072c1608, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4292340467
       objectReference: {fileID: 0}
     - target: {fileID: 3839717301906455824, guid: 74b33b0881d068c41af5a165072c1608, type: 3}
       propertyPath: m_Pivot.x
