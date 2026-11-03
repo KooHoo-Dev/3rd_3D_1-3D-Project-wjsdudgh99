@@ -6861,6 +6861,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Stage Clear Panel
       objectReference: {fileID: 0}
+    - target: {fileID: 1801472082843879808, guid: 63855957f98a9824192e3656240264cd, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4292340467
+      objectReference: {fileID: 0}
+    - target: {fileID: 2491390623584836792, guid: 63855957f98a9824192e3656240264cd, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4284137192
+      objectReference: {fileID: 0}
+    - target: {fileID: 3631363002466263035, guid: 63855957f98a9824192e3656240264cd, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278725178
+      objectReference: {fileID: 0}
     - target: {fileID: 6043754781226493799, guid: 63855957f98a9824192e3656240264cd, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -6944,14 +6956,6 @@ PrefabInstance:
     - target: {fileID: 6086249315980316868, guid: 63855957f98a9824192e3656240264cd, type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4292340467
-      objectReference: {fileID: 0}
-    - target: {fileID: 6086249315980316868, guid: 63855957f98a9824192e3656240264cd, type: 3}
-      propertyPath: m_VerticalAlignment
-      value: 512
-      objectReference: {fileID: 0}
-    - target: {fileID: 6086249315980316868, guid: 63855957f98a9824192e3656240264cd, type: 3}
-      propertyPath: m_HorizontalAlignment
-      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
