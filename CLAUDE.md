@@ -157,7 +157,7 @@ Managers  — 화면에 안 보이는 관리 스크립트를 하나씩 빈 자�
 | 10.5 | 씬 정리: 1-3 → 2-1 이름 변경, 22·31·32 생성, SceneNames·Build Settings 7개 | ✅ |
 | 11 | 월드 2: 가로 분할, 2-1·2-2 디오라마, 맵별 조명 연출 | ✅ (2-2 기차역, 2-1 자동차 전시장 모두 정답 5쌍·검사 통과) |
 | 12 | 월드 3: 반반 투영 코드, 3-1 물체, 맵별 조명 연출 | ✅ (3-1 공중 SF 섬 도시 정답 5쌍·검사 통과. 3-2는 2026-11-01 취소) |
-| 13 | 마무리: 사운드 파일 ✅, 결과 화면 5줄 확인, 빌드 테스트(`GameBuilder` 2026-11-03) | ✅ (2026-11-03 빌드 성공·exe 전체 흐름 사용자 확인. Player: Product Name `You.re Right`, Windowed 1600 × 900, Resizable 끔. 빌드 약 280MB, 큰 것은 Noto Sans KR SDF 16.9MB·튜토리얼 공 텍스처 장당 5.3MB) |
+| 13 | 마무리: 사운드 파일 ✅, 결과 화면 5줄 확인, 빌드 테스트(`GameBuilder` 2026-11-03) | ✅ (2026-11-03 빌드 성공·exe 전체 흐름 사용자 확인. Player: Product Name `You're Right`, Windowed 1600 × 900, Resizable 끔. 빌드 약 280MB, 큰 것은 Noto Sans KR SDF 16.9MB·튜토리얼 공 텍스처 장당 5.3MB) |
 
 **7단계 메모 (완료)**
 - 반짝임 파티클 `Prefabs/Sparkle`: Burst 25, Sphere 0.3, Start Speed 7~9, Lifetime 0.6~1, Limit Velocity Dampen 0.2, Start Size 0.2~0.4, Billboard, Rotation over Lifetime 180°/s, Size over Lifetime 1→0. **퍼지는 거리 ≈ Start Speed × Lifetime**(Dampen을 켜면 그보다 짧아짐)이고, 거리는 Start Speed로 조절합니다.
