@@ -95,6 +95,13 @@ namespace YoureRight
             public readonly Material StripWhite = Glow("M_Showroom_Glow_White", "DCE6FF", 2.5f);
             public readonly Material StripBlue = Glow("M_Showroom_Glow_Blue", "3FA9FF", 2f);
             public readonly Material StripAmber = Glow("M_Showroom_Glow_Amber", "FFB347", 2f);
+            // 미끼·장식용 빛줄 색 (2026-11-03 추가, 키트 조각에는 쓰지 않음)
+            public readonly Material StripRed = Glow("M_Showroom_Glow_Red", "FF4D5E", 2f);
+            public readonly Material StripGreen = Glow("M_Showroom_Glow_Green", "4DFF88", 2f);
+            public readonly Material StripPurple = Glow("M_Showroom_Glow_Purple", "A06BFF", 2f);
+            public readonly Material StripPink = Glow("M_Showroom_Glow_Pink", "FF6BC8", 2f);
+            public readonly Material StripCyan = Glow("M_Showroom_Glow_Cyan", "3FF2FF", 2f);
+            public readonly Material StripYellow = Glow("M_Showroom_Glow_Yellow", "FFE14D", 2f);
             public readonly Material Screen = Glow("M_Showroom_Screen", "1E5FA8", 1.2f);
             public readonly Material ScreenText = Glow("M_Showroom_Screen_Text", "F2F6FF", 1.5f);
         }
