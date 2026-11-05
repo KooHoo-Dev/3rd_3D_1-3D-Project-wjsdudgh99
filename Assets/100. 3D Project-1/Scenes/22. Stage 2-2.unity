@@ -9072,6 +9072,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 493705942}
     m_Modifications:
+    - target: {fileID: 698299177861025449, guid: 9747c688a2c40d04f8db827350b35789, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: c5a3074a787611049a9f7eac52988fb9, type: 2}
     - target: {fileID: 1588933254012813012, guid: 9747c688a2c40d04f8db827350b35789, type: 3}
       propertyPath: m_Name
       value: Vending Machine (1)

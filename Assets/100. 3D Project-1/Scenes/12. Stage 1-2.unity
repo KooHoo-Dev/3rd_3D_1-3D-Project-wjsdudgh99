@@ -13453,6 +13453,10 @@ MonoBehaviour:
   baseColorTint: 0.35
   sparklePrefab: {fileID: 2228330370486419051, guid: 2775a46c2716ad0428a02513c9ec0976, type: 3}
   sparkleHeightOffset: 0.3
+  wrongColor: {r: 1, g: 0.15, b: 0.15, a: 1}
+  wrongPeakIntensity: 2
+  wrongFadeTime: 1
+  wrongBaseColorTint: 0.5
 --- !u!1 &1188482371
 GameObject:
   m_ObjectHideFlags: 0
@@ -13593,8 +13597,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d30ad9f9c03c3748adaa73979106f85, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::YoureRight.SunCycle
-  dayDuration: 12
-  nightDuration: 8
+  dayDuration: 13.5
+  nightDuration: 6.5
   startTime: 0.2
   sunriseYaw: -90
   sunsetYaw: 90
